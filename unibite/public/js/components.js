@@ -1,5 +1,5 @@
 // Navbar loading 
-fetch('/components/navbar.html')
+fetch('../components/navbar.html')
   .then(response => response.text())
   .then(data => {
     document.getElementById('navbar-container').innerHTML = data;
@@ -12,10 +12,14 @@ fetch('/components/navbar.html')
   });
 
 function setupNavbar() {
+    // Get the Hamburger menu and navigation links
     const hamburger = document.getElementById("hamburger");
     const navLink = document.getElementById("navLinks");    
 
+    // Add event listener to the hamburger menu
     if (hamburger) {
-        
+        hamburger.addEventListener("click", () => {
+            navLink.classList.toggle("active");
+        });
     }
 }
