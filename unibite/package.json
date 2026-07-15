@@ -11,6 +11,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "bootstrap": "^5.3.8",
     "express": "^5.2.1"
   }
 }

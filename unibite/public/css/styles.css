@@ -1,0 +1,57 @@
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.menu {
+    display: none;
+    list-style: none;
+    position: absolute;
+    top: 50px;
+    left: 0;
+}
+
+.hamburger {
+    display: block;
+}
+
+
+/* Desktop */
+@media (min-width: 769px) {
+
+    .hamburger {
+        display: none;
+    }
+
+    .menu {
+        display: flex;
+        position: static;
+        gap: 20px;
+    }
+}
+
+
+/* Mobile */
+@media (max-width: 768px) {
+
+    .menu.open {
+        display: block;
+    }
+
+    .hamburger {
+        order: 1;
+    }
+
+    .logo {
+        order: 2;
+    }
+
+    .points {
+        order: 3;
+    }
+
+    .profile {
+        order: 4;
+    }
+}
