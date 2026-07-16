@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "title": "Pizza",
+    "description": "2 κομμάτια πίτσα",
+    "portions": 5,
+    "location": {
+      "lat": 39.365,
+      "lng": 21.921
+    },
+    "address": "Καρδίτσα",
+    "distance": 2.4
+  },
+  {
+    "id": 2,
+    "title": "Sandwich",
+    "description": "Σάντουιτς",
+    "portions": 0,
+    "location": {
+      "lat": 39.370,
+      "lng": 21.920
+    },
+    "address": "Καρδίτσα",
+    "distance": 1.2
+  }
+]

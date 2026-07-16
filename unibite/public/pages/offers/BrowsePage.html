@@ -1,12 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unibite Browse Offers</title>
 </head>
+
 <body>
+    <!-- Navbar component -->
     <div id="navbar-container"></div>
+
+    <!-- Header for the Browse Offers page -->
+    <div class="card-header">
+        <h1>Browse Offers</h1>
+        <p>Find the best offers for your needs</p>
+    </div>
+
+    <!-- Section for changing the view between list and map -->
+    <section class="change-view">
+        <button id="list-view-btn">List View</button>
+        <button id="map-view-btn">Map View</button>
+    </section>
+
+
+    <div class="feed-container">
+
+        <section class="offer-list">
+            <!-- Οι αγγελίες μπαίνουν εδώ -->
+        </section>
+
+
+        <div id="map">
+            <!-- Χάρτης -->
+        </div>
+
+    </div>
+    
+    <script type="module" src="../../js/offers.js"></script>
     <script type="module" src="../../js/components.js"></script>
 </body>
+
 </html>
