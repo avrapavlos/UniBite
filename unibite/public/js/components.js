@@ -1,25 +1,23 @@
-// Navbar loading 
-fetch('../components/navbar.html')
-  .then(response => response.text())
-  .then(data => {
-    document.getElementById('navbar-container').innerHTML = data;
-    
-    //Navbar functionality
-    setupNavbar();
-})
-  .catch(error => {
-    console.error('Error loading navbar:', error);
-  });
+// Navbar loading for browse and create
+import { setUpNavbar } from '../components/Navbar/Navbar.js';
 
-function setupNavbar() {
-    // Get the Hamburger menu and navigation links
-    const hamburger = document.getElementById("hamburger");
-    const navLink = document.getElementById("navLinks");    
-
-    // Add event listener to the hamburger menu
-    if (hamburger) {
-        hamburger.addEventListener("click", () => {
-            navLink.classList.toggle("active");
-        });
+fetch("../../components/Navbar/Navbar.html")
+  .then(response => {
+    if (!response.ok) {
+      throw new Error("Navbar failed to load");
     }
-}
+    return response.text();
+  })
+  .then(data => {
+    document.getElementById("navbar-container").innerHTML = data;
+    
+    // Load Css
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "../../components/Navbar/Navbar.css";
+    document.head.appendChild(link);
+    
+    // Set up the toggle active
+    setUpNavbar();
+  })
+  .catch(error => console.error(error));

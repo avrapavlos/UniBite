@@ -1,0 +1,66 @@
+/* Navbar direction and styling for mobile fisrt*/
+.navbar {
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+
+    background-color: #E8F5E9;
+}
+
+.hamburger-menu {
+    display: block;
+    font-size: 24px;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.nav-links {
+    display: none;
+    position: absolute;
+    top:60px;
+    left: 0;
+    width: 20%;
+    flex-direction: column;
+    background-color: red;
+    padding: 20px;
+    list-style: none;
+}
+
+.nav-links.active {
+    display: flex;
+}
+
+
+/* Table media query */
+@media (min-width: 768px) {
+    .hamburger-menu {
+        display: none;
+    }
+
+    .nav-links {
+        display: flex;
+        position: static;
+        flex-direction: row;
+        background-color: transparent;
+        padding: 0;
+        gap: 20px;
+    }
+}
+
+/* Pc media query */
+@media (min-width: 1024px) { 
+    .navbar {
+        padding: 1rem 4rem;
+    }
+
+    .nav-links {
+        gap: 30px;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+    }
+}
