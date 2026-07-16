@@ -7,12 +7,12 @@ class Student {
     password : STRING
     email : STRING
     points : INT
+    food_distributed : INT
 }
 class Advertisment {
     *ad_id : INT
     --
     date_posted : DATE 
-    pick_up_point : LOCATION
     quantity : INT
     path_to_picture : STRING
     allergies : VARCHAR
@@ -27,11 +27,20 @@ class Admin {
 class Request {
     *ad_id : INT
     *con_id : INT
+    --
+    success : ENUM
 }
 class Rating {
     *req_id : INT
     --
     description : TEXT 
+}
+
+class Location{
+    *ad_id : INT
+    --
+    longtitude : DOUBLE
+    lantitude : DOUBLE 
 }
 
 Student --> Advertisment : posts
@@ -45,4 +54,7 @@ Request --> Rating : creates
 Student --> Rating : writes
 Rating --> Student : penalty
 Rating --> Student : rewards
+Advertisment --> Location : has a
+Admin --> Request : views statistics
+Admin --> Student : views leaderboard
 @enduml 
