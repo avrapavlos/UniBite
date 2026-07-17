@@ -32,6 +32,7 @@ function displayOffers(data){
 
 
         card.innerHTML = `
+            <img src="${offer.image}" alt="${offer.title}">
             <h2>${offer.title}</h2>
             <p>${offer.description}</p>
             <p>

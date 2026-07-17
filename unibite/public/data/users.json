@@ -1,0 +1,25 @@
+[
+    {
+        "id": 1,
+        "username": "john_doe",
+        "email": "john.doe@example.com",
+        "password": "pass123",
+        "name": "John Doe",
+        "points": 150,
+        "portiosGiven": 10,
+        "portionsReceived": 5,
+        "profilePicture": "../../images/john_doe.jpg"
+    },
+
+    {
+        "id": 2,
+        "username": "jane_smith",
+        "email": "jane.smith@example.com",
+        "password": "pass456",
+        "name": "Jane Smith",
+        "points": 200,
+        "portiosGiven": 15,
+        "portionsReceived": 10,
+        "profilePicture": "../../images/jane_smith.jpg"
+    }
+]
