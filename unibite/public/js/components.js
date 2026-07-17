@@ -1,23 +1,50 @@
-// Navbar loading for browse and create
-import { setUpNavbar } from '../components/Navbar/Navbar.js';
+import { setUpNavbar } from "../components/Navbar/Navbar.js";
 
-fetch("../../components/Navbar/Navbar.html")
-  .then(response => {
+
+export async function loadNavbar() {
+
+  try {
+
+    const response = await fetch(
+      "../../components/Navbar/Navbar.html"
+    );
+
+
     if (!response.ok) {
+
       throw new Error("Navbar failed to load");
+
     }
-    return response.text();
-  })
-  .then(data => {
+
+
+    const data = await response.text();
+
+
     document.getElementById("navbar-container").innerHTML = data;
-    
-    // Load Css
+
+
+
+    // Load Navbar CSS
+
     const link = document.createElement("link");
+
     link.rel = "stylesheet";
+
     link.href = "../../components/Navbar/Navbar.css";
+
     document.head.appendChild(link);
-    
-    // Set up the toggle active
+
+
+
+    // Setup navbar functionality
+
     setUpNavbar();
-  })
-  .catch(error => console.error(error));
+
+
+  } catch (error) {
+
+    console.error(error);
+
+  }
+
+}

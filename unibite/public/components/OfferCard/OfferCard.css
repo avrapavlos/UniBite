@@ -1,0 +1,173 @@
+/* Mobile CSS starting from 320px x 568px */
+
+.offer-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    width: calc(100% - 32px);
+    max-width: 600px;
+
+    background-color: white;
+
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+
+    padding: 12px;
+    margin: 16px auto;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+
+/* Image */
+
+.offer-image-container {
+    flex: 0 0 90px;
+    height: 90px;
+}
+
+
+.offer-image {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    border-radius: 10px;
+}
+
+
+/* Text section */
+
+.offer-content {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+
+.offer-title {
+    margin: 0;
+
+    font-size: 1.1rem;
+    color: #1f7a45; /* app green */
+
+}
+
+
+.offer-description {
+    margin: 0;
+
+    font-size: 0.9rem;
+    color: #555;
+}
+
+
+.offer-portions {
+    margin: 0;
+
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #333;
+}
+
+
+/* Points */
+
+.offer-point-cost {
+
+    display: inline-block;
+
+    width: fit-content;
+
+    margin: 4px 0 0;
+
+    padding: 4px 8px;
+
+    border-radius: 20px;
+
+    align-self: flex-end;
+
+    color: #5a4300;
+
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.sold-out {
+    color: #b00020;
+    font-weight: bold;
+}
+
+@media (min-width: 768px) {
+
+    .offer-card {
+
+        padding: 16px;
+
+        gap: 20px;
+
+    }
+
+
+    .offer-image-container {
+
+        flex-basis: 130px;
+
+        height: 130px;
+
+    }
+
+
+    .offer-title {
+
+        font-size: 1.3rem;
+
+    }
+
+
+    .offer-description {
+
+        font-size: 1rem;
+
+    }
+
+}
+
+@media (min-width: 1024px) {
+
+    .offer-card {
+
+        max-width: 700px;
+
+        padding: 20px;
+
+    }
+
+
+    .offer-image-container {
+
+        flex-basis: 160px;
+
+        height: 160px;
+
+    }
+
+
+    .offer-title {
+
+        font-size: 1.5rem;
+
+    }
+
+
+    .offer-point-cost {
+
+        font-size: 0.9rem;
+
+    }
+
+}

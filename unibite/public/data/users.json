@@ -8,7 +8,10 @@
         "points": 150,
         "portiosGiven": 10,
         "portionsReceived": 5,
-        "profilePicture": "../../images/john_doe.jpg"
+        "profilePicture": "../../images/john_doe.jpg",
+        "locations": [
+
+        ]
     },
 
     {
@@ -20,6 +23,9 @@
         "points": 200,
         "portiosGiven": 15,
         "portionsReceived": 10,
-        "profilePicture": "../../images/jane_smith.jpg"
+        "profilePicture": "../../images/jane_smith.jpg",
+        "locations": [
+            
+        ]
     }
 ]

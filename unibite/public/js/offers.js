@@ -1,18 +1,41 @@
-let offers = [];
+import { createOfferCard } from "../components/OfferCard/OfferCard.js";
 
 
-fetch("../../data/offers.json")
-.then(response => response.json())
-.then(data => {
+export async function loadOffers() {
 
-    offers = data;
+    try {
 
-    displayOffers(offers);
-});
+        const response = await fetch("../../data/offers.json");
 
-function displayOffers(data){
+
+        if (!response.ok) {
+            throw new Error("Failed to load offers");
+        }
+
+
+        const offers = await response.json();
+
+
+        displayOffers(offers);
+
+
+        return offers; // useful later for map/filtering
+
+    } catch (error) {
+
+        console.error("Error loading offers:", error);
+
+    }
+
+}
+
+
+
+function displayOffers(data) {
+
 
     const container = document.querySelector(".offer-list");
+
 
     container.innerHTML = "";
 
@@ -20,28 +43,11 @@ function displayOffers(data){
     data.forEach(offer => {
 
 
-        const card = document.createElement("article");
-
-        card.classList.add("offer-card");
-
-
-        // αν δεν υπάρχουν μερίδες
-        if(offer.portions === 0){
-            card.classList.add("empty");
-        }
-
-
-        card.innerHTML = `
-            <img src="${offer.image}" alt="${offer.title}">
-            <h2>${offer.title}</h2>
-            <p>${offer.description}</p>
-            <p>
-                Μερίδες: ${offer.portions}
-            </p>
-        `;
+        const card = createOfferCard(offer);
 
 
         container.appendChild(card);
+
 
     });
 
