@@ -1,5 +1,5 @@
 import { loadOffers } from "./offers.js";
-import { loadNavbar } from "./components.js";
+import { createNavbar } from "../components/Navbar/Navbar.js";
 import { getMap, createMap, addOfferMarkers } from "../components/Map/Map.js";
 
 // CLick event listener for the filter button
@@ -46,7 +46,9 @@ function setViewToggle() {
     })
 }
 async function  init() {
-    await loadNavbar();
+    // Load navbar
+    const navbarContainer = document.getElementById('navbar-container');
+    navbarContainer.appendChild(createNavbar());
 
     const offers = await loadOffers();
     

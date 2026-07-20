@@ -9,9 +9,10 @@
         "portiosGiven": 10,
         "portionsReceived": 5,
         "profilePicture": "../../images/john_doe.jpg",
-        "locations": [
-
-        ]
+        "location": {
+            "lat": 39.475,
+            "lng": 21.920
+        }
     },
 
     {
@@ -24,8 +25,9 @@
         "portiosGiven": 15,
         "portionsReceived": 10,
         "profilePicture": "../../images/jane_smith.jpg",
-        "locations": [
-            
-        ]
+        "location": {
+            "lat": 39.475,
+            "lng": 21.920
+        }
     }
 ]

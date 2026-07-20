@@ -20,7 +20,7 @@ export function createMap() {
 
 }
 
-export function addOfferMarkers(offers) {
+export function addOfferMarkers(offers, onClick) {
 
 
     offers.forEach(offer => {
@@ -36,24 +36,48 @@ export function addOfferMarkers(offers) {
 
 
         marker.bindPopup(`
+            <div class="food-popup">
+                <img class="food-popup-image"
+                    src="${offer.image}"
+                    alt="${offer.title}">
 
-            <h3>${offer.title}</h3>
+                <div class="food-popup-content">
+                    <!-- Title for the popup --> 
+                    <h3>${offer.title}</h3>
 
-            <p>${offer.description}</p>
+                    <!-- Portions and points -->
+                    <div class="food-popup-content-details">
+                        <div class="food-popup-portions">
+                            🍽 <span>${offer.portions}</span> Portions
+                        </div>
 
-            <p>
-            Portions:
-            ${offer.portions}
-            </p>
-
+                        <div class="food-popup-points">
+                            ⭐ <span>${offer.pointCost}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `);
 
+        marker.on("popupopen", (e) => {
 
+            const popup = e.popup.getElement();
+
+
+            popup.addEventListener("click", () => {
+
+                onClick(offer);
+
+            });
+
+        });
     });
+
+
 
 
 }
 
-export function getMap(){
+export function getMap() {
     return map;
 }

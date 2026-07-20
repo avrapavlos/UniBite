@@ -286,6 +286,104 @@
 
 }
 
+
+/*Card Details For Mobile*/
+#offer-details-container {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: white;
+    overflow-y: auto;
+}
+
+/* Show when an offer is selected */
+#offer-details-container.active {
+    display: block;
+}
+
+
+/* The actual details card */
+.offer-details-container-wrapper {
+    width: 100%;
+    min-height: 100vh;
+    background: white;
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+
+/* Close button */
+.offer-details-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+
+    width: 40px;
+    height: 40px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #eee;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+
+/* Image */
+.offer-details-image-wrapper img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 15px;
+}
+
+
+/* Title */
+.offer-details-title {
+    margin-top: 20px;
+    font-size: 28px;
+}
+
+
+/* Description */
+.offer-details-description {
+    margin-top: 10px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+
+/* Location */
+.offer-details-location {
+    margin-top: 20px;
+}
+
+
+/* Claim button */
+.offer-details-claim-button-wrapper {
+    margin-top: 30px;
+}
+
+
+.offer-details-claim-button {
+    width: 100%;
+    padding: 15px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: #1F6F43;
+    color: white;
+
+    font-size: 18px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
 @media (min-width: 768px) {
 
     .search-section {

@@ -13,7 +13,7 @@ function loadOfferCardCSS() {
 }
 
 // Function to create an offer card
-export function createOfferCard(offer) {
+export function createOfferCard(offer, onClick) {
 
     loadOfferCardCSS();
 
@@ -21,38 +21,51 @@ export function createOfferCard(offer) {
 
     card.classList.add("offer-card");
 
-    // Change to grey out css
-    if (offer.portions === 0) {
+
+    card.innerHTML = `
+        <div class="offer-image-container">
+            <img class="offer-image" 
+                 src="${offer.image}" 
+                 alt="${offer.title}">
+        </div>
+
+        <div class="offer-content">
+            <h2 class="offer-title">
+                ${offer.title}
+            </h2>
+
+            <p class="offer-description">
+                ${offer.description}
+            </p>
+
+            <p class="offer-portions">
+                Μερίδες: ${offer.portions}
+            </p>
+
+            <p class="offer-point-cost">
+                🟡${offer.pointCost}
+            </p>
+        </div>
+    `;
+
+
+    if (offer.portions == 0) {
+
         card.classList.add("empty");
 
-        card.innerHTML += `
+        card.insertAdjacentHTML(
+            "afterbegin",
+            `
             <span class="sold-out">
                 Εξαντλήθηκε
             </span>
-        `;
+            `
+        );
+    } else {
+        card.addEventListener("click", () => {
+            onClick(offer);
+        });
     }
-
-    // Create the inner HTML of the card
-    card.innerHTML = `
-    <div class="offer-image-container">
-        <img class="offer-image" src="${offer.image}" alt="${offer.title}">
-    </div>
-    <div class="offer-content">
-        <h2 class="offer-title">
-            ${offer.title}
-        </h2>
-        <p class="offer-description">
-            ${offer.description}
-        </p>
-        <p class="offer-portions">
-            Μερίδες: ${offer.portions}
-        </p>
-        <p class="offer-point-cost"> 
-        🟡${offer.pointCost}
-        </p>
-    </div>    
-        `;
-
 
     return card;
 }

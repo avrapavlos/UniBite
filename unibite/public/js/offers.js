@@ -1,5 +1,5 @@
 import { createOfferCard } from "../components/OfferCard/OfferCard.js";
-
+import { showOfferDetails } from "../components/OfferDetails/OfferDetailsManager.js";
 
 export async function loadOffers() {
 
@@ -19,7 +19,7 @@ export async function loadOffers() {
         displayOffers(offers);
 
 
-        return offers; // useful later for map/filtering
+        return offers; 
 
     } catch (error) {
 
@@ -32,9 +32,14 @@ export async function loadOffers() {
 
 
 function displayOffers(data) {
-
-
+    
     const container = document.querySelector(".offer-list");
+
+
+    if (!container) {
+        console.error("Offer list container not found");
+        return;
+    }
 
 
     container.innerHTML = "";
@@ -42,13 +47,13 @@ function displayOffers(data) {
 
     data.forEach(offer => {
 
-
-        const card = createOfferCard(offer);
+        const card = createOfferCard(
+            offer,
+            showOfferDetails
+        );
 
 
         container.appendChild(card);
 
-
     });
-
 }
