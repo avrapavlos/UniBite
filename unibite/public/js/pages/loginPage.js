@@ -28,9 +28,10 @@ function loginToApp() {
             })
         })
 
-        // ANd after it checks, if mathcing it gives the user data
+        // And after it checks, if mathcing it gives the user data
         const data = await response.json;
         
+        console.log(data);
         console.log(email);
         console.log(password);
     })
