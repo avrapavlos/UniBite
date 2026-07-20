@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Offers</title>
+    <link rel="stylesheet" href="../../css/browse.css" />
+    <link rel="stylesheet" href="../../components/Map/Map.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+
+<body>
+    <!-- Navbar component -->
+    <div id="navbar-container"></div>
+
+    <!-- Header for the Browse Offers page -->
+    <div class="card-header">
+        <h1>Browse Offers</h1>
+        <p>Find the best offers for your needs</p>
+    </div>
+
+
+    <!-- Search bar and filter options -->
+    <div class="search-bar">
+
+        <div class="search-bar-wrapper">
+
+            <input type="text" id="search-input" placeholder="Search for offers...">
+
+            <button id="search-button">Search</button>
+
+        </div>
+
+        <div class="filter-dropdown">
+
+            <!--/* Filter button and menu for distance */-->
+            <button class="filter-button" id="distance-filter-button">
+                <img src="../../icons/filter.png" alt="Filter">
+            </button>
+            <!-- Filter menu for sort-->
+            <div class="filter-menu" id="distance-filter-menu">
+                <label>
+                    <input type="radio" name="distance" value="1">
+                    1 km
+                </label>
+
+                <label>
+                    <input type="radio" name="distance" value="2">
+                    2 km
+                </label>
+
+                <label>
+                    <input type="radio" name="distance" value="5">
+                    5 km
+                </label>
+
+                <label>
+                    <input type="radio" name="distance" value="10">
+                    10 km
+                </label>
+
+                <label>
+                    <input type="radio" name="distance" value="20">
+                    20 km
+                </label>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Section for changing the view between list and map -->
+    <section class="view-toggle">
+        <button id="list-view-btn" class="active">List View</button>
+        <button id="map-view-btn">Map View</button>
+    </section>
+
+    <!-- COntainer for offer cards-->
+    <div class="feed-container">
+
+        <section id="offer-list" class="offer-list">
+            <!-- Οι αγγελίες μπαίνουν εδώ -->
+        </section>
+
+
+        <div id="offer-map" class="offer-map">
+            <!-- Χάρτης -->
+        </div>
+
+    </div>
+
+    <div id="offer-details-container">
+
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    </script>
+    <script type="module" src="../../js/pages/browsePage.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "creatorId": 1,
+    "title": "Pizza",
+    "description": "2 κομμάτια πίτσα",
+    "portions": 5,
+    "location": {
+      "lat": 39.365,
+      "lng": 21.921,
+      "building": "Κτίριο Α",
+      "room": "Αίθουσα 101"
+    },
+    "pickupTime": "2024-06-15T12:00:00Z",
+    "address": "Καρδίτσα",
+    "distance": 2.4,
+    "image": "../../images/pizza.jpeg",
+    "allergens": ["gluten", "dairy"],
+    "claimedBy": [
+      {
+        "userId": 2,
+        "portionsClaimed": 2
+      } ,
+      {
+        "userId": 3,
+        "portionsClaimed": 1
+      }
+    ],
+    "review": [
+      {
+        "userId": 2,
+        "rating": 5.0,
+        "comment": "Η πίτσα ήταν εξαιρετική! Ευχαριστώ!"
+      } ,
+      {
+        "userId": 3,
+        "rating": 4.5,
+        "comment": "Η πίτσα ήταν πολύ καλή, αλλά θα μπορούσε να είναι λίγο πιο ζεστή."
+      }
+    ],
+    "pointCost": 10
+  },
+  {
+    "id": 2,
+    "creatorId": 2,
+    "title": "Sandwich",
+    "description": "Σάντουιτς",
+    "portions": 0,
+    "location": {
+      "lat": 39.370,
+      "lng": 21.920,
+      "building": "Κτίριο Β",
+      "room": "Αίθουσα 202"
+    },
+    "pickupTime": "2024-06-15T13:00:00Z",
+    "address": "Καρδίτσα",
+    "distance": 1.2,
+    "image": "../../images/sandwich.jpeg",
+    "allergens": ["gluten", "dairy"],
+    "claimedBy": [
+      {
+        "userId": 1,
+        "portionsClaimed": 1
+      },
+
+      {
+        "userId": 3,
+        "portionsClaimed": 1
+      }
+    ],
+    "review": [
+      {
+        "userId": 2,
+        "rating": 4.0,
+        "comment": "Το σάντουιτς ήταν καλό, αλλά λίγο στεγνό."
+      },
+
+      {
+        "userId": 3,
+        "rating": 3.5,
+        "comment": "Το σάντουιτς ήταν μέτριο, αλλά η εξυπηρέτηση ήταν καλή."
+      }
+    ],
+    "pointCost": 5
+  }
+]
