@@ -1,0 +1,34 @@
+import { showOfferDetails } from "../../components/OfferDetails/OfferDetailsManager.js";
+import { createOfferCard } from "../../components/OfferCard/OfferCard.js";
+
+// Function that is used to render data
+export function displayOffers(data) {
+    
+    // Get the container for the browse page
+    const container = document.querySelector(".offer-list");
+
+
+    // If cant find container exit with error log
+    if (!container) {
+        console.error("Offer list container not found");
+        return;
+    }
+
+
+    // Make sure inner html is empty
+    container.innerHTML = "";
+
+
+    // Iterate all offers and create card and add showOfferDetails on click event
+    data.forEach(offer => {
+
+        const card = createOfferCard(
+            offer,
+            showOfferDetails
+        );
+
+
+        // Append the card to the container
+        container.appendChild(card);
+    });
+}

@@ -1,6 +1,10 @@
-import { loadOffers } from "./offers.js";
-import { createNavbar } from "../components/Navbar/Navbar.js";
-import { getMap, createMap, addOfferMarkers } from "../components/Map/Map.js";
+import { createNavbar } from "../../components/Navbar/Navbar.js";
+import { getMap, createMap, addOfferMarkers } from "../../components/Map/Map.js";
+import { showOfferDetails } from "../../components/OfferDetails/OfferDetailsManager.js";
+import { displayOffers } from "../renderers/offersRenderer.js";
+import { loadOffers } from "../dataLoaders/offers.js";
+
+
 
 // CLick event listener for the filter button
 function setFilterListener() {
@@ -16,6 +20,7 @@ function setFilterListener() {
 }
 
 
+// Function that enables map switching in browse page
 function setViewToggle() {
     const listButton = document.getElementById("list-view-btn");
     const mapButton = document.getElementById("map-view-btn");
@@ -45,16 +50,24 @@ function setViewToggle() {
         }, 100)
     })
 }
+
+
+// Initializeing function
 async function  init() {
     // Load navbar
     const navbarContainer = document.getElementById('navbar-container');
     navbarContainer.appendChild(createNavbar());
 
+
+    // Load the offers data for maybe later use
     const offers = await loadOffers();
+    
+    // Render the data
+    displayOffers(offers);
     
     createMap();
 
-    addOfferMarkers(offers);
+    addOfferMarkers(offers, showOfferDetails);
 
     setFilterListener();
     setViewToggle();

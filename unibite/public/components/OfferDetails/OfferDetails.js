@@ -1,24 +1,16 @@
-// Load component CSS once
-function loadOfferDetailsCSS() {
-    if (!document.querySelector('link[href="../../components/OfferDetails/OfferDetails.css"]')) {
-        const link = document.createElement("link");
 
-        link.rel = "stylesheet";
-        link.href = "../../components/OfferDetails/OfferDetails.css";
-
-        document.head.appendChild(link);
-    }
-}
-
-// Function to create offer details card
+// Function to create offer details card purely the html and css
 export function createOfferDetails(offer) {
-
+    // Load the css for this to the page
     loadOfferDetailsCSS();
 
+    // Create article container
     const card = document.createElement("article");
 
     card.classList.add("offer-details-container-wrapper");
 
+
+    // Generate html
     card.innerHTML = `
         <button class="offer-details-close">
             ✕
@@ -48,5 +40,20 @@ export function createOfferDetails(offer) {
         </div>
     `;
 
+
+    // Return the html for the offer
     return card;
 }
+
+// Load component CSS once
+function loadOfferDetailsCSS() {
+    if (!document.querySelector('link[href="../../components/OfferDetails/OfferDetails.css"]')) {
+        const link = document.createElement("link");
+
+        link.rel = "stylesheet";
+        link.href = "../../components/OfferDetails/OfferDetails.css";
+
+        document.head.appendChild(link);
+    }
+}
+

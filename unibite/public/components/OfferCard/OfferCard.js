@@ -48,24 +48,29 @@ export function createOfferCard(offer, onClick) {
         </div>
     `;
 
+    // Check to see if it has 0 portions
+    if (offer.portions == 0 || offer.portions < 0) {
 
-    if (offer.portions == 0) {
-
+        // GIve it the empty css class
         card.classList.add("empty");
 
-        card.insertAdjacentHTML(
-            "afterbegin",
-            `
-            <span class="sold-out">
-                Εξαντλήθηκε
-            </span>
-            `
-        );
-    } else {
+        // Get portions menu
+        
+        const portionSegment = card.querySelector(".offer-portions");
+
+        // Set portions to sold out
+        
+        portionSegment.textContent = "Sold out!";
+
+    } 
+    // Otherwise if portions exist 
+    else {
+        // Add open details event button
         card.addEventListener("click", () => {
             onClick(offer);
         });
     }
 
+    // Return the offer card
     return card;
 }
