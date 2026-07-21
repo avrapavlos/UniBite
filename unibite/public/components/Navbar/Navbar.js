@@ -1,3 +1,8 @@
+//Get user logged in
+const user = JSON.parse(
+    localStorage.getItem("user")
+) || {};
+
 // Script to load the css for the navbar
 function loadNavbarCSS(){
     if (!document.querySelector('link[href="/components/Navbar/Navbar.css"]')) {
@@ -41,13 +46,13 @@ export function createNavbar(){
         <ul class="nav-links" id="nav-links">
 
             <li>
-                <a href="../../pages/offers/BrowsePage.html">
+                <a href="../../pages/dashboards/browsePage.html">
                     Browse Offers
                 </a>
             </li>
 
             <li>
-                <a href="../../pages/offers/CreatePage.html">
+                <a href="../../pages/dashboards/createPage.html">
                     Create Offer
                 </a>
             </li>
@@ -59,7 +64,7 @@ export function createNavbar(){
         <div class="user-profile">
 
             <span class="points">
-                🟡 100
+                🟡 ${user.points || 0}
             </span>
 
             <img src="../../images/user-profile.png" alt="User Profile" class="profile-image">

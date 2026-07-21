@@ -1,6 +1,6 @@
 // Function used to login to app and sumbit the form
 function loginToApp() {
-    // Get login form 
+    // Get login form  
     const loginForm = document.getElementById("login-form");
     
     loginForm.addEventListener("submit", async (event) => {
@@ -40,7 +40,7 @@ function loginToApp() {
                 JSON.stringify(data.user)
             );
 
-            window.location.href = "../../pages/dashboards/browsePage.html";
+            window.location.replace("../../pages/dashboards/browsePage.html");
         }
     })
 }

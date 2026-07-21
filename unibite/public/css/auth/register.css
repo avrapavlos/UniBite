@@ -1,0 +1,381 @@
+/* Main page */
+
+.register-page {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    background: #f5faf5;
+
+    font-family: Arial, sans-serif;
+
+}
+
+
+
+/* Register card */
+
+.register-container {
+
+    width: 380px;
+
+    background: white;
+
+    padding: 40px;
+
+    border-radius: 20px;
+
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.08);
+
+}
+
+
+
+
+
+/* Logo */
+
+
+.logo-section {
+
+    text-align: center;
+
+    margin-bottom: 30px;
+
+}
+
+
+
+.logo-icon {
+
+
+    width:70px;
+
+    height:70px;
+
+
+    margin:auto;
+
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+
+    border-radius:50%;
+
+
+}
+
+
+
+.logo-icon-image {
+
+    width:100%;
+
+}
+
+
+
+
+.logo-section h1 {
+
+
+    color:#2e7d32;
+
+
+    margin:15px 0 5px;
+
+
+    font-size:32px;
+
+
+}
+
+
+
+.logo-section p {
+
+
+    color:#777;
+
+    margin:0;
+
+}
+
+
+
+
+
+/* Form */
+
+
+.register-form h2 {
+
+
+    color:#333;
+
+
+    text-align:center;
+
+
+    margin-bottom:25px;
+
+
+}
+
+
+
+
+.input-group {
+
+
+    margin-bottom:20px;
+
+
+}
+
+
+
+
+.input-group label {
+
+
+    display:block;
+
+
+    margin-bottom:7px;
+
+
+    color:#444;
+
+
+    font-size:14px;
+
+
+}
+
+
+
+
+.input-group input {
+
+
+    width:100%;
+
+
+    box-sizing:border-box;
+
+
+    padding:12px 15px;
+
+
+    border-radius:10px;
+
+
+    border:1px solid #ddd;
+
+
+    font-size:15px;
+
+
+    outline:none;
+
+
+}
+
+
+
+
+.input-group input:focus {
+
+
+    border-color:#4CAF50;
+
+
+}
+
+
+
+
+
+/* Terms */
+
+
+.terms {
+
+
+    font-size:14px;
+
+
+    color:#666;
+
+
+    margin-bottom:25px;
+
+
+}
+
+
+
+.terms label {
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    gap:7px;
+
+
+}
+
+
+
+.terms a {
+
+
+    color:#4CAF50;
+
+    text-decoration:none;
+
+
+}
+
+
+
+
+
+/* Button */
+
+
+button {
+
+
+    width:100%;
+
+
+    padding:14px;
+
+
+    border:none;
+
+
+    border-radius:12px;
+
+
+    background:#4CAF50;
+
+
+    color:white;
+
+
+    font-size:16px;
+
+
+    font-weight:bold;
+
+
+    cursor:pointer;
+
+
+    transition:0.2s;
+
+
+}
+
+
+
+button:hover {
+
+
+    background:#388E3C;
+
+
+}
+
+
+
+
+
+/* Login link */
+
+
+.login {
+
+
+    text-align:center;
+
+
+    margin-top:25px;
+
+
+    color:#666;
+
+
+}
+
+
+
+.login a {
+
+
+    color:#4CAF50;
+
+
+    font-weight:bold;
+
+
+    text-decoration:none;
+
+
+}
+
+.password-error {
+
+    display: none; /* hidden by default */
+
+    text-align: center;
+
+    color: #e53935;
+
+    font-size: 14px;
+
+    margin-top: -15px;
+
+    margin-bottom: 20px;
+
+}
+
+
+
+/* Mobile */
+
+
+@media(max-width:480px){
+
+
+    .register-container {
+
+
+        width:90%;
+
+
+        padding:30px;
+
+
+    }
+
+
+}
