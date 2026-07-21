@@ -3,7 +3,7 @@ function loginToApp() {
     // Get login form 
     const loginForm = document.getElementById("login-form");
     
-    loginForm.addEventListener("submit", (event) => {
+    loginForm.addEventListener("submit", async (event) => {
 
         // This is used to prevent page reloading
         event.preventDefault();
@@ -29,7 +29,7 @@ function loginToApp() {
         })
 
         // And after it checks, if mathcing it gives the user data
-        const data = await response.json;
+        const data = await response.json();
         
         console.log(data);
         console.log(email);
