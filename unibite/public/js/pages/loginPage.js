@@ -13,8 +13,7 @@ function loginToApp() {
 
         const password = document.getElementById("password").value;
 
-        //THis is where the connection to the backend will happen
-        // FROM CHATGPT AN EXAMPLE
+        //THis is where the connection to the backend happens
         const response = await fetch("/api/login", {
             method: "POST",
 
@@ -30,10 +29,19 @@ function loginToApp() {
 
         // And after it checks, if mathcing it gives the user data
         const data = await response.json();
-        
+
+        // Check for userr data
         console.log(data);
-        console.log(email);
-        console.log(password);
+
+        //If success store to localStorage and login
+        if (data.success) {
+            localStorage.setItem(
+                "user",
+                JSON.stringify(data.user)
+            );
+
+            window.location.href = "../../pages/dashboards/browsePage.html";
+        }
     })
 }
 

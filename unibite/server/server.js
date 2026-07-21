@@ -1,20 +1,24 @@
-// Import express backend framework
-const express = require("express");
 
-//Create path
-const path = require("path");
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+import authRoutes from "./routes/authRoutes.js";
 
 // Create express application
 const app = express();
 
 
+
+
 // Start of the server
 function initServer() {
 
-
-
-    // MIddle ware that will turn data into json
+    // Middle ware that will turn data into json
     app.use(express.json());
+
+    // Set paths
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
 
     // Serve frontend files
     app.use(express.static(path.join(__dirname, "../public")));
@@ -32,10 +36,8 @@ function initServer() {
 
 
 function setUpRoutes() {
-    // Set up auth routes
-    const authRoutes = require("./routes/authRoutes");
 
-    //Mount route to server
+    //Mount routes to server
     app.use("/api", authRoutes);
 }
 

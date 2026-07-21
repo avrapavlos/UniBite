@@ -1,12 +1,20 @@
+import mysql2 from "mysql2";
 
-// Setup connection with mysql database
-const mysql = require("mysql12");
-
-const connection = mysql.createConnection({
+const connection = mysql2.createConnection({
     host:"localhost",
     user:"user",
     password:"password",
     database:"unibite"
 })
 
-module.exports = connection;
+connection.connect((err) => {
+    if(err) {
+        console.error("Database connection failed:");
+        console.error(err);
+        return;
+    }
+
+    console.log("Connected to MySql database")
+})
+
+export default connection;
