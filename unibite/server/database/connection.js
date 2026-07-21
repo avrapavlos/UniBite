@@ -4,8 +4,8 @@ const mysql = require("mysql12");
 
 const connection = mysql.createConnection({
     host:"localhost",
-    user:"root",
-    password:"",
+    user:"user",
+    password:"password",
     database:"unibite"
 })
 

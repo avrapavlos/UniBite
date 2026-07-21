@@ -2,6 +2,7 @@
     {
         "id": 1,
         "username": "john_doe",
+        "role": "student",
         "email": "john.doe@example.com",
         "password": "pass123",
         "name": "John Doe",
@@ -17,6 +18,7 @@
 
     {
         "id": 2,
+        "role": "student",
         "username": "jane_smith",
         "email": "jane.smith@example.com",
         "password": "pass456",
@@ -24,6 +26,23 @@
         "points": 200,
         "portiosGiven": 15,
         "portionsReceived": 10,
+        "profilePicture": "../../images/jane_smith.jpg",
+        "location": {
+            "lat": 39.475,
+            "lng": 21.920
+        }
+    },
+
+        {
+        "id": 3,
+        "role": "admin",
+        "username": "jane_black",
+        "email": "jane.black@example.com",
+        "password": "pass456",
+        "name": "Jane Black",
+        "points": 0,
+        "portiosGiven": 0,
+        "portionsReceived": 0,
         "profilePicture": "../../images/jane_smith.jpg",
         "location": {
             "lat": 39.475,
