@@ -358,6 +358,20 @@ button:hover {
 
 }
 
+.duplicate-name-email {
+    display: none; /* hidden by default */
+
+    text-align: center;
+
+    color: #e53935;
+
+    font-size: 14px;
+
+    margin-top: -15px;
+
+    margin-bottom: 20px;
+}
+
 
 
 /* Mobile */

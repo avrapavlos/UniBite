@@ -1,71 +1,125 @@
-// Function to register
 function registerToApp() {
+
 
     const registerForm = document.getElementById("register-form");
 
 
     if (!registerForm) {
+
         console.log("Register form not found");
+
         return;
+
     }
 
 
 
-    registerForm.addEventListener("submit", async (event) => {
+    // Fields
 
-        // Prevent reload
+    const name = document.getElementById("name");
+
+    const email = document.getElementById("email");
+
+    const password = document.getElementById("password");
+
+    const confirmPassword = document.getElementById("confirm-password");
+
+
+
+    // Errors
+
+    const passwordError = document.getElementById("password-error");
+
+    const nameEmailError = document.getElementById("duplicate-name-email");
+
+
+
+
+    // Clear password error
+
+    password.addEventListener("input", () => {
+
+        passwordError.style.display = "none";
+
+    });
+
+
+    confirmPassword.addEventListener("input", () => {
+
+        passwordError.style.display = "none";
+
+    });
+
+
+
+    // Clear duplicate error
+
+    name.addEventListener("input", () => {
+
+        nameEmailError.style.display = "none";
+
+    });
+
+
+    email.addEventListener("input", () => {
+
+        nameEmailError.style.display = "none";
+
+    });
+
+
+
+
+    registerForm.addEventListener("submit", async(event)=>{
+
+
         event.preventDefault();
 
-        //Get the fields
-        const name = document.getElementById("name").value;
-
-        const email = document.getElementById("email").value;
-
-        const password = document.getElementById("password").value;
-
-        const confirmPassword = document.getElementById("confirm-password").value;
 
 
-        const passwordError = document.getElementById("password-error");
+        // Password check
 
-        //Add clear error when clicked
-        document.getElementById("confirm-password")
-            .addEventListener("click", () => {
+        if(password.value !== confirmPassword.value){
 
-                passwordError.style.display = "none";
-
-            });
-
-        // Check passwords
-        if (password !== confirmPassword) {
 
             passwordError.style.display = "block";
 
             return;
 
-        } else {
-
-            passwordError.style.display = "none";
-
         }
+
+
+        passwordError.style.display = "none";
+
 
 
 
         try {
 
+
             const response = await fetch("/api/register", {
 
-                method: "POST",
 
-                headers: {
-                    "Content-Type": "application/json"
+                method:"POST",
+
+
+                headers:{
+
+                    "Content-Type":"application/json"
+
                 },
 
-                body: JSON.stringify({
-                    name,
-                    email,
-                    password
+
+                body:JSON.stringify({
+
+                    name:name.value,
+
+                    email:email.value,
+
+                    password:password.value
+
                 })
+
 
             });
 
@@ -74,46 +128,58 @@ function registerToApp() {
             const data = await response.json();
 
 
+
             console.log(data);
 
 
 
-            if (data.success) {
-
-
-                localStorage.setItem(
-                    "user",
-                    JSON.stringify(data.user)
-                );
+            if(data.success) {
+                console.log("Regitser succes:\n");
+                console.log(data);
 
 
                 window.location.replace(
-                    "../../pages/dashboards/browsePage.html"
+
+                    "../../pages/auth/login.html"
+
                 );
 
 
-            } else {
+            }
+            else{
 
-                console.log(data.message);
+
+                nameEmailError.textContent = data.message;
+
+                nameEmailError.style.display = "block";
+
 
             }
 
 
 
-        } catch (error) {
+        }
+        catch(error){
 
-            console.error("Register error:", error);
+
+            console.error(
+                "Register error:",
+                error
+            );
+
 
         }
 
 
+
     });
+
 
 }
 
 
 
-function initRegister() {
+function initRegister(){
 
     registerToApp();
 

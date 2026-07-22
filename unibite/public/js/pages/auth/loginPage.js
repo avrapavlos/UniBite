@@ -13,6 +13,9 @@ function loginToApp() {
 
         const password = document.getElementById("password").value;
 
+        //Get checkbox value
+        const remember = document.getElementById("remember-box").checked;
+
         //THis is where the connection to the backend happens
         const response = await fetch("/api/login", {
             method: "POST",
@@ -35,17 +38,83 @@ function loginToApp() {
 
         //If success store to localStorage and login
         if (data.success) {
-            localStorage.setItem(
+            if(remember) {
+                localStorage.setItem(
+                    "remember",
+                    "true"
+                );
+
+                localStorage.setItem(
                 "user",
                 JSON.stringify(data.user)
-            );
+                );
+            } else {
+                sessionStorage.setItem(
+                    "remember",
+                    "false"
+                )
+
+                sessionStorage.setItem(
+                    "user",
+                    JSON.stringify(data.user)
+                )
+            }
+            
 
             window.location.replace("../../pages/dashboards/browsePage.html");
+        } else {
+            console.log("Error with login");
         }
     })
 }
 
+function checkUserSession(){
+    //Check if lst user session was checked 
+    const remember = localStorage.getItem("remember");
+
+    //If it was checked
+    if (remember === "true") {
+
+        //Get user from local storage
+        const user = localStorage.getItem("user");
+
+        // Check to see for valid user data and login
+        if(user) {
+            console.log(
+                "User remembered:",
+                JSON.parse(user)
+            );
+
+            //ALready logged in move to browse
+            window.location.replace(
+                "../../pages/dashboards/browsePage.html"
+            );
+        }
+    }
+
+    //CHeck session login (valid till browser closes)
+    const sessionUser = sessionStorage.getItem("user");
+
+    //If exists
+    if (sessionUser) {
+
+        //CHeck to see the data
+        console.log(
+            "Session user:",
+            JSON.parse(sessionUser)
+        );
+
+        //Change to browse
+        window.location.replace(
+            "../../pages/dashboards/browsePage.html"
+        );
+    }
+    
+}
+
 function init() {
+    checkUserSession();
+
     loginToApp();
 }
 
