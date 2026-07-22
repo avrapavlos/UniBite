@@ -180,6 +180,7 @@ export function register(req, res) {
         }
         else {
             return res.status(400).json({
+                success: false,
                 message: "Email Or Name already used!"
             });
         }

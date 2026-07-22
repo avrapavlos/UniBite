@@ -158,13 +158,13 @@ cursor:pointer;
 
 }
 
-.hero{
+.main{
 
 padding:60px;
 
 }
 
-.hero h1{
+.main h1{
 
 font-size:42px;
 
@@ -172,7 +172,7 @@ margin-bottom:12px;
 
 }
 
-.hero p{
+.main p{
 
 color:#6B7280;
 
@@ -430,7 +430,7 @@ padding:0 30px;
 
 }
 
-.hero{
+.main{
 
 padding:40px 30px;
 
@@ -452,7 +452,7 @@ padding:20px 30px 50px;
 
 @media(max-width:700px){
 
-.hero h1{
+.main h1{
 
 font-size:34px;
 
