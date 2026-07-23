@@ -3,6 +3,7 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import authRoutes from "./routes/authRoutes.js";
+import offerRoutes from "./routes/offerRoutes.js";
 
 // Create express application
 const app = express();
@@ -39,6 +40,7 @@ function setUpRoutes() {
 
     //Mount routes to server
     app.use("/api", authRoutes);
+    app.use("/api", offerRoutes);
 }
 
 initServer();
