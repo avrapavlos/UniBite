@@ -1,0 +1,53 @@
+@startuml ER 
+
+class User {
+    *st_id : INT
+    --
+    username : VARCHAR(50)
+    password : VARCHAR(255)
+    email : VARCHAR(100)
+    points : INT
+    portions_given : INT
+    portions_received : INT
+    profilePicture : VARCHAR(255)
+    created_at : TIMESTAMP
+}
+class Advertisment {
+    *ad_id : INT
+    --
+    date_posted : TIMESTAMP
+    latitude : DECIMAL(9,6)
+    longtitude : DECIMAL(9,6)
+    quantity : INT
+    path_to_picture : VARCHAR(255)
+    allergies : ENUM {"PEANUTS", "CELERY", "MILK", "GLUTEN", "SEASAME SEEDS", "MOLLUSCS", "CRUSTACEANS", "FISH", "EGG", "SOY BEAN", "MUSTARD", "TREE NUTS", "LUPIN", "SULFUR DIOXIDE & SULFITES"}
+    state : ENUM {"ACTIVE", "INACTIVE", "DELETED"}
+}
+class Admin {
+    *admin_id : INT
+    --
+    username : VARCHAR(50)
+    password : VARCHAR(255)
+}
+class Request {
+    *ad_id : INT
+    *con_id : INT
+}
+class Rating {
+    *req_id : INT
+    --
+    description : TEXT 
+}
+
+User --> Advertisment : posts
+User --> Advertisment : edits
+User --> Advertisment : deletes
+Advertisment --> Advertisment : deletes
+User --> Request : files
+Request --> Advertisment : allocates
+User --> Request : approves/rejects
+Request --> Rating : creates
+User --> Rating : writes
+Rating --> User : penalty
+Rating --> User : rewards
+@enduml 
