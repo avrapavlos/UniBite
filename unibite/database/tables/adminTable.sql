@@ -1,6 +1,6 @@
-use unibite
+use unibite;
 
-DROP TABLE IF EXISTS admins
+DROP TABLE IF EXISTS admins;
 
 CREATE TABLE admins(
     admin_id INT AUTO_INCREMENT PRIMARY KEY,
