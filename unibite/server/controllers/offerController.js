@@ -1,0 +1,163 @@
+import db from "../database/connection.js";
+
+export async function getAllOffers(req, res){
+    const sql = `
+        SELECT * 
+        FROM advertisments
+    `;
+
+    try {
+        const [results] = await db.query(sql);
+
+        if (results.length === 0) {
+            return res.status(404).json({
+                message: "No offers found"
+            });
+        }
+
+        return res.json(results);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Database error"
+        });
+    }
+}
+
+export async function getUserOffers(req, res){
+    const { userId } = req.query;
+
+    const sql = `
+        SELECT * 
+        FROM advertisments
+        WHERE creator_id = ?
+    `;
+
+    try {
+        const [results] = await db.query(sql, [userId]);
+
+        if (results.length === 0) {
+            return res.status(404).json({
+                message: "No offers found for the given user"
+            });
+        }
+
+        return res.json(results);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Database error"
+        });
+    }
+}
+
+export async function getOfferByTitle(req, res){
+    const { title } = req.query;
+
+    const sql = `
+        SELECT * 
+        FROM advertisments
+        WHERE title LIKE CONCAT('%', ?, '%')
+    `;
+
+    try {
+        const [results] = await db.query(sql, [title]);
+
+        if (results.length === 0) {
+            return res.status(404).json({
+                message: "No offer found with the given title"
+            });
+        }
+
+        return res.json(results);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Database error"
+        });
+    }
+}
+
+
+
+export async function createOffer(req, res) {
+    const body = req.body || {};
+    const {
+        title,
+        description,
+        price,
+        latitude,
+        longitude,
+        quality,
+        path_to_picture,
+        allergies,
+        state_of_ad,
+        creator_id
+    } = body;
+
+    const parsedPrice = Number(price);
+    const parsedLatitude = Number(latitude);
+    const parsedLongitude = Number(longitude);
+    const parsedQuality = Number(quality);
+
+    if (!title || !description || Number.isNaN(parsedPrice)) {
+        return res.status(400).json({
+            message: "Title, description, and price are required"
+        });
+    }
+
+    if (!creator_id) {
+        return res.status(400).json({
+            message: "creator_id is required"
+        });
+    }
+
+    if (Number.isNaN(parsedLatitude) || Number.isNaN(parsedLongitude) || Number.isNaN(parsedQuality)) {
+        return res.status(400).json({
+            message: "Latitude, longitude, and quality must be valid numbers"
+        });
+    }
+
+    const sql = `
+        INSERT INTO advertisments (
+            creator_id,
+            title,
+            description,
+            price,
+            latitude,
+            longitude,
+            quality,
+            path_to_picture,
+            allergies,
+            state_of_ad
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    try {
+        const [results] = await db.query(sql, [
+            creator_id,
+            title.trim(),
+            description.trim(),
+            parsedPrice,
+            parsedLatitude,
+            parsedLongitude,
+            parsedQuality,
+            path_to_picture || null,
+            allergies || null,
+            state_of_ad || "ACTIVE"
+        ]);
+
+        return res.status(201).json({
+            success: true,
+            message: "Offer created successfully",
+            offerId: results.insertId
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Database error",
+            error: err.message
+        });
+    }
+}
