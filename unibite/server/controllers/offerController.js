@@ -1,30 +1,58 @@
 import db from "../database/connection.js";
 
-export function getAllOffers(req, res){
+export async function getAllOffers(req, res){
     const sql = `
         SELECT * 
         FROM advertisments
     `;
 
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({
-                message: "Database error"
-            });
-        }
+    try {
+        const [results] = await db.query(sql);
+
         if (results.length === 0) {
             return res.status(404).json({
                 message: "No offers found"
             });
         }
-        
-        res.json(results);
-    });
+
+        return res.json(results);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Database error"
+        });
+    }
 }
 
-export function getOfferByTitle(req, res){
-    const { title } = req.params;
+export async function getUserOffers(req, res){
+    const { userId } = req.query;
+
+    const sql = `
+        SELECT * 
+        FROM advertisments
+        WHERE creator_id = ?
+    `;
+
+    try {
+        const [results] = await db.query(sql, [userId]);
+
+        if (results.length === 0) {
+            return res.status(404).json({
+                message: "No offers found for the given user"
+            });
+        }
+
+        return res.json(results);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Database error"
+        });
+    }
+}
+
+export async function getOfferByTitle(req, res){
+    const { title } = req.query;
 
     const sql = `
         SELECT * 
@@ -32,24 +60,27 @@ export function getOfferByTitle(req, res){
         WHERE title LIKE CONCAT('%', ?, '%')
     `;
 
-    db.query(sql, [title], (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({
-                message: "Database error"
-            });
-        }
+    try {
+        const [results] = await db.query(sql, [title]);
+
         if (results.length === 0) {
             return res.status(404).json({
                 message: "No offer found with the given title"
             });
         }
-        
-        res.json(results);
-    });
+
+        return res.json(results);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Database error"
+        });
+    }
 }
 
-export function createOffer(req, res) {
+
+
+export async function createOffer(req, res) {
     const body = req.body || {};
     const {
         title,
@@ -60,7 +91,8 @@ export function createOffer(req, res) {
         quality,
         path_to_picture,
         allergies,
-        state_of_ad
+        state_of_ad,
+        creator_id
     } = body;
 
     const parsedPrice = Number(price);
@@ -74,6 +106,12 @@ export function createOffer(req, res) {
         });
     }
 
+    if (!creator_id) {
+        return res.status(400).json({
+            message: "creator_id is required"
+        });
+    }
+
     if (Number.isNaN(parsedLatitude) || Number.isNaN(parsedLongitude) || Number.isNaN(parsedQuality)) {
         return res.status(400).json({
             message: "Latitude, longitude, and quality must be valid numbers"
@@ -82,6 +120,7 @@ export function createOffer(req, res) {
 
     const sql = `
         INSERT INTO advertisments (
+            creator_id,
             title,
             description,
             price,
@@ -92,32 +131,33 @@ export function createOffer(req, res) {
             allergies,
             state_of_ad
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.query(sql, [
-        title.trim(),
-        description.trim(),
-        parsedPrice,
-        parsedLatitude,
-        parsedLongitude,
-        parsedQuality,
-        path_to_picture || null,
-        allergies || null,
-        state_of_ad || "ACTIVE"
-    ], (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({
-                message: "Database error",
-                error: err.message
-            });
-        }
+    try {
+        const [results] = await db.query(sql, [
+            creator_id,
+            title.trim(),
+            description.trim(),
+            parsedPrice,
+            parsedLatitude,
+            parsedLongitude,
+            parsedQuality,
+            path_to_picture || null,
+            allergies || null,
+            state_of_ad || "ACTIVE"
+        ]);
 
-        res.status(201).json({
+        return res.status(201).json({
             success: true,
             message: "Offer created successfully",
             offerId: results.insertId
         });
-    });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Database error",
+            error: err.message
+        });
+    }
 }

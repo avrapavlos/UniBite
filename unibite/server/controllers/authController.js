@@ -2,7 +2,7 @@ import db from "../database/connection.js";
 
 
 // Login Function
-export function login(req, res) {
+export async function login(req, res) {
 
     // Get the request body
     const { email, password } = req.body;
@@ -28,7 +28,7 @@ export function login(req, res) {
 
 
     // Run query 
-    db.query(sql, [email, password], (err, results) => {
+    await db.query(sql, [email, password], (err, results) => {
 
 
         if (err) {
@@ -77,7 +77,7 @@ export function login(req, res) {
 }
 
 //Register function
-export function register(req, res) {
+export async function register(req, res) {
     // Get the request body
     const { name, email, password } = req.body;
 
@@ -106,7 +106,7 @@ export function register(req, res) {
     `;
 
     //Run check
-    db.query(check_duplicate_query, [name, email], (err, results) => {
+    await db.query(check_duplicate_query, [name, email], (err, results) => {
         if (err) {
 
             console.error(err);
