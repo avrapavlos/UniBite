@@ -1,16 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unibite Create Offer</title>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Offers | UniBite</title>
+
+    <link rel="stylesheet"
+          href="../../css/dashboards/create.css">
+
 </head>
+
 <body>
-    <!-- Navbar TOpbar component-->
+
+    <!-- Navbar Component -->
     <div id="navbar-container"></div>
 
-    
 
-    <script type="module" src="../../js/components.js"></script>
+    <!-- Main Content -->
+    <main class="create-page">
+
+        <!-- Header -->
+        <section class="page-header">
+
+            <div class="header-text">
+
+                <h1>My Created Offers</h1>
+
+                <p>
+                    Manage all the meals you've shared with other students.
+                </p>
+
+            </div>
+
+
+            <button class="create-offer-button"
+                    id="create-offer-button">
+
+                + Create New Offer
+
+            </button>
+
+        </section>
+
+
+        <!-- Offers -->
+        <section class="offers-section">
+
+            <div class="offers-grid"
+                 id="offers-grid">
+
+
+                <!-- Offer Card -->
+                <article class="offer-card"
+                         data-id="1">
+
+                    <img src="../../images/foods/pasta.jpg"
+                         class="offer-image"
+                         alt="Food">
+
+
+                    <div class="offer-content">
+
+                        <div class="offer-top">
+
+                            <h2>Homemade Pasta</h2>
+
+                            <span class="portions">
+                                3 Portions
+                            </span>
+
+                        </div>
+
+
+                        <p class="offer-description">
+
+                            Fresh homemade pasta with creamy mushroom sauce.
+
+                        </p>
+
+
+                        <div class="offer-info">
+
+                            <span>📍 Student Dorms</span>
+
+                            <span>🕒 Today • 18:30</span>
+
+                        </div>
+
+
+                        <div class="offer-actions">
+
+                            <button class="edit-button">
+
+                                ✏ Edit
+
+                            </button>
+
+
+                            <button class="delete-button">
+
+                                🗑 Delete
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- Offer Card -->
+                <article class="offer-card"
+                         data-id="2">
+
+                    <img src="../../images/foods/burger.jpg"
+                         class="offer-image"
+                         alt="Food">
+
+
+                    <div class="offer-content">
+
+                        <div class="offer-top">
+
+                            <h2>Cheese Burger</h2>
+
+                            <span class="portions">
+                                2 Portions
+                            </span>
+
+                        </div>
+
+
+                        <p class="offer-description">
+
+                            Homemade beef burgers with cheddar cheese and fries.
+
+                        </p>
+
+
+                        <div class="offer-info">
+
+                            <span>📍 Main Campus</span>
+
+                            <span>🕒 Tomorrow • 13:00</span>
+
+                        </div>
+
+
+                        <div class="offer-actions">
+
+                            <button class="edit-button">
+
+                                ✏ Edit
+
+                            </button>
+
+
+                            <button class="delete-button">
+
+                                🗑 Delete
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- Offer Card -->
+                <article class="offer-card"
+                         data-id="3">
+
+                    <img src="../../images/foods/pizza.jpg"
+                         class="offer-image"
+                         alt="Food">
+
+
+                    <div class="offer-content">
+
+                        <div class="offer-top">
+
+                            <h2>Pizza Slices</h2>
+
+                            <span class="portions">
+                                5 Portions
+                            </span>
+
+                        </div>
+
+
+                        <p class="offer-description">
+
+                            Fresh pizza with mozzarella, mushrooms and pepperoni.
+
+                        </p>
+
+
+                        <div class="offer-info">
+
+                            <span>📍 Library Entrance</span>
+
+                            <span>🕒 Today • 20:15</span>
+
+                        </div>
+
+
+                        <div class="offer-actions">
+
+                            <button class="edit-button">
+
+                                ✏ Edit
+
+                            </button>
+
+
+                            <button class="delete-button">
+
+                                🗑 Delete
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script type="module"
+            src="../../js/pages/dashboards/createPage.js">
+
+    </script>
+
 </body>
+
 </html>
