@@ -3,7 +3,8 @@ use unibite;
 DROP TABLE IF EXISTS requests;
 
 CREATE TABLE requests(
-    ad_id INT NOT NULL AUTO_INCREMENT,
+    request_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    ad_id INT NOT NULL,
     con_id INT,
     CONSTRAINT fk_advertisment
         FOREIGN KEY(ad_id)
