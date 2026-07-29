@@ -6,7 +6,12 @@ export async function loadOffers() {
     try {
 
         // Fetch data from json later will fetch form database
-        const response = await fetch("../../data/offers.json");
+        const response = await fetch("http://localhost:3000/api/offers", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
 
 
         if (!response.ok) {
