@@ -5,13 +5,13 @@ DROP TABLE IF EXISTS allergens;
 CREATE TABLE allergens(
     allergen_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     allergen_name VARCHAR(255) NOT NULL,
-    ad_id INT NOT NULL,
+    offer_id INT NOT NULL,
 
-    CONSTRAINT unique_ad_allergen
-        UNIQUE (ad_id, allergen_name),
+    CONSTRAINT unique_offer_allergen
+        UNIQUE (offer_id, allergen_name),
 
-    CONSTRAINT fk_allergen_ad
-        FOREIGN KEY (ad_id)
-        REFERENCES advertisments(ad_id)
+    CONSTRAINT fk_allergen_offer
+        FOREIGN KEY (offer_id)
+        REFERENCES offers(id)
         ON DELETE CASCADE
 );

@@ -1,3 +1,7 @@
+use unibite;
+
+Drop table if exists offers;
+
 CREATE TABLE offers (
     id             INT AUTO_INCREMENT PRIMARY KEY,
     creator_id     INT NOT NULL,
@@ -13,8 +17,8 @@ CREATE TABLE offers (
  
     pickup_time    DATETIME NOT NULL,
     address        VARCHAR(255),
-    distance       DECIMAL(6,2),   -- e.g. km from user
-    image          VARCHAR(255),   -- path/URL to image
+    distance       DECIMAL(6,2),
+    image          VARCHAR(255),
  
     point_cost     INT NOT NULL DEFAULT 0,
  
