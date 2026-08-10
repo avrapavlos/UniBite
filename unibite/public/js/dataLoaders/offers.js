@@ -22,6 +22,8 @@ export async function loadOffers() {
         const offers = await response.json();
 
 
+        console.log("Offers data loaded:", offers);
+
         // Return the offers data
         return offers; 
 
