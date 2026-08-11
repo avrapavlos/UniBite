@@ -18,7 +18,15 @@ export function displayOffers(data) {
     // Make sure inner html is empty
     container.innerHTML = "";
 
+    console.log("Rendering offers:", data);
 
+    if (!data || data.length === 0) {
+        const noOffersMessage = document.createElement("p");
+        noOffersMessage.textContent = "No offers available.";
+        container.appendChild(noOffersMessage);
+        return;
+    }
+    
     // Iterate all offers and create card and add showOfferDetails on click event
     data.forEach(offer => {
 

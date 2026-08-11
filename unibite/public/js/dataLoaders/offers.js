@@ -13,7 +13,7 @@ export async function loadOffers() {
             }
         });
 
-
+        
         if (!response.ok) {
             throw new Error("Failed to load offers");
         }
@@ -30,7 +30,7 @@ export async function loadOffers() {
     } catch (error) {
 
         console.error("Error loading offers:", error);
-
+        return []; // Return an empty array in case of error
     }
 
 }
