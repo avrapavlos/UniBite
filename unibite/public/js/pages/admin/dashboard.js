@@ -44,7 +44,7 @@ async function initAdminDashboard() {
         });
     } catch (err) {
         console.error(err);
-        leaderboardBody.innerHTML = "<tr><td colspan=\"4\">Unable to load leaderboard</td></tr>";
+        leaderboardBody.innerHTML = "<tr class='centeredLine'><td colspan=\"4\">Unable to load leaderboard</td></tr>";
         summary.totalPortions.textContent = "—";
         summary.activeAds.textContent = "—";
         summary.totalUsers.textContent = "—";
