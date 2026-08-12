@@ -9,7 +9,7 @@
         "points": 150,
         "portiosGiven": 10,
         "portionsReceived": 5,
-        "profilePicture": "../../images/john_doe.jpg",
+        "profileimage": "../../images/john_doe.jpg",
         "location": {
             "lat": 39.475,
             "lng": 21.920
@@ -26,7 +26,7 @@
         "points": 200,
         "portiosGiven": 15,
         "portionsReceived": 10,
-        "profilePicture": "../../images/jane_smith.jpg",
+        "profileimage": "../../images/jane_smith.jpg",
         "location": {
             "lat": 39.475,
             "lng": 21.920
@@ -43,7 +43,7 @@
         "points": 0,
         "portiosGiven": 0,
         "portionsReceived": 0,
-        "profilePicture": "../../images/jane_smith.jpg",
+        "profileimage": "../../images/jane_smith.jpg",
         "location": {
             "lat": 39.475,
             "lng": 21.920

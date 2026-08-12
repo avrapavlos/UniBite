@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Offer - UniBite</title>
+
+    <link rel="stylesheet" href="../../css/offers/createOffer.css">
+    <link rel="stylesheet" href="../../components/Navbar/Navbar.css">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+</head>
+
+
+<body>
+
+
+    <!-- ===================== -->
+    <!-- Navbar -->
+    <!-- ===================== -->
+
+    <div id="navbar-container"></div>
+
+
+    <!-- ===================== -->
+    <!-- Main Content -->
+    <!-- ===================== -->
+
+    <main class="create-offer-page">
+
+        <section class="create-offer-container">
+
+            <!-- Page Header -->
+
+            <div class="page-header">
+
+                <h1>Create an Offer</h1>
+
+                <p>
+                    Share your food with other students and help reduce food waste.
+                </p>
+
+            </div>
+
+
+            <!-- ===================== -->
+            <!-- Create Offer Form -->
+            <!-- ===================== -->
+
+            <form id="create-offer-form" method="POST" enctype="multipart/form-data">
+
+
+                <!-- ===================== -->
+                <!-- Offer Information -->
+                <!-- ===================== -->
+
+                <div class="form-section">
+
+                    <h2>Offer Information</h2>
+
+
+                    <!-- Title -->
+
+                    <div class="form-group">
+
+                        <label for="title">
+                            Offer Title
+                        </label>
+
+                        <input type="text" id="title" name="title" placeholder="e.g. Homemade Pizza" maxlength="255"
+                            required>
+
+                    </div>
+
+
+                    <!-- Description -->
+
+                    <div class="form-group">
+
+                        <label for="description">
+                            Description
+                        </label>
+
+                        <textarea id="description" name="description" placeholder="Describe the food you're offering..."
+                            required></textarea>
+
+                    </div>
+
+
+                    <!-- Price + Quality -->
+
+                    <div class="form-row">
+
+
+                        <div class="form-group">
+
+                            <label for="price">
+                                Price (€)
+                            </label>
+
+                            <input type="number" id="pointCost" name="pointCost" min="0" max="50" step="1"
+                                placeholder="0.00" required>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="quality">
+                                Quality
+                            </label>
+
+                            <select id="quality" name="quality" required>
+
+                                <option value="" disabled selected>
+                                    Select quality
+                                </option>
+
+                                <option value="5">
+                                    5 - Excellent
+                                </option>
+
+                                <option value="4">
+                                    4 - Very Good
+                                </option>
+
+                                <option value="3">
+                                    3 - Good
+                                </option>
+
+                                <option value="2">
+                                    2 - Fair
+                                </option>
+
+                                <option value="1">
+                                    1 - Acceptable
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ===================== -->
+                <!-- Location -->
+                <!-- ===================== -->
+
+                <div class="form-section">
+
+                    <h2>Location</h2>
+
+                    <p class="section-description">
+                        Click on the map to select where the food can be collected.
+                    </p>
+
+                    <!-- Add address input -->
+                    <div class="form-group">
+
+                        <label for="address">
+                            Address
+                        </label>
+
+                        <div class="address-input">
+
+                            <input type="text" id="address" name="address"
+                                placeholder="e.g. University of Thessaly, Karditsa" required>
+
+                            <button type="button" id="search-address-button">
+                                Search
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Hidden inputs to store the selected latitude and longitude -->
+
+                    <input type="hidden" id="latitude" name="latitude">
+
+                    <input type="hidden" id="longitude" name="longitude">
+
+                    <!-- Map -->
+
+                    <div class="map-container">
+
+                        <div id="map"></div>
+
+                        <p class="map-hint">
+                            Click anywhere on the map to select the offer location.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ===================== -->
+                <!-- image -->
+                <!-- ===================== -->
+
+                <div class="form-section">
+
+                    <h2>Offer image</h2>
+
+                    <p class="section-description">
+                        Add a image of the food you're offering.
+                    </p>
+
+
+                    <div class="image-upload">
+
+                        <label for="image">
+
+                            <div class="upload-content">
+
+                                <span class="upload-icon">
+                                    📷
+                                </span>
+
+                                <span class="upload-title">
+                                    Upload a image
+                                </span>
+
+                                <span class="upload-description">
+                                    PNG, JPG or JPEG
+                                </span>
+
+                            </div>
+
+                        </label>
+
+
+                        <input type="file" id="image" name="image" accept="image/png, image/jpeg, image/jpg">
+
+                    </div>
+
+
+                    <!-- Image Preview -->
+
+                    <div id="image-preview-container" class="image-preview-container">
+
+                        <img id="image-preview" src="" alt="Offer preview">
+
+                    </div>
+
+                </div>
+
+                <!-- ===================== -->
+                <!-- Allergies -->
+                <!-- ===================== -->
+
+                <div class="form-section">
+
+                    <h2>Allergies</h2>
+
+                    <p class="section-description">
+                        Select any allergies associated with the offer.
+                    </p>
+
+                    <div class="allergy-options">
+
+                        <label>
+                            <input type="checkbox" name="allergies" value="gluten">
+                            Gluten
+                        </label>
+
+                        <label>
+                            <input type="checkbox" name="allergies" value="lactose">
+                            Lactose
+                        </label>
+
+                        <label>
+                            <input type="checkbox" name="allergies" value="nuts">
+                            Nuts
+                        </label>
+
+                    </div>
+
+                </div>
+
+                <!-- ===================== -->
+                <!-- Error / Success -->
+                <!-- ===================== -->
+
+                <p id="create-offer-error" class="error-message"></p>
+
+
+                <p id="create-offer-success" class="success-message"></p>
+
+
+                <!-- ===================== -->
+                <!-- Buttons -->
+                <!-- ===================== -->
+
+                <div class="form-actions">
+
+                    <button type="button" id="cancel-button" class="cancel-button">
+                        Cancel
+                    </button>
+
+
+                    <button type="submit" id="create-button" class="create-button">
+                        Create Offer
+                    </button>
+
+                </div>
+
+
+            </form>
+
+        </section>
+
+    </main>
+
+
+    <!-- ===================== -->
+    <!-- Leaflet -->
+    <!-- ===================== -->
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
+    <!-- ===================== -->
+    <!-- Page JavaScript -->
+    <!-- ===================== -->
+
+    <script type="module" src="../../js/pages/offers/createOffer.js"></script>
+
+
+</body>
+
+</html>

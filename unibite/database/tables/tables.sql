@@ -40,7 +40,7 @@ CREATE TABLE advertisments (
 
     price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
 
-    date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    date_posted TIMESTAMP DEFAULT CURRNT_TIMESTAMP,
 
     latitude DECIMAL(9,6) NOT NULL,
 

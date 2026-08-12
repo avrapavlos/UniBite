@@ -1,6 +1,6 @@
 import db from "../database/connection.js";
 
-export async function getAllOffers(req, res){
+export async function getAllOffers(req, res) {
     const sql = `
         SELECT * 
         FROM advertisments
@@ -24,8 +24,8 @@ export async function getAllOffers(req, res){
     }
 }
 
-export async function getUserOffers(req, res){
-    const { userId } = req.query;
+export async function getUserOffers(req, res) {
+    const { userId } = req.params;
 
     const sql = `
         SELECT * 
@@ -51,7 +51,7 @@ export async function getUserOffers(req, res){
     }
 }
 
-export async function getOfferByTitle(req, res){
+export async function getOfferByTitle(req, res) {
     const { title } = req.query;
 
     const sql = `
@@ -81,19 +81,25 @@ export async function getOfferByTitle(req, res){
 
 
 export async function createOffer(req, res) {
-    const body = req.body || {};
     const {
+        creator_id,
         title,
         description,
         price,
         latitude,
         longitude,
-        quality,
-        path_to_picture,
-        allergies,
-        state_of_ad,
-        creator_id
-    } = body;
+        quality
+    } = req.body;
+
+
+    const image = req.file;
+
+    const path_to_image = image ? image.path : null;
+
+
+    console.log(req.body);
+
+    console.log(req.file);
 
     const parsedPrice = Number(price);
     const parsedLatitude = Number(latitude);
@@ -128,10 +134,9 @@ export async function createOffer(req, res) {
             longitude,
             quality,
             path_to_picture,
-            allergies,
             state_of_ad
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     try {
@@ -143,9 +148,8 @@ export async function createOffer(req, res) {
             parsedLatitude,
             parsedLongitude,
             parsedQuality,
-            path_to_picture || null,
-            allergies || null,
-            state_of_ad || "ACTIVE"
+            path_to_image,
+            "ACTIVE"
         ]);
 
         return res.status(201).json({
