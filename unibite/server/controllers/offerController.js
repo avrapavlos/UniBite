@@ -24,6 +24,33 @@ export async function getAllOffers(req, res) {
     }
 }
 
+export async function getOfferExcludingUser(req, res) {
+    const { userId } = req.params;
+
+    const sql = `
+        SELECT * 
+        FROM advertisments
+        WHERE creator_id != ?
+    `;
+
+    try {
+        const [results] = await db.query(sql, [userId]);
+
+        if (results.length === 0) {
+            return res.status(404).json({
+                message: "No offers found excluding the given user"
+            });
+        }
+
+        return res.json(results);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Database error"
+        });
+    }
+}
+
 export async function getUserOffers(req, res) {
     const { userId } = req.params;
 

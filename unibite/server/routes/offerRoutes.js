@@ -4,7 +4,8 @@ import {
     getAllOffers,
     getOfferByTitle,
     createOffer,
-    getUserOffers
+    getUserOffers,
+    getOfferExcludingUser
 } from "../controllers/offerController.js";
 
 import upload from "../middleware/upload.js";
@@ -38,6 +39,11 @@ router.post(
 router.get(
     "/users/:userId/offers",
     getUserOffers
+);
+
+router.get(
+    "/users/:userId/offers/exclude",
+    getOfferExcludingUser
 );
 
 
