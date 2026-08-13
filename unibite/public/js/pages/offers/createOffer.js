@@ -79,6 +79,28 @@ const createButton = document.getElementById(
 );
 
 
+function getLoggedInUser() {
+    const storedUserSources = [
+        localStorage.getItem("user"),
+        sessionStorage.getItem("user")
+    ];
+
+    for (const rawUser of storedUserSources) {
+        if (!rawUser) continue;
+
+        try {
+            const parsedUser = JSON.parse(rawUser);
+            if (parsedUser && parsedUser.id) {
+                return parsedUser;
+            }
+        } catch (error) {
+            console.error("Failed to parse stored user:", error);
+        }
+    }
+
+    return null;
+}
+
 // Initialize Page
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -487,12 +509,9 @@ async function handleFormSubmit(event) {
     // Get User
     // =========================
 
-    const user =
-        localStorage.getItem("user");
+    const user = getLoggedInUser();
+    const userId = user ? user.id : null;
 
-    const userId =
-        user ? JSON.parse(user).id : null;
-    
     console.log("User ID:", userId);
     if (!userId) {
 
@@ -587,16 +606,22 @@ async function handleFormSubmit(event) {
 
         const response =
             await fetch(
-                "/api/offers",
+                "http://localhost:3000/api/offers",
                 {
                     method: "POST",
                     body: formData
                 }
             );
 
+        const responseText = await response.text();
+        let result = {};
 
-        const result =
-            await response.json();
+        try {
+            result = responseText ? JSON.parse(responseText) : {};
+        } catch (error) {
+            console.error("Create offer response was not valid JSON:", responseText);
+            throw new Error("The server returned an unexpected response. Please check that the backend is running.");
+        }
 
         console.log(
             "Create offer response:",

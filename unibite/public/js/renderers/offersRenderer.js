@@ -47,42 +47,40 @@ export function displayOffers(data) {
     });
 }
 
-export function displayUserOffers(data) {
-    // Get the container for the browse page
-    const container = document.querySelector(".offers-section");
+export function displayUserOffers(data, actions = {}) {
+    const container = document.querySelector("#offers-grid") || document.querySelector(".offers-section");
 
-    // If cant find container exit with error log
     if (!container) {
         console.error("User offer list container not found");
         return;
     }
 
-    // Make sure inner html is empty
     container.innerHTML = "";
-
     console.log("Rendering user offers:", data);
 
     if (!data || data.length === 0) {
         const noOffersMessage = document.createElement("p");
         noOffersMessage.textContent = "No user offers available.";
+        noOffersMessage.className = "empty-state";
         container.appendChild(noOffersMessage);
         return;
     }
 
-    // Iterate all offers and create card and add showOfferDetails on click event
     data.forEach(offer => {
+        const card = createUserOfferCard(offer, (action, selectedOffer) => {
+            if (action === "edit" && actions.onEdit) {
+                actions.onEdit(selectedOffer);
+            }
 
-        const card = createUserOfferCard(
-            offer,
-            showOfferDetails
-        );
+            if (action === "delete" && actions.onDelete) {
+                actions.onDelete(selectedOffer);
+            }
+        });
 
-        // Append the card to the container
         if (card) {
             container.appendChild(card);
         } else {
             console.warn("User offer card not created for offer:", offer);
         }
-
     });
 }

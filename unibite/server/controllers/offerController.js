@@ -234,3 +234,147 @@ export async function createOffer(req, res) {
         });
     }
 }
+    export async function updateOffer(req, res) {
+        const { offerId } = req.params;
+        const {
+            userId,
+            title,
+            description,
+            price,
+            latitude,
+            longitude,
+            quantity,
+            building_name,
+            room_number
+        } = req.body;
+
+        const image = req.file;
+        const path_to_image = image ? image.path : null;
+
+        if (!userId) {
+            return res.status(400).json({
+                message: "userId is required"
+            });
+        }
+
+        const sqlCheckOwnership = `
+            SELECT * FROM offers WHERE id = ? AND creator_id = ?
+        `;
+
+        try {
+            const [ownershipResults] = await db.query(sqlCheckOwnership, [offerId, userId]);
+            if (ownershipResults.length === 0) {
+                return res.status(403).json({
+                    message: "You do not have permission to update this offer"
+                });
+            }
+
+            const currentOffer = ownershipResults[0];
+            const nextTitle = title ?? currentOffer.title;
+            const nextDescription = description ?? currentOffer.description;
+            const nextPrice = price !== undefined ? Number(price) : Number(currentOffer.point_cost);
+            const nextLatitude = latitude !== undefined ? Number(latitude) : Number(currentOffer.location_lat);
+            const nextLongitude = longitude !== undefined ? Number(longitude) : Number(currentOffer.location_lng);
+            const nextQuantity = quantity !== undefined ? Number(quantity) : Number(currentOffer.portions);
+            const nextBuildingName = building_name ?? currentOffer.building;
+            const nextRoomNumber = room_number ?? currentOffer.room;
+
+            if (!nextTitle || !nextDescription || Number.isNaN(nextPrice) || Number.isNaN(nextLatitude) || Number.isNaN(nextLongitude) || Number.isNaN(nextQuantity) || !nextBuildingName || !nextRoomNumber) {
+                return res.status(400).json({
+                    message: "Submitted offer data is incomplete or invalid"
+                });
+            }
+
+            const sql = `
+                UPDATE offers
+                SET title = ?, description = ?, point_cost = ?, location_lat = ?, location_lng = ?, portions = ?, building = ?, room = ?, image = ?
+                WHERE id = ?
+            `;
+
+            const [results] = await db.query(sql, [
+                nextTitle.trim(),
+                nextDescription.trim(),
+                nextPrice,
+                nextLatitude,
+                nextLongitude,
+                nextQuantity,
+                nextBuildingName.trim(),
+                nextRoomNumber.trim(),
+                path_to_image ?? currentOffer.image,
+                offerId
+            ]);
+
+            if (results.affectedRows === 0) {
+                return res.status(404).json({
+                    message: "Offer not found"
+                });
+            }
+
+            return res.json({
+                success: true,
+                message: "Offer updated successfully"
+            });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({
+                message: "Database error",
+                error: err.message
+            });
+        }
+    }
+
+    export async function deleteOffer(req, res) {
+        const { offerId } = req.params;
+        const { userId } = req.body;
+
+        if (!userId) {
+            return res.status(400).json({
+                message: "userId is required"
+            });
+        }
+
+        const sqlCheckOwnership = `
+            SELECT * FROM offers WHERE id = ? AND creator_id = ?
+        `;
+
+        try {
+            const [ownershipResults] = await db.query(sqlCheckOwnership, [offerId, userId]);
+            if (ownershipResults.length === 0) {
+                return res.status(403).json({
+                    message: "You do not have permission to delete this offer"
+                });
+            }
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({
+                message: "Database error",
+                error: err.message
+            });
+        }
+        const sql = `
+        DELETE FROM offers
+        WHERE id = ?
+        `;
+
+        try {
+            const [results] = await db.query(sql, [offerId]);
+
+            if (results.affectedRows === 0) {
+                return res.status(404).json({
+                    message: "Offer not found"
+                });
+            }
+
+            return res.json({
+                success: true,
+                message: "Offer deleted successfully"
+            });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({
+                message: "Database error",
+                error: err.message
+            });
+        }
+    }
+
