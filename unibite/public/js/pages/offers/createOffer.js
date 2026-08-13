@@ -566,7 +566,7 @@ async function handleFormSubmit(event) {
     if (imageFile) {
 
         formData.append(
-            "picture",
+            "image",
             imageFile
         );
 

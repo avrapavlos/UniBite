@@ -1,9 +1,27 @@
 import db from "../database/connection.js";
 
+function normalizeOffer(offer) {
+    return {
+        id: offer.id ?? offer.ad_id,
+        creator_id: offer.creator_id,
+        title: offer.title,
+        description: offer.description,
+        quantity: offer.quantity ?? offer.portions ?? 0,
+        price: offer.price ?? offer.point_cost ?? 0,
+        latitude: offer.latitude ?? offer.location_lat ?? null,
+        longitude: offer.longitude ?? offer.location_lng ?? null,
+        image: offer.image ?? offer.path_to_picture ?? null,
+        building_name: offer.building_name ?? offer.building ?? null,
+        room_number: offer.room_number ?? offer.room ?? null,
+        date_posted: offer.date_posted ?? offer.pickup_time ?? offer.created_at ?? null,
+        created_at: offer.created_at ?? offer.date_posted ?? null
+    };
+}
+
 export async function getAllOffers(req, res) {
     const sql = `
         SELECT * 
-        FROM advertisments
+        FROM offers
     `;
 
     try {
@@ -15,7 +33,7 @@ export async function getAllOffers(req, res) {
             });
         }
 
-        return res.json(results);
+        return res.json(results.map(normalizeOffer));
     } catch (err) {
         console.error(err);
         return res.status(500).json({
@@ -29,7 +47,7 @@ export async function getOfferExcludingUser(req, res) {
 
     const sql = `
         SELECT * 
-        FROM advertisments
+        FROM offers
         WHERE creator_id != ?
     `;
 
@@ -42,7 +60,7 @@ export async function getOfferExcludingUser(req, res) {
             });
         }
 
-        return res.json(results);
+        return res.json(results.map(normalizeOffer));
     } catch (err) {
         console.error(err);
         return res.status(500).json({
@@ -56,7 +74,7 @@ export async function getUserOffers(req, res) {
 
     const sql = `
         SELECT * 
-        FROM advertisments
+        FROM offers
         WHERE creator_id = ?
     `;
 
@@ -69,7 +87,7 @@ export async function getUserOffers(req, res) {
             });
         }
 
-        return res.json(results);
+        return res.json(results.map(normalizeOffer));
     } catch (err) {
         console.error(err);
         return res.status(500).json({
@@ -83,7 +101,7 @@ export async function getOfferByTitle(req, res) {
 
     const sql = `
         SELECT * 
-        FROM advertisments
+        FROM offers
         WHERE title LIKE CONCAT('%', ?, '%')
     `;
 
@@ -96,7 +114,7 @@ export async function getOfferByTitle(req, res) {
             });
         }
 
-        return res.json(results);
+        return res.json(results.map(normalizeOffer));
     } catch (err) {
         console.error(err);
         return res.status(500).json({
@@ -168,20 +186,22 @@ export async function createOffer(req, res) {
     }
 
     const sql = `
-        INSERT INTO advertisments (
+        INSERT INTO offers (
             creator_id,
             title,
             description,
-            price,
-            latitude,
-            longitude,
-            quantity,
-            building_name,
-            room_number,
-            path_to_picture,
-            state_of_ad
+            portions,
+            location_lat,
+            location_lng,
+            building,
+            room,
+            pickup_time,
+            address,
+            distance,
+            image,
+            point_cost
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     try {
@@ -189,14 +209,16 @@ export async function createOffer(req, res) {
             creator_id,
             title.trim(),
             description.trim(),
-            parsedPrice,
+            parsedQuantity,
             parsedLatitude,
             parsedLongitude,
-            parsedQuantity,
             parsedBuildingName.trim(),
             parsedRoomNumber.trim(),
+            new Date().toISOString().slice(0, 19).replace('T', ' '),
+            "",
+            0,
             path_to_image,
-            "ACTIVE"
+            parsedPrice
         ]);
 
         return res.status(201).json({

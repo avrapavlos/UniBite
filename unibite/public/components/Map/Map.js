@@ -22,10 +22,12 @@ export function createMap() {
 
 export function addOfferMarkers(offers, onClick) {
 
+    const storedUser = localStorage.getItem("user");
+    const currentUserId = storedUser ? JSON.parse(storedUser).id : null;
 
     offers.forEach(offer => {
 
-        if(offer.creator_id === JSON.parse(localStorage.getItem("user")).id) {
+        if (currentUserId !== null && offer.creator_id === currentUserId) {
             // If the offer belongs to the current user, do not create a marker
             return;
         }

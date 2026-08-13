@@ -18,7 +18,10 @@ export function createOfferCard(offer, onClick) {
 
     loadOfferCardCSS();
 
-    if(offer.creator_id === JSON.parse(localStorage.getItem("user")).id) {
+    const storedUser = localStorage.getItem("user");
+    const currentUserId = storedUser ? JSON.parse(storedUser).id : null;
+
+    if (currentUserId !== null && offer.creator_id === currentUserId) {
         // If the offer belongs to the current user, do not create a card
         return null;
     }
