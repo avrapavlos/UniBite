@@ -23,47 +23,38 @@ export function createUserOfferCard(offer, onClick) {
 
     card.innerHTML = `
         <article class="user-offer-card" data-id="${offer.id}">
-            <img src="${offer.image || '../../images/default-food.png'}" alt="${offer.title}" class="user-offer-image">
+            <div class="user-offer-image-wrap">
+                <img src="${offer.image || '../../images/default-food.png'}" alt="${offer.title}" class="user-offer-image">
+            </div>
 
             <div class="user-offer-content">
+                <span class="user-offer-badge">Your listing</span>
+
                 <div class="user-offer-top">
-                    <h2 class="user-offer-title">
-                        ${offer.title}
-                    </h2>
-
-                    <span class="user-offer-portions">
-                        Μερίδες: ${offer.quantity}
-                    </span>
-
-                    <span class="user-offer-point-cost">
-                        🟡${offer.price}
-                    </span>
+                    <h2 class="user-offer-title">${offer.title}</h2>
+                    <span class="user-offer-point-cost">🟡 ${offer.price}</span>
                 </div>
 
-                <p class="user-offer-description">
-                    ${offer.description}
-                </p>
+                <div class="user-offer-meta-row">
+                    <span class="user-offer-portions">${offer.quantity} portions</span>
+                    <span class="user-offer-date">${new Date(offer.date_posted).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "2-digit"
+                    })}</span>
+                </div>
+
+                <p class="user-offer-description">${offer.description}</p>
 
                 <div class="user-offer-info">
-                    <span class="user-building-name">
-                        ${offer.building_name}
+                    <span class="user-location-tag">
+                        <strong>Location:</strong> ${offer.building_name}
                     </span>
-
-                    <span class="user-room-number">
-                        ${offer.room_number}
-                    </span>
-
-                    <span class="user-offer-date">
-                        ${new Date(offer.date_posted).toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "2-digit"
-                        })}
-                    </span>
+                    <span class="user-room-number">Room ${offer.room_number}</span>
                 </div>
 
                 <div class="user-offer-actions">
-                    <button class="edit-button">Edit</button>
-                    <button class="delete-button">Delete</button>
+                    <button class="edit-button" type="button">✏️ Edit</button>
+                    <button class="delete-button" type="button">🗑️ Delete</button>
                 </div>
             </div>
         </article>
