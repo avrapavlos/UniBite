@@ -29,13 +29,13 @@ export function createOfferDetails(offer) {
         </p>
 
         <div class="offer-details-location">
-            <p>${offer.location.building}</p>
-            <p>${offer.location.room}</p>
+            <p>${offer.building_name}</p>
+            <p>${offer.room_number}</p>
         </div>
 
         <div class="offer-details-claim-button-wrapper">
             <button class="offer-details-claim-button">
-                CLAIM FOR 🟡${offer.pointCost}
+                CLAIM FOR 🟡${offer.price}
             </button>
         </div>
     `;

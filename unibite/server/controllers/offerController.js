@@ -115,7 +115,9 @@ export async function createOffer(req, res) {
         price,
         latitude,
         longitude,
-        quality
+        quantity,
+        building_name,
+        room_number
     } = req.body;
 
 
@@ -131,7 +133,15 @@ export async function createOffer(req, res) {
     const parsedPrice = Number(price);
     const parsedLatitude = Number(latitude);
     const parsedLongitude = Number(longitude);
-    const parsedQuality = Number(quality);
+    const parsedQuantity = Number(quantity);
+    const parsedBuildingName = String(building_name);
+    const parsedRoomNumber = String(room_number);
+
+    if (!parsedBuildingName || !parsedRoomNumber) {
+        return res.status(400).json({
+            message: "Building name and room number are required"
+        });
+    }
 
     if (!title || !description || Number.isNaN(parsedPrice)) {
         return res.status(400).json({
@@ -145,9 +155,9 @@ export async function createOffer(req, res) {
         });
     }
 
-    if (Number.isNaN(parsedLatitude) || Number.isNaN(parsedLongitude) || Number.isNaN(parsedQuality)) {
+    if (Number.isNaN(parsedLatitude) || Number.isNaN(parsedLongitude) || Number.isNaN(parsedQuantity)) {
         return res.status(400).json({
-            message: "Latitude, longitude, and quality must be valid numbers"
+            message: "Latitude, longitude, and quantity must be valid numbers"
         });
     }
 
@@ -159,11 +169,13 @@ export async function createOffer(req, res) {
             price,
             latitude,
             longitude,
-            quality,
+            quantity,
+            building_name,
+            room_number,
             path_to_picture,
             state_of_ad
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     try {
@@ -174,7 +186,9 @@ export async function createOffer(req, res) {
             parsedPrice,
             parsedLatitude,
             parsedLongitude,
-            parsedQuality,
+            parsedQuantity,
+            parsedBuildingName.trim(),
+            parsedRoomNumber.trim(),
             path_to_image,
             "ACTIVE"
         ]);

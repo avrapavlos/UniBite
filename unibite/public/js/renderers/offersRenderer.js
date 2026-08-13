@@ -37,6 +37,11 @@ export function displayOffers(data) {
 
 
         // Append the card to the container
-        container.appendChild(card);
+        if (card) {
+            container.appendChild(card);
+        } else {
+            console.warn("Offer card not created for offer:", offer);
+        }
+
     });
 }

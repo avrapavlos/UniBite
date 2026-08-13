@@ -38,15 +38,19 @@ CREATE TABLE advertisments (
 
     description TEXT NOT NULL,
 
-    price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    price INT NOT NULL DEFAULT 0,
 
-    date_posted TIMESTAMP DEFAULT CURRNT_TIMESTAMP,
+    date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     latitude DECIMAL(9,6) NOT NULL,
 
     longitude DECIMAL(9,6) NOT NULL,
 
-    quality INT NOT NULL,
+    building_name VARCHAR(255) NOT NULL,
+
+    room_number VARCHAR(255) NOT NULL,
+
+    quantity INT NOT NULL,
 
     path_to_picture VARCHAR(255),
 

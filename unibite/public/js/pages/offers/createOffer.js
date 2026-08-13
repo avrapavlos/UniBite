@@ -23,8 +23,8 @@ const priceInput = document.getElementById(
     "pointCost"
 );
 
-const qualityInput = document.getElementById(
-    "quality"
+const quantityInput = document.getElementById(
+    "quantity"
 );
 
 
@@ -437,8 +437,8 @@ async function handleFormSubmit(event) {
     const price =
         parseFloat(priceInput.value);
 
-    const quality =
-        parseInt(qualityInput.value);
+    const quantity =
+        parseInt(quantityInput.value);
 
     const latitude =
         parseFloat(latitudeInput.value);
@@ -458,7 +458,7 @@ async function handleFormSubmit(event) {
         !title ||
         !description ||
         isNaN(price) ||
-        isNaN(quality) ||
+        isNaN(quantity) ||
         isNaN(latitude) ||
         isNaN(longitude)
     ) {
@@ -523,8 +523,8 @@ async function handleFormSubmit(event) {
     );
 
     formData.append(
-        "quality",
-        quality
+        "quantity",
+        quantity
     );
 
     formData.append(

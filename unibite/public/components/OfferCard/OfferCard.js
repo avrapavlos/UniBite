@@ -17,6 +17,11 @@ export function createOfferCard(offer, onClick) {
 
     loadOfferCardCSS();
 
+    if(offer.creator_id === JSON.parse(localStorage.getItem("user")).id) {
+        // If the offer belongs to the current user, do not create a card
+        return null;
+    }
+
     const card = document.createElement("article");
 
     card.classList.add("offer-card");
@@ -39,17 +44,17 @@ export function createOfferCard(offer, onClick) {
             </p>
 
             <p class="offer-portions">
-                Μερίδες: ${offer.portions}
+                Μερίδες: ${offer.quantity}
             </p>
 
-            <p class="offer-point-cost">
-                🟡${offer.pointCost}
+            <p class="offer-price">
+                🟡${offer.price}
             </p>
         </div>
     `;
 
     // Check to see if it has 0 portions
-    if (offer.portions == 0 || offer.portions < 0) {
+    if (offer.quantity == 0 || offer.quantity < 0) {
 
         // GIve it the empty css class
         card.classList.add("empty");

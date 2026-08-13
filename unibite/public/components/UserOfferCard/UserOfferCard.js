@@ -21,11 +21,11 @@ export function createUserOfferCard(offer, onClick) {
                     </h2>
 
                     <span class="user-offer-portions">
-                        Μερίδες: ${offer.portions}
+                        Μερίδες: ${offer.quantity}
                     </span>
 
                     <span class="user-offer-point-cost">
-                        🟡${offer.pointCost}
+                        🟡${offer.price}
                     </span>
                 </div>
 

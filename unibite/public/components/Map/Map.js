@@ -25,10 +25,13 @@ export function addOfferMarkers(offers, onClick) {
 
     offers.forEach(offer => {
 
-
+        if(offer.creator_id === JSON.parse(localStorage.getItem("user")).id) {
+            // If the offer belongs to the current user, do not create a marker
+            return;
+        }
         const marker = L.marker([
-            offer.location.lat,
-            offer.location.lng
+            offer.latitude,
+            offer.longitude
         ]);
 
 
@@ -38,21 +41,19 @@ export function addOfferMarkers(offers, onClick) {
         marker.bindPopup(`
             <div class="food-popup">
                 <img class="food-popup-image"
-                    src="${offer.image}"
+                    src="${offer.image ? `/uploads/${offer.image}` : '/images/default-food.png'}"
                     alt="${offer.title}">
 
                 <div class="food-popup-content">
-                    <!-- Title for the popup --> 
                     <h3>${offer.title}</h3>
 
-                    <!-- Portions and points -->
                     <div class="food-popup-content-details">
                         <div class="food-popup-portions">
-                            🍽 <span>${offer.portions}</span> Portions
+                            🍽 <span>${offer.quantity}</span> Portions
                         </div>
 
                         <div class="food-popup-points">
-                            ⭐ <span>${offer.pointCost}</span>
+                            ⭐ <span>${offer.price}</span>
                         </div>
                     </div>
                 </div>
