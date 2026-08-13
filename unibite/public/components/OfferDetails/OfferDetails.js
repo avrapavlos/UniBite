@@ -17,7 +17,7 @@ export function createOfferDetails(offer) {
         </button>
 
         <div class="offer-details-image-wrapper">
-            <img src="${offer.image}" alt="${offer.title}">
+            <img src="${offer.image || '../../images/sandwich.jpeg'}" alt="${offer.title}">
         </div>
 
         <h3 class="offer-details-title">

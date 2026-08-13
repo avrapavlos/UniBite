@@ -1,3 +1,4 @@
+import { showOfferDetails} from "../../components/OfferDetails/OfferDetailsManager.js";
 
 // OfferCard.js
 // Load component CSS once
@@ -30,7 +31,7 @@ export function createOfferCard(offer, onClick) {
     card.innerHTML = `
         <div class="offer-image-container">
             <img class="offer-image" 
-                 src="${offer.image}" 
+                 src="${offer.image || '../../images/sandwich.jpeg'}" 
                  alt="${offer.title}">
         </div>
 
@@ -72,9 +73,10 @@ export function createOfferCard(offer, onClick) {
     else {
         // Add open details event button
         card.addEventListener("click", () => {
-            onClick(offer);
+            showOfferDetails(offer);
         });
     }
+
 
     // Return the offer card
     return card;

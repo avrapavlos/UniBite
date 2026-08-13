@@ -1,10 +1,21 @@
 // UserOfferCard 
 
+function loadUserOfferCardCSS() {
+    const cssId = "user-offer-card-css";
+    if (!document.getElementById(cssId)) {
+        const link = document.createElement("link");
+        link.id = cssId;
+        link.rel = "stylesheet";
+        link.href = "/components/UserOfferCard/UserOfferCard.css";
+        document.head.appendChild(link);
+    }
+};
+
 // Function to create user offer card
 export function createUserOfferCard(offer, onClick) {
-    
+
     // Load the OfferCard CSS
-    loadOfferCardCSS();
+    loadUserOfferCardCSS();
 
     const card = document.createElement("article");
 
@@ -12,7 +23,7 @@ export function createUserOfferCard(offer, onClick) {
 
     card.innerHTML = `
         <article class="user-offer-card" data-id="${offer.id}">
-            <img src="${offer.image}" alt="${offer.title}" class="user-offer-image">
+            <img src="${offer.image || '../../images/default-food.png'}" alt="${offer.title}" class="user-offer-image">
 
             <div class="user-offer-content">
                 <div class="user-offer-top">
@@ -35,11 +46,18 @@ export function createUserOfferCard(offer, onClick) {
 
                 <div class="user-offer-info">
                     <span class="user-building-name">
-                        ${offer.buildingName}
+                        ${offer.building_name}
+                    </span>
+
+                    <span class="user-room-number">
+                        ${offer.room_number}
                     </span>
 
                     <span class="user-offer-date">
-                        ${offer.date}
+                        ${new Date(offer.date_posted).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "2-digit"
+                        })}
                     </span>
                 </div>
 
@@ -60,7 +78,7 @@ export function createUserOfferCard(offer, onClick) {
     editButton.addEventListener("click", () => {
         onClick("edit", offer);
     });
-    
+
     // Delete button event listener on click
     deleteButton.addEventListener("click", () => {
         onClick("delete", offer);

@@ -8,7 +8,7 @@ let currentOfferDetails = null;
 
 // Get the offer details container of the page and show the offer clicked
 export function showOfferDetails(offer) {
-    if (offer.portions > 0) {
+    if (offer.quantity > 0) {
         // Gets container
         const container = document.getElementById(
             "offer-details-container"

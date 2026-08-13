@@ -1,0 +1,341 @@
+/* ========================= */
+/* User Offer Card */
+/* ========================= */
+
+.user-offer-card {
+    background: white;
+    border-radius: 18px;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+
+    transition: 0.25s;
+
+    border: 1px solid #EEEEEE;
+}
+
+
+/* ========================= */
+/* Card Hover */
+/* ========================= */
+
+.user-offer-card:hover {
+    transform: translateY(-5px);
+
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+
+/* ========================= */
+/* Offer Image */
+/* ========================= */
+
+.user-offer-image {
+    width: 100%;
+    height: 220px;
+
+    object-fit: cover;
+
+    background: #F5F5F5;
+}
+
+
+/* ========================= */
+/* Card Content */
+/* ========================= */
+
+.user-offer-content {
+    padding: 25px;
+
+    display: flex;
+    flex-direction: column;
+
+    flex: 1;
+}
+
+
+/* ========================= */
+/* Top Section */
+/* ========================= */
+
+.user-offer-top {
+    display: flex;
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 15px;
+}
+
+
+/* ========================= */
+/* Title */
+/* ========================= */
+
+.user-offer-title {
+    width: 100%;
+
+    color: #2E7D32;
+
+    font-size: 24px;
+    font-weight: bold;
+
+    margin: 0;
+
+    line-height: 1.3;
+}
+
+
+/* ========================= */
+/* Portions */
+/* ========================= */
+
+.user-offer-portions {
+    color: #666;
+
+    font-size: 14px;
+
+    background: #F5FAF5;
+
+    padding: 6px 10px;
+
+    border-radius: 8px;
+}
+
+
+/* ========================= */
+/* Point Cost */
+/* ========================= */
+
+.user-offer-point-cost {
+    color: #2E7D32;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    background: #E8F5E9;
+
+    padding: 6px 12px;
+
+    border-radius: 8px;
+
+    margin-left: auto;
+}
+
+
+/* ========================= */
+/* Description */
+/* ========================= */
+
+.user-offer-description {
+    color: #666;
+
+    font-size: 15px;
+
+    line-height: 1.6;
+
+    margin: 0 0 20px;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+
+    overflow: hidden;
+}
+
+
+/* ========================= */
+/* Offer Information */
+/* ========================= */
+
+.user-offer-info {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 15px;
+
+    padding-top: 15px;
+
+    border-top: 1px solid #EEEEEE;
+
+    margin-bottom: 20px;
+}
+
+
+/* ========================= */
+/* Building */
+/* ========================= */
+
+.user-building-name {
+    color: #555;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+/* ========================= */
+/* Date */
+/* ========================= */
+
+.user-offer-date {
+    color: #888;
+
+    font-size: 13px;
+
+    text-align: right;
+}
+
+
+/* ========================= */
+/* Actions */
+/* ========================= */
+
+.user-offer-actions {
+    display: flex;
+
+    gap: 12px;
+
+    margin-top: auto;
+}
+
+
+/* ========================= */
+/* Action Buttons */
+/* ========================= */
+
+.user-offer-actions button {
+    flex: 1;
+
+    padding: 11px 18px;
+
+    border-radius: 9px;
+
+    font-size: 15px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.25s;
+}
+
+
+/* ========================= */
+/* Edit Button */
+/* ========================= */
+
+.edit-button {
+    background: white;
+
+    color: #4CAF50;
+
+    border: 2px solid #4CAF50;
+}
+
+
+.edit-button:hover {
+    background: #4CAF50;
+
+    color: white;
+
+    transform: translateY(-2px);
+}
+
+
+/* ========================= */
+/* Delete Button */
+/* ========================= */
+
+.delete-button {
+    background: #FFEBEE;
+
+    color: #C62828;
+
+    border: 2px solid #FFCDD2;
+}
+
+
+.delete-button:hover {
+    background: #C62828;
+
+    color: white;
+
+    border-color: #C62828;
+
+    transform: translateY(-2px);
+}
+
+
+/* ========================= */
+/* Tablet */
+/* ========================= */
+
+@media (max-width: 768px) {
+
+    .user-offer-image {
+        height: 200px;
+    }
+
+    .user-offer-content {
+        padding: 22px;
+    }
+
+    .user-offer-title {
+        font-size: 22px;
+    }
+
+}
+
+
+/* ========================= */
+/* Mobile */
+/* ========================= */
+
+@media (max-width: 480px) {
+
+    .user-offer-image {
+        height: 180px;
+    }
+
+    .user-offer-content {
+        padding: 18px;
+    }
+
+    .user-offer-title {
+        font-size: 20px;
+    }
+
+    .user-offer-top {
+        gap: 8px;
+    }
+
+    .user-offer-point-cost {
+        margin-left: 0;
+    }
+
+    .user-offer-info {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+    .user-offer-date {
+        text-align: left;
+    }
+
+    .user-offer-actions {
+        flex-direction: column;
+    }
+
+    .user-offer-actions button {
+        width: 100%;
+    }
+
+}

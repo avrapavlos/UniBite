@@ -446,6 +446,16 @@ async function handleFormSubmit(event) {
     const longitude =
         parseFloat(longitudeInput.value);
 
+    const buildingName =
+        document.getElementById(
+            "building_name"
+        ).value.trim();
+
+    const roomNumber =
+        document.getElementById(
+            "room_number"
+        ).value.trim();
+
     const imageFile =
         imageInput.files[0];
 
@@ -460,7 +470,8 @@ async function handleFormSubmit(event) {
         isNaN(price) ||
         isNaN(quantity) ||
         isNaN(latitude) ||
-        isNaN(longitude)
+        isNaN(longitude) || !buildingName ||
+        !roomNumber
     ) {
 
         showError(
@@ -535,6 +546,16 @@ async function handleFormSubmit(event) {
     formData.append(
         "longitude",
         longitude
+    );
+
+    formData.append(
+        "building_name",
+        buildingName
+    );
+
+    formData.append(
+        "room_number",
+        roomNumber
     );
 
 

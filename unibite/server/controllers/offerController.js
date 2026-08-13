@@ -130,6 +130,12 @@ export async function createOffer(req, res) {
 
     console.log(req.file);
 
+    if (!building_name || !room_number) {
+        return res.status(400).json({
+            message: "Building name and room number are required"
+        });
+    }
+
     const parsedPrice = Number(price);
     const parsedLatitude = Number(latitude);
     const parsedLongitude = Number(longitude);

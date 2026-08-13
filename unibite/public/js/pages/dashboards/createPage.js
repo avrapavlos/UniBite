@@ -1,12 +1,13 @@
 import { createNavbar } from "../../../components/Navbar/Navbar.js";
-import { loadOffers } from "../../dataLoaders/offers.js";
+import { loadUserOffers } from "../../dataLoaders/userOffers.js";
+import { displayUserOffers } from "../../renderers/offersRenderer.js";
 
 // Add create offer button click event listener
 function addCreateOfferButtonListener() {
     const createOfferButton = document.getElementById("create-offer-button");
     createOfferButton.addEventListener("click", () => {
         // Redirect to the create offer page
-        window.location.href = "/pages/offers/createOffer.html";
+        window.location.href = "/pages/offers/createOffer.html"; 
     });
 }
 
@@ -16,8 +17,10 @@ async function init(){
     navbarContainer.appendChild(createNavbar());
 
     // Load the offers data for maybe later use
-    const offers = await loadOffers();
+    const offers = await loadUserOffers();
 
+    displayUserOffers(offers);
+    
     // Render the data
     console.log("Offers data loaded:", offers);
 
