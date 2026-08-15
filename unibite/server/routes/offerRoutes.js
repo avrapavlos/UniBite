@@ -7,56 +7,34 @@ import {
     getUserOffers,
     getOfferExcludingUser,
     updateOffer,
-    deleteOffer
+    deleteOffer,
+    claimOffer,
+    getOfferClaims,
+    acceptOfferClaim,
+    rejectOfferClaim,
+    getUserClaims,
+    getUserClaimedOffers,
+    rateClaim
 } from "../controllers/offerController.js";
 
 import upload from "../middleware/upload.js";
 
 const router = express.Router();
 
+router.get("/offers", getAllOffers);
+router.get("/offers/:title", getOfferByTitle);
+router.post("/offers", upload.single("image"), createOffer);
 
-// GET all offers
-router.get(
-    "/offers",
-    getAllOffers
-);
-
-
-// GET a specific offer by title
-router.get(
-    "/offers/:title",
-    getOfferByTitle
-);
-
-
-// CREATE a new offer
-router.post(
-    "/offers",
-    upload.single("image"),
-    createOffer
-);
-
-
-// GET all offers created by a specific user
-router.get(
-    "/users/:userId/offers",
-    getUserOffers
-);
-
-router.get(
-    "/users/:userId/offers/exclude",
-    getOfferExcludingUser
-);
-
-router.post(
-    "/offers/:offerId",
-    updateOffer
-);
-
-router.delete(
-    "/offers/:offerId",
-    deleteOffer
-);
-
+router.get("/users/:userId/offers", getUserOffers);
+router.get("/users/:userId/claims", getUserClaims);
+router.get("/users/:userId/claimed-offers", getUserClaimedOffers);
+router.get("/users/:userId/offers/exclude", getOfferExcludingUser);
+router.get("/offers/:offerId/claims", getOfferClaims);
+router.post("/offers/:offerId/claims", claimOffer);
+router.post("/offers/:offerId/claims/:requestId/accept", acceptOfferClaim);
+router.post("/offers/:offerId/claims/:requestId/reject", rejectOfferClaim);
+router.post("/requests/:requestId/rate", rateClaim);
+router.post("/offers/:offerId", updateOffer);
+router.delete("/offers/:offerId", deleteOffer);
 
 export default router;

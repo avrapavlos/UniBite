@@ -114,6 +114,122 @@ body {
     auto-rows: 1fr;
 }
 
+.claimed-offers-section {
+    padding: 0 18px 30px;
+}
+
+.claimed-offers-header {
+    margin-bottom: 18px;
+}
+
+.claimed-offers-header h2 {
+    margin: 0 0 8px;
+    color: #2b7c3b;
+    font-size: clamp(1.7rem, 2vw, 2.5rem);
+}
+
+.claimed-offers-header p {
+    margin: 0;
+    color: #59705d;
+}
+
+.claimed-offers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.claimed-offer-card {
+    background: white;
+    border: 1px solid #ebf0ec;
+    border-radius: 22px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(23, 40, 25, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.claimed-offer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.claimed-offer-top h3 {
+    margin: 0;
+    color: #1d5d2a;
+    font-size: 1.25rem;
+}
+
+.claim-status {
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.claim-status.pending {
+    background: #fff4d6;
+    color: #8a6300;
+}
+
+.claim-status.accepted {
+    background: #e9fbe8;
+    color: #226c2d;
+}
+
+.claim-status.rejected {
+    background: #fde8e8;
+    color: #a53333;
+}
+
+.claimed-offer-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: #5b685f;
+    font-size: 0.92rem;
+}
+
+.claimed-offer-meta span {
+    background: #f2f7f2;
+    padding: 6px 10px;
+    border-radius: 999px;
+}
+
+.claim-rating-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.claim-rating-row span {
+    font-weight: 700;
+    color: #2d5d36;
+}
+
+.rating-star {
+    border: none;
+    background: #f4f7f4;
+    color: #e4b93a;
+    font-size: 1.5rem;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 2px 6px;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.rating-star:hover {
+    background: #fff2bf;
+    transform: translateY(-1px);
+}
+
 /* ===========================
    OFFER CARD
 =========================== */

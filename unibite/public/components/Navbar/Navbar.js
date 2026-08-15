@@ -1,7 +1,30 @@
-//Get user logged in
-const user = JSON.parse(
-    localStorage.getItem("user")
-) || {};
+function getCurrentUser() {
+    const rawUser = localStorage.getItem("user") || sessionStorage.getItem("user");
+    if (!rawUser) {
+        return {};
+    }
+
+    try {
+        return JSON.parse(rawUser) || {};
+    } catch (error) {
+        console.error("Failed to parse stored user for navbar:", error);
+        return {};
+    }
+}
+
+function updateStoredUser(nextUser) {
+    if (!nextUser || !nextUser.id) {
+        return;
+    }
+
+    const serializedUser = JSON.stringify(nextUser);
+
+    if (localStorage.getItem("remember") === "true") {
+        localStorage.setItem("user", serializedUser);
+    }
+
+    sessionStorage.setItem("user", serializedUser);
+}
 
 // Script to load the css for the navbar
 function loadNavbarCSS() {
@@ -18,8 +41,12 @@ function loadNavbarCSS() {
 
 // Script to create navbar
 export function createNavbar() {
+    const user = getCurrentUser();
+
     // Create navbar 
     const navbar = document.createElement("nav");
+
+    const currentPoints = Number(user.points ?? 0);
 
     navbar.classList.add("navbar");
 
@@ -64,7 +91,7 @@ export function createNavbar() {
         <div class="user-profile">
 
             <span class="points">
-                🟡 ${user.points || 0}
+                🟡 ${currentPoints}
             </span>
 
             <img id="user-profile" src="../../images/user-profile.png" alt="User Profile" class="profile-image">

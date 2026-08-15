@@ -66,14 +66,26 @@ export function displayUserOffers(data, actions = {}) {
         return;
     }
 
-    data.forEach(offer => {
-        const card = createUserOfferCard(offer, (action, selectedOffer) => {
+    data.forEach((offer) => {
+        const card = createUserOfferCard(offer, (action, selectedOffer, matchedClaim, score) => {
             if (action === "edit" && actions.onEdit) {
                 actions.onEdit(selectedOffer);
             }
 
             if (action === "delete" && actions.onDelete) {
                 actions.onDelete(selectedOffer);
+            }
+
+            if (action === "accept-claim" && actions.onAcceptClaim) {
+                actions.onAcceptClaim(selectedOffer, matchedClaim);
+            }
+
+            if (action === "reject-claim" && actions.onRejectClaim) {
+                actions.onRejectClaim(selectedOffer, matchedClaim);
+            }
+
+            if (action === "rate-claim" && actions.onRateClaim) {
+                actions.onRateClaim(selectedOffer, matchedClaim, score);
             }
         });
 

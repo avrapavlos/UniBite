@@ -169,12 +169,206 @@ async function deleteOffer(offer) {
     }
 }
 
+function createClaimedOfferCard(offer, onRate) {
+    const article = document.createElement("article");
+    article.className = "claimed-offer-card";
+
+    const status = String(offer.status || "PENDING").toUpperCase();
+    const isAccepted = status === "ACCEPTED";
+    const isRated = false;
+
+    article.innerHTML = `
+        <div class="claimed-offer-top">
+            <h3>${offer.title || "Offer"}</h3>
+            <span class="claim-status ${status.toLowerCase()}">${status}</span>
+        </div>
+
+        <div class="claimed-offer-meta">
+            <span>By ${offer.creator_name || "creator"}</span>
+            <span>${offer.claimed_portions || 1} portion(s)</span>
+        </div>
+
+        <p>${offer.description || "No description."}</p>
+
+        <div class="claimed-offer-meta">
+            <span>${offer.building || "Campus"}</span>
+            <span>Room ${offer.room || "TBA"}</span>
+        </div>
+
+        ${isAccepted ? `
+            <div class="claim-rating-row">
+                <span>Rate creator</span>
+                ${[1,2,3,4,5].map((star) => `<button type="button" class="rating-star" data-score="${star}">★</button>`).join("")}
+            </div>
+        ` : ""}
+    `;
+
+    if (isAccepted) {
+        article.querySelectorAll(".rating-star").forEach((button) => {
+            button.addEventListener("click", () => onRate(offer, Number(button.dataset.score)));
+        });
+    }
+
+    return article;
+}
+
+async function refreshClaimedOffers() {
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId) {
+        document.querySelector("#claimed-offers-grid").innerHTML = '<p class="empty-state">Log in to see your claimed offers.</p>';
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/users/${currentUserId}/claimed-offers`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to load claimed offers");
+        }
+
+        const claimedOffers = await response.json();
+        const container = document.querySelector("#claimed-offers-grid");
+
+        if (!container) {
+            return;
+        }
+
+        container.innerHTML = "";
+
+        if (!claimedOffers.length) {
+            container.innerHTML = '<p class="empty-state">You have not claimed any offers yet.</p>';
+            return;
+        }
+
+        claimedOffers.forEach((offer) => {
+            const card = createClaimedOfferCard(offer, (selectedOffer, score) => {
+                rateClaim(selectedOffer, { request_id: selectedOffer.request_id }, score);
+            });
+            container.appendChild(card);
+        });
+    } catch (error) {
+        console.error(error);
+        const container = document.querySelector("#claimed-offers-grid");
+        if (container) {
+            container.innerHTML = '<p class="empty-state">Unable to load your claimed offers.</p>';
+        }
+    }
+}
+
 async function refreshOffers() {
     const offers = await loadUserOffers();
     displayUserOffers(offers, {
         onEdit: openEditModal,
-        onDelete: deleteOffer
+        onDelete: deleteOffer,
+        onAcceptClaim: acceptClaim,
+        onRejectClaim: rejectClaim,
+        onRateClaim: rateClaim
     });
+}
+
+async function acceptClaim(offer, claim) {
+    const userId = getCurrentUserId();
+    if (!userId) {
+        alert("You need to be logged in to accept a claim.");
+        return;
+    }
+
+    if (!claim?.request_id) {
+        alert("No claim selected.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/offers/${offer.id}/claims/${claim.request_id}/accept`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId })
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || "Failed to accept claim.");
+        }
+
+        alert("Claim accepted.");
+        refreshOffers();
+    } catch (error) {
+        console.error(error);
+        alert(error.message || "Unable to accept claim.");
+    }
+}
+
+async function rejectClaim(offer, claim) {
+    const userId = getCurrentUserId();
+    if (!userId) {
+        alert("You need to be logged in to reject a claim.");
+        return;
+    }
+
+    if (!claim?.request_id) {
+        alert("No claim selected.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/offers/${offer.id}/claims/${claim.request_id}/reject`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId })
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || "Failed to reject claim.");
+        }
+
+        alert("Claim rejected.");
+        refreshOffers();
+    } catch (error) {
+        console.error(error);
+        alert(error.message || "Unable to reject claim.");
+    }
+}
+
+async function rateClaim(offer, claim, score) {
+    const userId = getCurrentUserId();
+    if (!userId) {
+        alert("You need to be logged in to rate a claim.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/requests/${claim.request_id}/rate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ raterId: userId, score, comment: "" })
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || "Failed to rate claim.");
+        }
+
+        const storedUser = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "null");
+        if (storedUser && Number(storedUser.id) === Number(userId)) {
+            const updatedUser = {
+                ...storedUser,
+                points: Number(storedUser.points || 0) + Number(score) * 5
+            };
+
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+            sessionStorage.setItem("user", JSON.stringify(updatedUser));
+        }
+
+        alert("Thanks for rating this exchange.");
+        refreshOffers();
+    } catch (error) {
+        console.error(error);
+        alert(error.message || "Unable to rate claim.");
+    }
 }
 
 // Add create offer button click event listener
@@ -198,6 +392,7 @@ async function init(){
     createEditModal();
     addCreateOfferButtonListener();
     refreshOffers();
+    refreshClaimedOffers();
 }
 
 init();
