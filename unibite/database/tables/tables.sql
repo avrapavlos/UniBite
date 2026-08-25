@@ -42,6 +42,8 @@ CREATE TABLE advertisments (
 
     date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
+    date_of_deletion TIMESTAMP,
+
     latitude DECIMAL(9,6) NOT NULL,
 
     longitude DECIMAL(9,6) NOT NULL,
@@ -86,9 +88,9 @@ CREATE TABLE requests(
     request_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     ad_id INT NOT NULL,
     con_id INT,
-    CONSTRAINT fk_offer
+    CONSTRAINT fk_advertisment
         FOREIGN KEY(ad_id)
-        REFERENCES offers(id),
+        REFERENCES advertisments(ad_id),
     CONSTRAINT fk_consumer
         FOREIGN KEY(con_id)
         REFERENCES users(id)
@@ -113,9 +115,33 @@ CREATE TABLE admins(
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-DROP USER 'user'@'localhost';
+DROP USER IF EXISTS'user'@'localhost';
 CREATE USER 'user'@'localhost'
 IDENTIFIED BY 'password';
 GRANT ALL PRIVILEGES ON unibite.* TO 'user'@'localhost';
 
 FLUSH PRIVILEGES;
+
+DELIMITER $$
+
+CREATE TRIGGER calcDeletion BEFORE INSERT ON advertisments FOR EACH ROW
+BEGIN
+    SET NEW.date_of_deletion = ADDDATE(CURRENT_TIMESTAMP(), INTERVAL 48 HOUR);
+END$$
+
+CREATE EVENT deactivateAd
+ON SCHEDULE EVERY 1 HOUR
+DO
+    UPDATE advertisments
+    SET state_of_ad = 'DELETED' WHERE date_of_deletion >= CURRENT_TIMESTAMP() AND state_of_ad <> 'DELETED'$$
+
+CREATE TRIGGER inactivation BEFORE INSERT ON requests FOR EACH ROW
+BEGIN
+    DECLARE portions INT;
+    SELECT quantity INTO portions FROM advertisments WHERE advertisments.ad_id = new.ad_id;
+    IF portions - 1 = 0 THEN UPDATE advertisments SET state_of_ad = 'INACTIVE', quantity = 0 WHERE advertisments.ad_id = new.ad_id;
+    ELSE UPDATE advertisments SET quantity = portions - 1 WHERE advertisments.ad_id = new.ad_id;
+    END IF;
+END$$
+
+DELIMITER ;
