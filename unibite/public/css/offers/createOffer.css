@@ -1,0 +1,464 @@
+/* ========================= */
+/* Global */
+/* ========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #F5FAF5;
+    color: #333;
+    line-height: 1.6;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+button,
+input,
+textarea,
+select {
+    font-family: inherit;
+}
+
+
+/* ========================= */
+/* Create Offer Page */
+/* ========================= */
+
+.create-offer-page {
+    min-height: calc(100vh - 90px);
+    padding: 60px 8%;
+}
+
+.create-offer-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+
+/* ========================= */
+/* Page Header */
+/* ========================= */
+
+.page-header {
+    text-align: center;
+    margin-bottom: 45px;
+}
+
+.page-header h1 {
+    color: #2E7D32;
+    font-size: 42px;
+    margin-bottom: 12px;
+}
+
+.page-header p {
+    color: #666;
+    font-size: 18px;
+    max-width: 650px;
+    margin: 0 auto;
+}
+
+
+/* ========================= */
+/* Form */
+/* ========================= */
+
+#create-offer-form {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+
+/* ========================= */
+/* Form Sections */
+/* ========================= */
+
+.form-section {
+    background: white;
+    padding: 35px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.form-section h2 {
+    color: #2E7D32;
+    font-size: 26px;
+    margin-bottom: 8px;
+}
+
+.section-description {
+    color: #666;
+    margin-bottom: 25px;
+}
+
+
+/* ========================= */
+/* Form Groups */
+/* ========================= */
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 25px;
+}
+
+.form-group:first-child {
+    margin-top: 0;
+}
+
+.form-group label {
+    color: #333;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+
+/* ========================= */
+/* Inputs */
+/* ========================= */
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    border: 2px solid #E0E0E0;
+    border-radius: 10px;
+    padding: 13px 15px;
+    font-size: 16px;
+    color: #333;
+    background: #FAFAFA;
+    outline: none;
+    transition: 0.25s;
+}
+
+.form-group input {
+    height: 50px;
+}
+
+.form-group textarea {
+    min-height: 140px;
+    resize: vertical;
+}
+
+.form-group select {
+    height: 50px;
+    cursor: pointer;
+}
+
+
+/* ========================= */
+/* Input Focus */
+/* ========================= */
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #4CAF50;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+}
+
+
+/* ========================= */
+/* Placeholder */
+/* ========================= */
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #999;
+}
+
+
+/* ========================= */
+/* Form Row */
+/* ========================= */
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+
+/* ========================= */
+/* Map */
+/* ========================= */
+
+.map-container {
+    margin-top: 25px;
+}
+
+#map {
+    width: 100%;
+    height: 350px;
+    border-radius: 15px;
+    overflow: hidden;
+    border: 2px solid #E0E0E0;
+}
+
+.map-hint {
+    color: #777;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+
+/* ========================= */
+/* Image Upload */
+/* ========================= */
+
+.image-upload {
+    margin-top: 25px;
+}
+
+.image-upload label {
+    display: block;
+    border: 2px dashed #BDBDBD;
+    border-radius: 15px;
+    padding: 40px 20px;
+    background: #FAFAFA;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.image-upload label:hover {
+    border-color: #4CAF50;
+    background: #F5FAF5;
+}
+
+.upload-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.upload-icon {
+    font-size: 45px;
+    margin-bottom: 10px;
+}
+
+.upload-title {
+    color: #2E7D32;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.upload-description {
+    color: #777;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+#image {
+    display: none;
+}
+
+
+/* ========================= */
+/* Image Preview */
+/* ========================= */
+
+.image-preview-container {
+    display: none;
+    margin-top: 20px;
+}
+
+.image-preview-container.active {
+    display: block;
+}
+
+#image-preview {
+    width: 100%;
+    max-height: 350px;
+    object-fit: cover;
+    border-radius: 15px;
+    border: 2px solid #E0E0E0;
+}
+
+
+/* ========================= */
+/* Error Message */
+/* ========================= */
+
+.error-message {
+    display: none;
+    background: #FFEBEE;
+    color: #C62828;
+    border: 1px solid #EF9A9A;
+    border-radius: 10px;
+    padding: 12px 15px;
+    text-align: center;
+}
+
+.error-message.active {
+    display: block;
+}
+
+
+/* ========================= */
+/* Form Actions */
+/* ========================= */
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 5px;
+}
+
+
+/* ========================= */
+/* Buttons */
+/* ========================= */
+
+.cancel-button,
+.create-button {
+    border-radius: 10px;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+
+/* Cancel */
+
+.cancel-button {
+    background: white;
+    color: #555;
+    border: 2px solid #DDD;
+}
+
+.cancel-button:hover {
+    background: #F5F5F5;
+}
+
+
+/* Create */
+
+.create-button {
+    background: #4CAF50;
+    color: white;
+    border: 2px solid #4CAF50;
+}
+
+.create-button:hover {
+    background: #388E3C;
+    border-color: #388E3C;
+    transform: translateY(-2px);
+}
+
+
+/* ========================= */
+/* Tablet */
+/* ========================= */
+
+@media (max-width: 992px) {
+
+    .create-offer-page {
+        padding: 50px 6%;
+    }
+
+    .create-offer-container {
+        max-width: 800px;
+    }
+
+    .page-header h1 {
+        font-size: 38px;
+    }
+
+}
+
+
+/* ========================= */
+/* Mobile */
+/* ========================= */
+
+@media (max-width: 768px) {
+
+    .create-offer-page {
+        padding: 40px 6%;
+    }
+
+    .page-header {
+        margin-bottom: 35px;
+    }
+
+    .page-header h1 {
+        font-size: 34px;
+    }
+
+    .page-header p {
+        font-size: 16px;
+    }
+
+    .form-section {
+        padding: 25px 20px;
+        border-radius: 15px;
+    }
+
+    .form-section h2 {
+        font-size: 23px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    #map {
+        height: 280px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .cancel-button,
+    .create-button {
+        width: 100%;
+        padding: 15px;
+    }
+
+}
+
+
+/* ========================= */
+/* Small Mobile */
+/* ========================= */
+
+@media (max-width: 480px) {
+
+    .create-offer-page {
+        padding: 30px 5%;
+    }
+
+    .page-header h1 {
+        font-size: 30px;
+    }
+
+    .form-section {
+        padding: 22px 16px;
+    }
+
+    #map {
+        height: 240px;
+    }
+
+}

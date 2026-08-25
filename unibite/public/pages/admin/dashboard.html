@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../../css/dashboards/browse.css" />
+    <link rel="stylesheet" href="../../css/dashboards/admin.css" />
+</head>
+
+<body>
+    <div class="admin-dashboard-page">
+        <div class="card-header admin-header">
+            <h1>Admin Dashboard</h1>
+            <p>Overview of live statistics and top donors for the community.</p>
+        </div>
+
+        <section class="admin-summary-grid">
+            <article class="admin-summary-card">
+                <h2>Total Portions Shared</h2>
+                <p id="total-portions" class="admin-stat">0</p>
+                <span>Portions shared successfully this month</span>
+            </article>
+            <article class="admin-summary-card">
+                <h2>Total Active Ads</h2>
+                <p id="active-ads" class="admin-stat">0</p>
+                <span>Active advertisements available now</span>
+            </article>
+            <article class="admin-summary-card">
+                <h2>Total Users</h2>
+                <p id="total-users" class="admin-stat">0</p>
+                <span>Registered members in the system</span>
+            </article>
+        </section>
+
+        <section class="admin-section">
+            <div class="section-header">
+                <h2>Top Donors Leaderboard</h2>
+                <p>Students who shared the most portions and earned the highest rating.</p>
+            </div>
+
+            <div class="leaderboard-card">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Portions Given</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body">
+                        <tr>
+                            <td colspan="4">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script type="module" src="../../js/pages/admin/dashboard.js"></script>
+</body>
+
+</html>

@@ -1,16 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unibite Create Offer</title>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Offers | UniBite</title>
+
+    <link rel="stylesheet"
+          href="../../css/dashboards/create.css">
+
 </head>
+
 <body>
-    <!-- Navbar TOpbar component-->
+
+    <!-- Navbar Component -->
     <div id="navbar-container"></div>
 
-    
 
-    <script type="module" src="../../js/components.js"></script>
+    <!-- Main Content -->
+    <main class="create-page">
+
+        <div class="page-shell">
+
+            <!-- Header -->
+            <section class="page-header">
+
+                <div class="header-text">
+
+                    <h1>My Created Offers</h1>
+
+                    <p>
+                        Manage all the meals you've shared with other students.
+                    </p>
+
+                </div>
+
+                <button class="create-offer-button"
+                        id="create-offer-button"
+                        type="button">
+                    <span>＋</span>
+                    <span>Create New Offer</span>
+                </button>
+
+            </section>
+
+            <!-- Offers -->
+            <section class="offers-section">
+
+                <div class="offers-grid"
+                     id="offers-grid">
+
+                </div>
+
+            </section>
+
+            <section class="claimed-offers-section">
+                <div class="claimed-offers-header">
+                    <div>
+                        <h2>My Claimed Offers</h2>
+                        <p>See the status of every meal you requested and rate the creator after acceptance.</p>
+                    </div>
+                </div>
+
+                <div class="claimed-offers-grid" id="claimed-offers-grid"></div>
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <script type="module"
+            src="../../js/pages/dashboards/createPage.js">
+
+    </script>
+
 </body>
+
 </html>

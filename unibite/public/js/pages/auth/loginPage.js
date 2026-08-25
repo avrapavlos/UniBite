@@ -16,21 +16,25 @@ function loginToApp() {
         //Get checkbox value
         const remember = document.getElementById("remember-box").checked;
 
-        //THis is where the connection to the backend happens
-        const response = await fetch("/api/login", {
+        // This is where the connection to the backend happens
+        const apiBaseUrl = "http://localhost:3000";
+        const response = await fetch(`${apiBaseUrl}/api/login`, {
             method: "POST",
-
             headers: {
                 "Content-Type": "application/json"
-            } ,
-
+            },
             body: JSON.stringify({
                 email,
                 password
             })
-        })
+        });
 
-        // And after it checks, if mathcing it gives the user data
+        if (!response.ok) {
+            console.error("Login request failed", response.status, response.statusText);
+            return;
+        }
+
+        // And after it checks, if matching it gives the user data
         const data = await response.json();
 
         // Check for userr data
@@ -48,6 +52,16 @@ function loginToApp() {
                 "user",
                 JSON.stringify(data.user)
                 );
+
+                sessionStorage.setItem(
+                    "remember",
+                    "true"
+                )
+
+                sessionStorage.setItem(
+                    "user",
+                    JSON.stringify(data.user)
+                )
             } else {
                 sessionStorage.setItem(
                     "remember",
@@ -85,6 +99,16 @@ function checkUserSession(){
                 JSON.parse(user)
             );
 
+            // Set user data to session storage for current session
+            sessionStorage.setItem(
+                "user",
+                user
+            );
+            
+            sessionStorage.setItem(
+                "remember",
+                "true"
+            );
             //ALready logged in move to browse
             window.location.replace(
                 "../../pages/dashboards/browsePage.html"

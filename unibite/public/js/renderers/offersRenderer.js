@@ -1,5 +1,6 @@
 import { showOfferDetails } from "../../components/OfferDetails/OfferDetailsManager.js";
 import { createOfferCard } from "../../components/OfferCard/OfferCard.js";
+import { createUserOfferCard } from "../../components/UserOfferCard/UserOfferCard.js";
 
 // Function that is used to render data
 export function displayOffers(data) {
@@ -18,7 +19,15 @@ export function displayOffers(data) {
     // Make sure inner html is empty
     container.innerHTML = "";
 
+    console.log("Rendering offers:", data);
 
+    if (!data || data.length === 0) {
+        const noOffersMessage = document.createElement("p");
+        noOffersMessage.textContent = "No offers available.";
+        container.appendChild(noOffersMessage);
+        return;
+    }
+    
     // Iterate all offers and create card and add showOfferDetails on click event
     data.forEach(offer => {
 
@@ -29,6 +38,61 @@ export function displayOffers(data) {
 
 
         // Append the card to the container
-        container.appendChild(card);
+        if (card) {
+            container.appendChild(card);
+        } else {
+            console.warn("Offer card not created for offer:", offer);
+        }
+
+    });
+}
+
+export function displayUserOffers(data, actions = {}) {
+    const container = document.querySelector("#offers-grid") || document.querySelector(".offers-section");
+
+    if (!container) {
+        console.error("User offer list container not found");
+        return;
+    }
+
+    container.innerHTML = "";
+    console.log("Rendering user offers:", data);
+
+    if (!data || data.length === 0) {
+        const noOffersMessage = document.createElement("p");
+        noOffersMessage.textContent = "No user offers available.";
+        noOffersMessage.className = "empty-state";
+        container.appendChild(noOffersMessage);
+        return;
+    }
+
+    data.forEach((offer) => {
+        const card = createUserOfferCard(offer, (action, selectedOffer, matchedClaim, score) => {
+            if (action === "edit" && actions.onEdit) {
+                actions.onEdit(selectedOffer);
+            }
+
+            if (action === "delete" && actions.onDelete) {
+                actions.onDelete(selectedOffer);
+            }
+
+            if (action === "accept-claim" && actions.onAcceptClaim) {
+                actions.onAcceptClaim(selectedOffer, matchedClaim);
+            }
+
+            if (action === "reject-claim" && actions.onRejectClaim) {
+                actions.onRejectClaim(selectedOffer, matchedClaim);
+            }
+
+            if (action === "rate-claim" && actions.onRateClaim) {
+                actions.onRateClaim(selectedOffer, matchedClaim, score);
+            }
+        });
+
+        if (card) {
+            container.appendChild(card);
+        } else {
+            console.warn("User offer card not created for offer:", offer);
+        }
     });
 }

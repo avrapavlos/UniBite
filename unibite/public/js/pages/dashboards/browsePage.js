@@ -1,10 +1,8 @@
-import { createNavbar } from "../../components/Navbar/Navbar.js";
-import { getMap, createMap, addOfferMarkers } from "../../components/Map/Map.js";
-import { showOfferDetails } from "../../components/OfferDetails/OfferDetailsManager.js";
-import { displayOffers } from "../renderers/offersRenderer.js";
-import { loadOffers } from "../dataLoaders/offers.js";
-
-
+import { createNavbar } from "../../../components/Navbar/Navbar.js";
+import { getMap, createMap, addOfferMarkers } from "../../../components/Map/Map.js";
+import { showOfferDetails } from "../../../components/OfferDetails/OfferDetailsManager.js";
+import { displayOffers } from "../../renderers/offersRenderer.js";
+import { loadOffers } from "../../dataLoaders/offers.js";
 
 // CLick event listener for the filter button
 function setFilterListener() {

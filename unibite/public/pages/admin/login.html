@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../css/auth/login.css">
+    <title>Admin Login</title>
+</head>
+
+<body>
+    <div class="login-page">
+
+        <div class="login-container">
+
+            <!-- Logo -->
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <img class="logo-icon-image" src="../../images/logo/logo.png" alt="logo">
+                </div>
+
+                <h1>UniBite Admin</h1>
+                <p>Administration portal</p>
+            </div>
+
+
+            <!-- Login Form -->
+            <form class="login-form" id="admin-login-form">
+
+                <h2>Admin Login</h2>
+
+                <p class="login-error" id="login-error" style="display:none;">Invalid credentials</p>
+
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="admin@university.com" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter admin password" required>
+                    <p class="password-error" id="password-error" style="display:none; margin-top:8px; color:#d32f2f; font-size:13px;">
+                        Password must be at least 8 characters and include uppercase, lowercase, and a number.
+                    </p>
+                </div>
+
+                <div class="options">
+                    <label class="remember">
+                        <input type="checkbox" id="remember-box"> Remember me
+                    </label>
+                </div>
+
+                <button type="submit">Login</button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <script type="module" src="../../js/pages/admin/loginPage.js"></script>
+</body>
+
+</html>
