@@ -44,6 +44,8 @@ CREATE TABLE advertisments (
 
     date_of_deletion TIMESTAMP,
 
+    date_of_delivery TIMESTAMP,
+
     latitude DECIMAL(9,6) NOT NULL,
 
     longitude DECIMAL(9,6) NOT NULL,
@@ -88,6 +90,7 @@ CREATE TABLE requests(
     request_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     ad_id INT NOT NULL,
     con_id INT,
+    
     CONSTRAINT fk_advertisment
         FOREIGN KEY(ad_id)
         REFERENCES advertisments(ad_id),
@@ -144,4 +147,9 @@ BEGIN
     END IF;
 END$$
 
+CREATE PROCEDURE penalty(IN p_con_id INT)
+BEGIN
+    UPDATE users
+    SET points = points - 1 WHERE user.id = p_con_id;
+END$$
 DELIMITER ;
