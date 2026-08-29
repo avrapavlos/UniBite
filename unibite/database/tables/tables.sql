@@ -90,7 +90,12 @@ CREATE TABLE requests(
     request_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     ad_id INT NOT NULL,
     con_id INT,
-    
+    state_of_delivery ENUM (
+        'DELIVERED',
+        'MISSED',
+        'UNDEFINED'
+    ) DEFAULT 'UNDEFINED',
+    missedDeliveryPenalty BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_advertisment
         FOREIGN KEY(ad_id)
         REFERENCES advertisments(ad_id),
@@ -152,4 +157,27 @@ BEGIN
     UPDATE users
     SET points = points - 1 WHERE user.id = p_con_id;
 END$$
+
+CREATE EVENT missedDelivery
+ON SCHEDULE EVERY 1 HOUR
+DO
+BEGIN
+
+    UPDATE users u
+    JOIN (
+        SELECT con_id, COUNT(*) AS missed_count
+        FROM requests
+        WHERE state_of_delivery = 'MISSED'
+          AND missedDeliveryPenalty = FALSE
+        GROUP BY con_id
+    ) r ON u.con_id = r.con_id
+    SET u.points = u.points - r.missed_count;
+
+    UPDATE requests
+    SET missedDeliveryPenalty = TRUE
+    WHERE state_of_delivery = 'MISSED'
+      AND missedDeliveryPenalty = FALSE;
+
+END$$
+
 DELIMITER ;
