@@ -96,6 +96,7 @@ CREATE TABLE requests(
         'UNDEFINED'
     ) DEFAULT 'UNDEFINED',
     missedDeliveryPenalty BOOLEAN DEFAULT FALSE,
+    penalty_applied BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_advertisment
         FOREIGN KEY(ad_id)
         REFERENCES advertisments(ad_id),
@@ -162,7 +163,6 @@ CREATE EVENT missedDelivery
 ON SCHEDULE EVERY 1 HOUR
 DO
 BEGIN
-
     UPDATE users u
     JOIN (
         SELECT con_id, COUNT(*) AS missed_count
@@ -177,7 +177,26 @@ BEGIN
     SET missedDeliveryPenalty = TRUE
     WHERE state_of_delivery = 'MISSED'
       AND missedDeliveryPenalty = FALSE;
-
 END$$
 
+CREATE EVENT noRating
+ON SCHEDULE EVERY 1 HOUR
+DO
+    UPDATE users u
+    INNER JOIN requests req
+    ON u.id = req.con_id
+    INNER JOIN advertisments ad
+    ON req.ad_id = ad.ad_id
+    LEFT JOIN ratings rat
+    ON req.request_id = rat.req_id
+    SET
+    u.points = u.points - 1,
+    req.penalty_applied = TRUE
+    WHERE
+    rat.req_id IS NULL
+    AND req.penalty_applied = FALSE
+    AND CURRENT_TIMESTAMP >= ADDDATE(
+        ad.date_of_delivery,
+        INTERVAL 48 HOUR
+    );
 DELIMITER ;
