@@ -93,8 +93,7 @@ CREATE TABLE requests(
     state_of_delivery ENUM (
         'DELIVERED',
         'MISSED',
-        'UNDEFINED'
-    ) DEFAULT 'UNDEFINED',
+    ) DEFAULT 'DELIVERED',
     missedDeliveryPenalty BOOLEAN DEFAULT FALSE,
     penalty_applied BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_advertisment
@@ -151,12 +150,6 @@ BEGIN
     IF portions - 1 = 0 THEN UPDATE advertisments SET state_of_ad = 'INACTIVE', quantity = 0 WHERE advertisments.ad_id = new.ad_id;
     ELSE UPDATE advertisments SET quantity = portions - 1 WHERE advertisments.ad_id = new.ad_id;
     END IF;
-END$$
-
-CREATE PROCEDURE penalty(IN p_con_id INT)
-BEGIN
-    UPDATE users
-    SET points = points - 1 WHERE user.id = p_con_id;
 END$$
 
 CREATE EVENT missedDelivery
