@@ -20,7 +20,6 @@ class Advertisment {
     longtitude : DECIMAL(9,6)
     quantity : INT
     path_to_picture : VARCHAR(255)
-    allergies : ENUM {"PEANUTS", "CELERY", "MILK", "GLUTEN", "SEASAME SEEDS", "MOLLUSCS", "CRUSTACEANS", "FISH", "EGG", "SOY BEAN", "MUSTARD", "TREE NUTS", "LUPIN", "SULFUR DIOXIDE & SULFITES"}
     state : ENUM {"ACTIVE", "INACTIVE", "DELETED"}
 }
 class Admin {
@@ -40,6 +39,12 @@ class Rating {
     --
     description : TEXT 
 }
+class Allergens{
+    *allegen_id INT
+    --
+    allergen_name VARCHAR(255)
+    ad_id INT
+}
 
 User --> Advertisment : posts
 User --> Advertisment : edits
@@ -52,4 +57,5 @@ Request --> Rating : creates
 User --> Rating : writes
 Rating --> User : penalty
 Rating --> User : rewards
+Advertisment "1" --> "N" Allergens : contains
 @enduml 

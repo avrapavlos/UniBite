@@ -52,6 +52,16 @@ function loginToApp() {
                 "user",
                 JSON.stringify(data.user)
                 );
+
+                sessionStorage.setItem(
+                    "remember",
+                    "true"
+                )
+
+                sessionStorage.setItem(
+                    "user",
+                    JSON.stringify(data.user)
+                )
             } else {
                 sessionStorage.setItem(
                     "remember",
@@ -89,6 +99,16 @@ function checkUserSession(){
                 JSON.parse(user)
             );
 
+            // Set user data to session storage for current session
+            sessionStorage.setItem(
+                "user",
+                user
+            );
+            
+            sessionStorage.setItem(
+                "remember",
+                "true"
+            );
             //ALready logged in move to browse
             window.location.replace(
                 "../../pages/dashboards/browsePage.html"

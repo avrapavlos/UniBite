@@ -1,3 +1,4 @@
+import { showOfferDetails} from "../../components/OfferDetails/OfferDetailsManager.js";
 
 // OfferCard.js
 // Load component CSS once
@@ -17,6 +18,14 @@ export function createOfferCard(offer, onClick) {
 
     loadOfferCardCSS();
 
+    const storedUser = localStorage.getItem("user");
+    const currentUserId = storedUser ? JSON.parse(storedUser).id : null;
+
+    if (currentUserId !== null && offer.creator_id === currentUserId) {
+        // If the offer belongs to the current user, do not create a card
+        return null;
+    }
+
     const card = document.createElement("article");
 
     card.classList.add("offer-card");
@@ -25,7 +34,7 @@ export function createOfferCard(offer, onClick) {
     card.innerHTML = `
         <div class="offer-image-container">
             <img class="offer-image" 
-                 src="${offer.image}" 
+                 src="${offer.image || '../../images/sandwich.jpeg'}" 
                  alt="${offer.title}">
         </div>
 
@@ -39,17 +48,17 @@ export function createOfferCard(offer, onClick) {
             </p>
 
             <p class="offer-portions">
-                Μερίδες: ${offer.portions}
+                Μερίδες: ${offer.quantity}
             </p>
 
-            <p class="offer-point-cost">
-                🟡${offer.pointCost}
+            <p class="offer-price">
+                🟡${offer.price}
             </p>
         </div>
     `;
 
     // Check to see if it has 0 portions
-    if (offer.portions == 0 || offer.portions < 0) {
+    if (offer.quantity == 0 || offer.quantity < 0) {
 
         // GIve it the empty css class
         card.classList.add("empty");
@@ -67,9 +76,10 @@ export function createOfferCard(offer, onClick) {
     else {
         // Add open details event button
         card.addEventListener("click", () => {
-            onClick(offer);
+            showOfferDetails(offer);
         });
     }
+
 
     // Return the offer card
     return card;

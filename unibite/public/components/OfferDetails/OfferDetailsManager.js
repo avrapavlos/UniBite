@@ -2,63 +2,75 @@
 
 import { createOfferDetails } from "./OfferDetails.js";
 
-
 let currentOfferDetails = null;
 
+async function handleClaimOffer(offer) {
+    const currentUser = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "null");
 
-// Get the offer details container of the page and show the offer clicked
+    if (!currentUser) {
+        alert("Please log in to claim an offer.");
+        return;
+    }
+
+    if (Number(offer.creator_id) === Number(currentUser.id)) {
+        alert("You cannot claim your own offer.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/offers/${offer.id}/claims`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: currentUser.id, claimedPortions: 1 })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || "Failed to claim this offer.");
+        }
+
+        const claimButton = currentOfferDetails?.querySelector(".offer-details-claim-button");
+        if (claimButton) {
+            claimButton.disabled = true;
+            claimButton.textContent = "CLAIM SENT";
+        }
+
+        alert("Your claim has been created and is waiting for the creator to accept it.");
+    } catch (error) {
+        console.error(error);
+        alert(error.message || "Unable to submit claim.");
+    }
+}
+
 export function showOfferDetails(offer) {
-    if (offer.portions > 0) {
-        // Gets container
-        const container = document.getElementById(
-            "offer-details-container"
-        );
-
-        // Sets to active
+    if (offer.quantity > 0) {
+        const container = document.getElementById("offer-details-container");
         container.classList.add("active");
 
-        // Test
-        console.log("Details container found: ", container);
-
-        // Remove previous offer if still existing
         if (currentOfferDetails) {
             currentOfferDetails.remove();
         }
 
-
-        // Create new offer with createOfferDetails and get the generated html file and store it in current Offer
         currentOfferDetails = createOfferDetails(offer);
-
-        // Add to container of page
         container.appendChild(currentOfferDetails);
 
-
-        //Get Close button
-        const closeButton = currentOfferDetails.querySelector(
-            ".offer-details-close"
-        );
-
-        // Add the event listener which hides the offer details
+        const closeButton = currentOfferDetails.querySelector(".offer-details-close");
         closeButton.addEventListener("click", () => {
             hideOfferDetails();
-
-            // Remove visibility class
             container.classList.remove("active");
         });
+
+        const claimButton = currentOfferDetails.querySelector(".offer-details-claim-button");
+        if (claimButton) {
+            claimButton.addEventListener("click", () => handleClaimOffer(offer));
+        }
     } else return;
 }
 
-
-// Helper function to hide offer details when x is clicked
 function hideOfferDetails() {
-
-    // If exists
     if (currentOfferDetails) {
-
-        // Remove it from memory 
         currentOfferDetails.remove();
-
-        // Set to null
         currentOfferDetails = null;
     }
 }

@@ -38,7 +38,7 @@ CREATE TABLE advertisments (
 
     description TEXT NOT NULL,
 
-    price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    price INT NOT NULL DEFAULT 0,
 
     date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -46,7 +46,11 @@ CREATE TABLE advertisments (
 
     longitude DECIMAL(9,6) NOT NULL,
 
-    quality INT NOT NULL,
+    building_name VARCHAR(255) NOT NULL,
+
+    room_number VARCHAR(255) NOT NULL,
+
+    quantity INT NOT NULL,
 
     path_to_picture VARCHAR(255),
 
@@ -82,9 +86,9 @@ CREATE TABLE requests(
     request_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     ad_id INT NOT NULL,
     con_id INT,
-    CONSTRAINT fk_advertisment
+    CONSTRAINT fk_offer
         FOREIGN KEY(ad_id)
-        REFERENCES advertisments(ad_id),
+        REFERENCES offers(id),
     CONSTRAINT fk_consumer
         FOREIGN KEY(con_id)
         REFERENCES users(id)

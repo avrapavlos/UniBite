@@ -1,6 +1,4 @@
-import { createOfferCard } from "../../components/OfferCard/OfferCard.js";
-import { showOfferDetails } from "../../components/OfferDetails/OfferDetailsManager.js";
-
+// Function to load offers data from the API
 export async function loadOffers() {
 
     try {
