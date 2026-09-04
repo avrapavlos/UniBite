@@ -2,6 +2,8 @@ import { createNavbar } from "../../../components/Navbar/Navbar.js";
 import { loadUserOffers } from "../../dataLoaders/userOffers.js";
 import { displayUserOffers } from "../../renderers/offersRenderer.js";
 import { showNotification } from "../../../components/Notification/Notification.js";
+import { showConfirmation } from "../../../components/Confirmation/Confirmation.js";
+
 
 function getCurrentUserId() {
     const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "null");
@@ -142,10 +144,12 @@ async function deleteOffer(offer) {
         return;
     }
 
-    const confirmed = window.confirm(`Delete \"${offer.title}\"? This action cannot be undone.`);
-    if (!confirmed) {
-        return;
-    }
+    const confirmed = await showConfirmation(
+        `Delete "${offer.title}"? This action cannot be undone.`,
+        { title: "Delete Offer", confirmText: "Delete", danger: true }
+    );
+
+    if (!confirmed) return;
 
     try {
         const response = await fetch(`http://localhost:3000/api/offers/${offer.id}`, {
@@ -199,7 +203,7 @@ function createClaimedOfferCard(offer, onRate) {
         ${isAccepted ? `
             <div class="claim-rating-row">
                 <span>Rate creator</span>
-                ${[1,2,3,4,5].map((star) => `<button type="button" class="rating-star" data-score="${star}">★</button>`).join("")}
+                ${[1, 2, 3, 4, 5].map((star) => `<button type="button" class="rating-star" data-score="${star}">★</button>`).join("")}
             </div>
         ` : ""}
     `;
@@ -386,7 +390,7 @@ function addCreateOfferButtonListener() {
     });
 }
 
-async function init(){
+async function init() {
     const navbarContainer = document.getElementById("navbar-container");
     navbarContainer.appendChild(createNavbar());
 

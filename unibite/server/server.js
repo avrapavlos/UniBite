@@ -1,4 +1,3 @@
-
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -69,6 +68,7 @@ async function ensureClaimAndRatingSchema() {
 }
 
 async function initServer() {
+    console.log("Initializing server...");
     await ensureRequestsReferenceOfferTable();
     await ensureClaimAndRatingSchema();
 
@@ -86,6 +86,7 @@ async function initServer() {
     const __dirname = path.dirname(__filename);
 
     app.use(express.static(path.join(__dirname, "../public")));
+    app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
     setUpRoutes();
 

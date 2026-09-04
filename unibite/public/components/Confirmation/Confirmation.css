@@ -1,0 +1,109 @@
+/* ========================= */
+/* Confirm Dialog Backdrop */
+/* ========================= */
+
+#confirm-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0);
+    z-index: 2100;
+    pointer-events: none;
+    transition: background 0.3s ease;
+}
+
+#confirm-backdrop.show {
+    background: rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
+}
+
+/* ========================= */
+/* Confirm Dialog Panel */
+/* ========================= */
+
+#confirm-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    width: 90%;
+    max-width: 380px;
+    padding: 28px;
+    border-radius: 18px;
+    background: white;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 2200;
+}
+
+#confirm-dialog.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+}
+
+.confirm-title {
+    color: #2E7D32;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.confirm-message {
+    color: #555;
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+/* ========================= */
+/* Actions */
+/* ========================= */
+
+.confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.confirm-cancel,
+.confirm-accept {
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    border: 2px solid transparent;
+}
+
+.confirm-cancel {
+    background: white;
+    color: #555;
+    border-color: #DDD;
+}
+
+.confirm-cancel:hover {
+    background: #F5F5F5;
+}
+
+.confirm-accept {
+    background: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+}
+
+.confirm-accept:hover {
+    background: #388E3C;
+    border-color: #388E3C;
+}
+
+.confirm-accept.danger {
+    background: #EF4444;
+    border-color: #EF4444;
+}
+
+.confirm-accept.danger:hover {
+    background: #DC2626;
+    border-color: #DC2626;
+}

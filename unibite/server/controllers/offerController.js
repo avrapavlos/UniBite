@@ -402,7 +402,7 @@ export async function rateClaim(req, res) {
 export async function createOffer(req, res) {
     const { creator_id, title, description, price, latitude, longitude, quantity, building_name, room_number } = req.body;
     const image = req.file;
-    const path_to_image = image ? image.path : null;
+    const path_to_image = image ? `/uploads/offers/${image.filename}` : null;
 
     if (!building_name || !room_number) {
         return res.status(400).json({ message: "Building name and room number are required" });
@@ -473,7 +473,7 @@ export async function updateOffer(req, res) {
     const { offerId } = req.params;
     const { userId, title, description, price, latitude, longitude, quantity, building_name, room_number } = req.body;
     const image = req.file;
-    const path_to_image = image ? image.path : null;
+    const path_to_image = image ? `/uploads/offers/${image.filename}` : null;
 
     if (!userId) {
         return res.status(400).json({ message: "userId is required" });
