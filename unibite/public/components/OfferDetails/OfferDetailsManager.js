@@ -44,6 +44,7 @@ async function handleClaimOffer(offer) {
 }
 
 export function showOfferDetails(offer) {
+    console.log("Showing offer details for:", offer);
     if (offer.quantity > 0) {
         const container = document.getElementById("offer-details-container");
         container.classList.add("active");
