@@ -92,7 +92,7 @@ CREATE TABLE requests(
     con_id INT,
     state_of_delivery ENUM (
         'DELIVERED',
-        'MISSED',
+        'MISSED'
     ) DEFAULT 'DELIVERED',
     missedDeliveryPenalty BOOLEAN DEFAULT FALSE,
     penalty_applied BOOLEAN DEFAULT FALSE,
@@ -191,5 +191,6 @@ DO
     AND CURRENT_TIMESTAMP >= ADDDATE(
         ad.date_of_delivery,
         INTERVAL 48 HOUR
-    );
+    )$$
+
 DELIMITER ;
