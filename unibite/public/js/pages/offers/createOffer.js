@@ -54,6 +54,9 @@ const imagePreviewContainer = document.getElementById(
     "image-preview-container"
 );
 
+// Get the image preview container and image elements
+const imageUploadBox = document.querySelector(".image-upload");
+
 const imagePreview = document.getElementById(
     "image-preview"
 );
@@ -103,16 +106,11 @@ function getLoggedInUser() {
 
 // Initialize Page
 document.addEventListener("DOMContentLoaded", () => {
-
     initializeMap();
-
     setupAddressSearch();
     setupForm();
+    setupImagePreview();
     setupCancelButton();
-    // Add these when you implement them
-
-    // setupImagePreview();
-    // setupCancelButton();
 
 });
 
@@ -656,8 +654,15 @@ async function handleFormSubmit(event) {
 
         }
 
+        createButton.disabled = false;
 
-
+        createButton.textContent =
+            "Create Offer";
+            
+        // CHange to window.location.href = "../dashboards/createPage.html"
+        window.setTimeout(() => {
+            window.location.href = "../dashboards/createPage.html";
+        }, 100); // Redirect after 1 seconds
 
     } catch (error) {
 
@@ -671,18 +676,7 @@ async function handleFormSubmit(event) {
             "An error occurred while creating the offer."
         );
 
-    } finally {
-
-        createButton.disabled = false;
-
-        createButton.textContent =
-            "Create Offer";
-
-        // CHange to window.location.href = "../dashboards/createPage.html"
-        window.setTimeout(() => {
-            window.location.href = "../dashboards/createPage.html";
-        }, 100); // Redirect after 1 seconds
-    }
+    } 
 }
 
 // Setup cancel button
@@ -696,4 +690,47 @@ function setupCancelButton() {
         }
     );
 
+}
+
+// =========================
+// Image Preview Setup
+// =========================
+
+function setupImagePreview() {
+    imageInput.addEventListener("change", function () {
+        const file = imageInput.files[0];
+
+        if (!file) {
+            imagePreviewContainer.classList.remove("active");
+            imagePreview.src = "";
+            imageUploadBox.classList.remove("hidden");
+            return;
+        }
+
+        const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+        if (!validTypes.includes(file.type)) {
+            showError("Please upload a PNG or JPG image.");
+            imageInput.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+            imagePreview.src = event.target.result;
+            imagePreviewContainer.classList.add("active");
+            imageUploadBox.classList.add("hidden"); // hide upload box
+        };
+
+        reader.readAsDataURL(file);
+    });
+
+    const removeImageButton = document.getElementById("remove-image-button");
+
+    removeImageButton.addEventListener("click", function () {
+        imageInput.value = "";
+        imagePreview.src = "";
+        imagePreviewContainer.classList.remove("active");
+        imageUploadBox.classList.remove("hidden");
+    });
 }

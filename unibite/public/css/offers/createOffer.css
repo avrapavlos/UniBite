@@ -224,6 +224,10 @@ select {
     margin-top: 25px;
 }
 
+.image-upload.hidden {
+    display: none;
+}
+
 .image-upload label {
     display: block;
     border: 2px dashed #BDBDBD;
@@ -237,6 +241,10 @@ select {
 .image-upload label:hover {
     border-color: #4CAF50;
     background: #F5FAF5;
+}
+
+.image-upload input[type="file"] {
+    display: none;
 }
 
 .upload-content {
@@ -276,6 +284,7 @@ select {
 .image-preview-container {
     display: none;
     margin-top: 20px;
+    position: relative;
 }
 
 .image-preview-container.active {
@@ -288,6 +297,26 @@ select {
     object-fit: cover;
     border-radius: 15px;
     border: 2px solid #E0E0E0;
+}
+
+.remove-image-button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    z-index: 2;
+}
+
+.remove-image-button:hover {
+    background: rgba(0, 0, 0, 0.8);
 }
 
 
