@@ -30,7 +30,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE advertisments (
-    ad_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 
     creator_id INT NOT NULL,
 
@@ -75,20 +75,20 @@ CREATE TABLE allergens (
 
     allergen_name VARCHAR(255) NOT NULL,
 
-    ad_id INT NOT NULL,
+    id INT NOT NULL,
 
     CONSTRAINT unique_ad_allergen
-        UNIQUE (ad_id, allergen_name),
+        UNIQUE (id, allergen_name),
 
     CONSTRAINT fk_allergen_ad
-        FOREIGN KEY (ad_id)
-        REFERENCES advertisments(ad_id)
+        FOREIGN KEY (id)
+        REFERENCES advertisments(id)
         ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE requests(
     request_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    ad_id INT NOT NULL,
+    id INT NOT NULL,
     con_id INT,
     state_of_delivery ENUM (
         'DELIVERED',
@@ -97,8 +97,8 @@ CREATE TABLE requests(
     missedDeliveryPenalty BOOLEAN DEFAULT FALSE,
     penalty_applied BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_advertisment
-        FOREIGN KEY(ad_id)
-        REFERENCES advertisments(ad_id),
+        FOREIGN KEY(id)
+        REFERENCES advertisments(id),
     CONSTRAINT fk_consumer
         FOREIGN KEY(con_id)
         REFERENCES users(id)
@@ -146,9 +146,9 @@ DO
 CREATE TRIGGER inactivation BEFORE INSERT ON requests FOR EACH ROW
 BEGIN
     DECLARE portions INT;
-    SELECT quantity INTO portions FROM advertisments WHERE advertisments.ad_id = new.ad_id;
-    IF portions - 1 = 0 THEN UPDATE advertisments SET state_of_ad = 'INACTIVE', quantity = 0 WHERE advertisments.ad_id = new.ad_id;
-    ELSE UPDATE advertisments SET quantity = portions - 1 WHERE advertisments.ad_id = new.ad_id;
+    SELECT quantity INTO portions FROM advertisments WHERE advertisments.id = new.id;
+    IF portions - 1 = 0 THEN UPDATE advertisments SET state_of_ad = 'INACTIVE', quantity = 0 WHERE advertisments.id = new.id;
+    ELSE UPDATE advertisments SET quantity = portions - 1 WHERE advertisments.id = new.id;
     END IF;
 END$$
 
@@ -179,7 +179,7 @@ DO
     INNER JOIN requests req
     ON u.id = req.con_id
     INNER JOIN advertisments ad
-    ON req.ad_id = ad.ad_id
+    ON req.id = ad.id
     LEFT JOIN ratings rat
     ON req.request_id = rat.req_id
     SET
