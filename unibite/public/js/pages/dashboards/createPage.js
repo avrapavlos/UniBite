@@ -1,6 +1,7 @@
 import { createNavbar } from "../../../components/Navbar/Navbar.js";
 import { loadUserOffers } from "../../dataLoaders/userOffers.js";
 import { displayUserOffers } from "../../renderers/offersRenderer.js";
+import { showNotification } from "../../../components/Notification/Notification.js";
 
 function getCurrentUserId() {
     const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "null");
@@ -106,11 +107,11 @@ function createEditModal() {
         modal.classList.add("hidden");
 
         if (!response.ok) {
-            alert(result.message || "Failed to update offer.");
+            showNotification(result.message || "Failed to update offer.", "error");
             return;
         }
 
-        alert("Offer updated successfully.");
+        showNotification("Offer updated successfully.", "info");
         refreshOffers();
     });
 
@@ -137,7 +138,7 @@ function openEditModal(offer) {
 async function deleteOffer(offer) {
     const userId = getCurrentUserId();
     if (!userId) {
-        alert("You need to be logged in to delete an offer.");
+        showNotification("You need to be logged in to delete an offer.", "error");
         return;
     }
 
@@ -161,11 +162,11 @@ async function deleteOffer(offer) {
             throw new Error(result.message || "Failed to delete offer.");
         }
 
-        alert("Offer deleted successfully.");
+        showNotification("Offer deleted successfully.", "info");
         refreshOffers();
     } catch (error) {
         console.error(error);
-        alert(error.message || "Failed to delete offer.");
+        showNotification(error.message || "Failed to delete offer.", "error");
     }
 }
 
@@ -272,12 +273,12 @@ async function refreshOffers() {
 async function acceptClaim(offer, claim) {
     const userId = getCurrentUserId();
     if (!userId) {
-        alert("You need to be logged in to accept a claim.");
+        showNotification("You need to be logged in to accept a claim.", "error");
         return;
     }
 
     if (!claim?.request_id) {
-        alert("No claim selected.");
+        showNotification("No claim selected.", "error");
         return;
     }
 
@@ -293,23 +294,23 @@ async function acceptClaim(offer, claim) {
             throw new Error(result.message || "Failed to accept claim.");
         }
 
-        alert("Claim accepted.");
+        showNotification("Claim accepted.", "info");
         refreshOffers();
     } catch (error) {
         console.error(error);
-        alert(error.message || "Unable to accept claim.");
+        showNotification(error.message || "Unable to accept claim.", "error");
     }
 }
 
 async function rejectClaim(offer, claim) {
     const userId = getCurrentUserId();
     if (!userId) {
-        alert("You need to be logged in to reject a claim.");
+        showNotification("You need to be logged in to reject a claim.", "error");
         return;
     }
 
     if (!claim?.request_id) {
-        alert("No claim selected.");
+        showNotification("No claim selected.", "error");
         return;
     }
 
@@ -325,18 +326,18 @@ async function rejectClaim(offer, claim) {
             throw new Error(result.message || "Failed to reject claim.");
         }
 
-        alert("Claim rejected.");
+        showNotification("Claim rejected.", "info");
         refreshOffers();
     } catch (error) {
         console.error(error);
-        alert(error.message || "Unable to reject claim.");
+        showNotification(error.message || "Unable to reject claim.", "error");
     }
 }
 
 async function rateClaim(offer, claim, score) {
     const userId = getCurrentUserId();
     if (!userId) {
-        alert("You need to be logged in to rate a claim.");
+        showNotification("You need to be logged in to rate a claim.", "error");
         return;
     }
 
@@ -363,11 +364,11 @@ async function rateClaim(offer, claim, score) {
             sessionStorage.setItem("user", JSON.stringify(updatedUser));
         }
 
-        alert("Thanks for rating this exchange.");
+        showNotification("Thanks for rating this exchange.", "info");
         refreshOffers();
     } catch (error) {
         console.error(error);
-        alert(error.message || "Unable to rate claim.");
+        showNotification(error.message || "Unable to rate claim.", "error");
     }
 }
 
