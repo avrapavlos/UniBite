@@ -20,7 +20,7 @@ function normalizeOffer(offer) {
 }
 
 export async function getAllOffers(req, res) {
-    const sql = `SELECT * FROM offers`;
+    const sql = `SELECT * FROM advertisments`;
 
     try {
         const [results] = await db.query(sql);
@@ -39,7 +39,7 @@ export async function getAllOffers(req, res) {
 export async function getOfferExcludingUser(req, res) {
     const { userId } = req.params;
 
-    const sql = `SELECT * FROM offers WHERE creator_id != ?`;
+    const sql = `SELECT * FROM advertisments WHERE creator_id != ?`;
 
     try {
         const [results] = await db.query(sql, [userId]);
@@ -58,7 +58,7 @@ export async function getOfferExcludingUser(req, res) {
 export async function getUserOffers(req, res) {
     const { userId } = req.params;
 
-    const sql = `SELECT * FROM offers WHERE creator_id = ?`;
+    const sql = `SELECT * FROM advertisments WHERE creator_id = ?`;
 
     try {
         const [results] = await db.query(sql, [userId]);
@@ -77,7 +77,7 @@ export async function getUserOffers(req, res) {
 export async function getOfferByTitle(req, res) {
     const { title } = req.query;
 
-    const sql = `SELECT * FROM offers WHERE title LIKE CONCAT('%', ?, '%')`;
+    const sql = `SELECT * FROM advertisments WHERE title LIKE CONCAT('%', ?, '%')`;
 
     try {
         const [results] = await db.query(sql, [title]);
@@ -119,7 +119,7 @@ export async function getUserClaims(req, res) {
     const sql = `
         SELECT r.*, o.id AS offer_id, o.title AS offer_title, u.name AS claimant_name, u.username AS claimant_username
         FROM requests r
-        JOIN offers o ON o.id = r.ad_id
+        JOIN advertisments o ON o.id = r.ad_id
         JOIN users u ON u.id = r.con_id
         WHERE o.creator_id = ?
         ORDER BY r.created_at DESC
@@ -167,7 +167,7 @@ export async function getUserClaimedOffers(req, res) {
             u.name AS creator_name,
             u.id AS creator_id
         FROM requests r
-        JOIN offers o ON o.id = r.ad_id
+        JOIN advertisments o ON o.id = r.ad_id
         JOIN users u ON u.id = o.creator_id
         WHERE r.con_id = ?
         ORDER BY r.created_at DESC
@@ -196,7 +196,7 @@ export async function claimOffer(req, res) {
     }
 
     try {
-        const [offerResults] = await db.query(`SELECT * FROM offers WHERE id = ?`, [offerId]);
+        const [offerResults] = await db.query(`SELECT * FROM advertisments WHERE id = ?`, [offerId]);
         if (offerResults.length === 0) {
             return res.status(404).json({ message: "Offer not found" });
         }
@@ -264,7 +264,7 @@ export async function acceptOfferClaim(req, res) {
 
     try {
         const [claimResults] = await db.query(
-            `SELECT r.*, o.creator_id, o.portions FROM requests r JOIN offers o ON o.id = r.ad_id WHERE r.request_id = ? AND r.ad_id = ?`,
+            `SELECT r.*, o.creator_id, o.portions FROM requests r JOIN advertisments o ON o.id = r.ad_id WHERE r.request_id = ? AND r.ad_id = ?`,
             [requestId, offerId]
         );
 
@@ -299,7 +299,7 @@ export async function acceptOfferClaim(req, res) {
         );
 
         await db.query(
-            `UPDATE offers SET portions = GREATEST(portions - ?, 0) WHERE id = ?`,
+            `UPDATE advertisments SET portions = GREATEST(portions - ?, 0) WHERE id = ?`,
             [Number(claim.claimed_portions || 1), offerId]
         );
 
@@ -316,7 +316,7 @@ export async function rejectOfferClaim(req, res) {
 
     try {
         const [claimResults] = await db.query(
-            `SELECT r.*, o.creator_id FROM requests r JOIN offers o ON o.id = r.ad_id WHERE r.request_id = ? AND r.ad_id = ?`,
+            `SELECT r.*, o.creator_id FROM requests r JOIN advertisments o ON o.id = r.ad_id WHERE r.request_id = ? AND r.ad_id = ?`,
             [requestId, offerId]
         );
 
@@ -356,7 +356,7 @@ export async function rateClaim(req, res) {
 
     try {
         const [claimResults] = await db.query(
-            `SELECT r.*, o.creator_id FROM requests r JOIN offers o ON o.id = r.ad_id WHERE r.request_id = ? AND r.status = 'ACCEPTED'`,
+            `SELECT r.*, o.creator_id FROM requests r JOIN advertisments o ON o.id = r.ad_id WHERE r.request_id = ? AND r.status = 'ACCEPTED'`,
             [requestId]
         );
 
@@ -433,21 +433,19 @@ export async function createOffer(req, res) {
     }
 
     const sql = `
-        INSERT INTO offers (
+        INSERT INTO advertisments (
             creator_id,
             title,
             description,
-            portions,
-            location_lat,
-            location_lng,
-            building,
-            room,
-            pickup_time,
-            address,
-            distance,
-            image,
-            point_cost
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            quantity,
+            latitude,
+            longitude,
+            building_name,
+            room_number,
+            path_to_picture,
+            price,
+            state_of_ad
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     try {
@@ -460,11 +458,9 @@ export async function createOffer(req, res) {
             parsedLongitude,
             parsedBuildingName.trim(),
             parsedRoomNumber.trim(),
-            new Date().toISOString().slice(0, 19).replace('T', ' '),
-            "",
-            0,
             path_to_image,
-            parsedPrice
+            parsedPrice,
+            'ACTIVE'
         ]);
 
         return res.status(201).json({ success: true, message: "Offer created successfully", offerId: results.insertId });
@@ -484,7 +480,7 @@ export async function updateOffer(req, res) {
         return res.status(400).json({ message: "userId is required" });
     }
 
-    const sqlCheckOwnership = `SELECT * FROM offers WHERE id = ? AND creator_id = ?`;
+    const sqlCheckOwnership = `SELECT * FROM advertisments WHERE id = ? AND creator_id = ?`;
 
     try {
         const [ownershipResults] = await db.query(sqlCheckOwnership, [offerId, userId]);
@@ -507,7 +503,7 @@ export async function updateOffer(req, res) {
         }
 
         const sql = `
-            UPDATE offers
+            UPDATE advertisments
             SET title = ?, description = ?, point_cost = ?, location_lat = ?, location_lng = ?, portions = ?, building = ?, room = ?, image = ?
             WHERE id = ?
         `;
@@ -544,7 +540,7 @@ export async function deleteOffer(req, res) {
         return res.status(400).json({ message: "userId is required" });
     }
 
-    const sqlCheckOwnership = `SELECT * FROM offers WHERE id = ? AND creator_id = ?`;
+    const sqlCheckOwnership = `SELECT * FROM advertisments WHERE id = ? AND creator_id = ?`;
 
     try {
         const [ownershipResults] = await db.query(sqlCheckOwnership, [offerId, userId]);
@@ -556,7 +552,7 @@ export async function deleteOffer(req, res) {
         return res.status(500).json({ message: "Database error", error: err.message });
     }
 
-    const sql = `DELETE FROM offers WHERE id = ?`;
+    const sql = `DELETE FROM advertisments WHERE id = ?`;
 
     try {
         const [results] = await db.query(sql, [offerId]);
