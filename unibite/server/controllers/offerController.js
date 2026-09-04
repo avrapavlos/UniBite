@@ -3,7 +3,7 @@ import { calculateRemainingQuantity, canAcceptClaim, canClaimOffer } from "./off
 
 function normalizeOffer(offer) {
     return {
-        id: offer.id ?? offer.ad_id,
+        id: offer.id ?? offer.id,
         creator_id: offer.creator_id,
         title: offer.title,
         description: offer.description,
@@ -100,7 +100,7 @@ export async function getOfferClaims(req, res) {
         SELECT r.*, u.name AS claimant_name, u.username AS claimant_username
         FROM requests r
         LEFT JOIN users u ON u.id = r.con_id
-        WHERE r.ad_id = ?
+        WHERE r.id = ?
         ORDER BY r.created_at DESC
     `;
 
@@ -119,7 +119,7 @@ export async function getUserClaims(req, res) {
     const sql = `
         SELECT r.*, o.id AS offer_id, o.title AS offer_title, u.name AS claimant_name, u.username AS claimant_username
         FROM requests r
-        JOIN advertisments o ON o.id = r.ad_id
+        JOIN advertisments o ON o.id = r.id
         JOIN users u ON u.id = r.con_id
         WHERE o.creator_id = ?
         ORDER BY r.created_at DESC
@@ -130,10 +130,10 @@ export async function getUserClaims(req, res) {
         const claimsByOffer = {};
 
         for (const claim of results) {
-            if (!claimsByOffer[claim.ad_id]) {
-                claimsByOffer[claim.ad_id] = [];
+            if (!claimsByOffer[claim.id]) {
+                claimsByOffer[claim.id] = [];
             }
-            claimsByOffer[claim.ad_id].push(claim);
+            claimsByOffer[claim.id].push(claim);
         }
 
         return res.json(claimsByOffer);
@@ -147,31 +147,30 @@ export async function getUserClaimedOffers(req, res) {
     const { userId } = req.params;
 
     const sql = `
-        SELECT
-            r.request_id,
-            r.ad_id AS id,
-            r.con_id,
-            r.status,
-            r.claimed_portions,
-            r.created_at AS claim_created_at,
-            o.title,
-            o.description,
-            o.portions AS quantity,
-            o.point_cost AS price,
-            o.location_lat AS latitude,
-            o.location_lng AS longitude,
-            o.building,
-            o.room,
-            o.pickup_time,
-            o.image,
-            u.name AS creator_name,
-            u.id AS creator_id
-        FROM requests r
-        JOIN advertisments o ON o.id = r.ad_id
-        JOIN users u ON u.id = o.creator_id
-        WHERE r.con_id = ?
-        ORDER BY r.created_at DESC
-    `;
+            SELECT
+                r.request_id,
+                r.id AS id,
+                r.con_id,
+                r.status,
+                r.claimed_portions,
+                r.created_at AS claim_created_at,
+                o.title,
+                o.description,
+                o.portions AS quantity,
+                o.point_cost AS price,
+                o.location_lat AS latitude,
+                o.location_lng AS longitude,
+                o.building_name AS building,
+                o.room_number AS room,
+                o.path_to_picture AS image,
+                u.name AS creator_name,
+                u.id AS creator_id
+            FROM requests r
+            JOIN advertisments o ON o.id = r.id
+            JOIN users u ON u.id = o.creator_id
+            WHERE r.con_id = ?
+            ORDER BY r.created_at DESC
+        `;
 
     try {
         const [results] = await db.query(sql, [userId]);
@@ -207,7 +206,7 @@ export async function claimOffer(req, res) {
         }
 
         const [existingClaims] = await db.query(
-            `SELECT * FROM requests WHERE ad_id = ? AND con_id = ? AND status IN ('PENDING', 'ACCEPTED')`,
+            `SELECT * FROM requests WHERE id = ? AND con_id = ? AND status IN ('PENDING', 'ACCEPTED')`,
             [offerId, userId]
         );
 
@@ -216,7 +215,7 @@ export async function claimOffer(req, res) {
         }
 
         const [acceptedResults] = await db.query(
-            `SELECT COALESCE(SUM(claimed_portions), 0) AS total_accepted FROM requests WHERE ad_id = ? AND status = 'ACCEPTED'`,
+            `SELECT COALESCE(SUM(claimed_portions), 0) AS total_accepted FROM requests WHERE id = ? AND status = 'ACCEPTED'`,
             [offerId]
         );
 
@@ -239,7 +238,7 @@ export async function claimOffer(req, res) {
         }
 
         const [insertResult] = await db.query(
-            `INSERT INTO requests (ad_id, con_id, claimed_portions, status, created_at) VALUES (?, ?, ?, 'PENDING', NOW())`,
+            `INSERT INTO requests (id, con_id, claimed_portions, status, created_at) VALUES (?, ?, ?, 'PENDING', NOW())`,
             [offerId, userId, requestedPortions]
         );
 
@@ -264,7 +263,7 @@ export async function acceptOfferClaim(req, res) {
 
     try {
         const [claimResults] = await db.query(
-            `SELECT r.*, o.creator_id, o.portions FROM requests r JOIN advertisments o ON o.id = r.ad_id WHERE r.request_id = ? AND r.ad_id = ?`,
+            `SELECT r.*, o.creator_id, o.portions FROM requests r JOIN advertisments o ON o.id = r.id WHERE r.request_id = ? AND r.id = ?`,
             [requestId, offerId]
         );
 
@@ -316,7 +315,7 @@ export async function rejectOfferClaim(req, res) {
 
     try {
         const [claimResults] = await db.query(
-            `SELECT r.*, o.creator_id FROM requests r JOIN advertisments o ON o.id = r.ad_id WHERE r.request_id = ? AND r.ad_id = ?`,
+            `SELECT r.*, o.creator_id FROM requests r JOIN advertisments o ON o.id = r.id WHERE r.request_id = ? AND r.id = ?`,
             [requestId, offerId]
         );
 
@@ -356,7 +355,7 @@ export async function rateClaim(req, res) {
 
     try {
         const [claimResults] = await db.query(
-            `SELECT r.*, o.creator_id FROM requests r JOIN advertisments o ON o.id = r.ad_id WHERE r.request_id = ? AND r.status = 'ACCEPTED'`,
+            `SELECT r.*, o.creator_id FROM requests r JOIN advertisments o ON o.id = r.id WHERE r.request_id = ? AND r.status = 'ACCEPTED'`,
             [requestId]
         );
 
@@ -437,13 +436,13 @@ export async function createOffer(req, res) {
             creator_id,
             title,
             description,
-            quantity,
-            latitude,
-            longitude,
+            portions,
+            location_lat,
+            location_lng,
             building_name,
             room_number,
             path_to_picture,
-            price,
+            point_cost,
             state_of_ad
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
@@ -504,7 +503,7 @@ export async function updateOffer(req, res) {
 
         const sql = `
             UPDATE advertisments
-            SET title = ?, description = ?, point_cost = ?, location_lat = ?, location_lng = ?, portions = ?, building = ?, room = ?, image = ?
+            SET title = ?, description = ?, point_cost = ?, location_lat = ?, location_lng = ?, portions = ?, building_name = ?, room_number = ?, path_to_picture = ?
             WHERE id = ?
         `;
 

@@ -38,7 +38,7 @@ CREATE TABLE advertisments (
 
     description TEXT NOT NULL,
 
-    price INT NOT NULL DEFAULT 0,
+    point_cost INT NOT NULL DEFAULT 0,
 
     date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -46,15 +46,15 @@ CREATE TABLE advertisments (
 
     date_of_delivery TIMESTAMP,
 
-    latitude DECIMAL(9,6) NOT NULL,
+    location_lat DECIMAL(9,6) NOT NULL,
 
-    longitude DECIMAL(9,6) NOT NULL,
+    location_lng DECIMAL(9,6) NOT NULL,
 
     building_name VARCHAR(255) NOT NULL,
 
     room_number VARCHAR(255) NOT NULL,
 
-    quantity INT NOT NULL,
+    portions INT NOT NULL,
 
     path_to_picture VARCHAR(255),
 
@@ -132,10 +132,14 @@ FLUSH PRIVILEGES;
 
 DELIMITER $$
 
+DROP TRIGGER IF EXISTS calcDeletion$$
+
 CREATE TRIGGER calcDeletion BEFORE INSERT ON advertisments FOR EACH ROW
 BEGIN
     SET NEW.date_of_deletion = ADDDATE(CURRENT_TIMESTAMP(), INTERVAL 48 HOUR);
 END$$
+
+Drop event if exists deactivateAd$$
 
 CREATE EVENT deactivateAd
 ON SCHEDULE EVERY 1 HOUR
@@ -146,12 +150,13 @@ DO
 CREATE TRIGGER inactivation BEFORE INSERT ON requests FOR EACH ROW
 BEGIN
     DECLARE portions INT;
-    SELECT quantity INTO portions FROM advertisments WHERE advertisments.id = new.id;
-    IF portions - 1 = 0 THEN UPDATE advertisments SET state_of_ad = 'INACTIVE', quantity = 0 WHERE advertisments.id = new.id;
-    ELSE UPDATE advertisments SET quantity = portions - 1 WHERE advertisments.id = new.id;
+    SELECT portions INTO portions FROM advertisments WHERE advertisments.id = new.id;
+    IF portions - 1 = 0 THEN UPDATE advertisments SET state_of_ad = 'INACTIVE', portions = 0 WHERE advertisments.id = new.id;
+    ELSE UPDATE advertisments SET portions = portions - 1 WHERE advertisments.id = new.id;
     END IF;
 END$$
 
+DROP EVENT IF EXISTS missedDelivery$$
 CREATE EVENT missedDelivery
 ON SCHEDULE EVERY 1 HOUR
 DO
@@ -172,6 +177,7 @@ BEGIN
       AND missedDeliveryPenalty = FALSE;
 END$$
 
+Drop event if exists noRating$$
 CREATE EVENT noRating
 ON SCHEDULE EVERY 1 HOUR
 DO

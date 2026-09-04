@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setupForm();
     setupCancelButton();
     // Add these when you implement them
-    
+
     // setupImagePreview();
     // setupCancelButton();
 
@@ -656,7 +656,7 @@ async function handleFormSubmit(event) {
 
         }
 
-        
+
 
 
     } catch (error) {
@@ -678,13 +678,16 @@ async function handleFormSubmit(event) {
         createButton.textContent =
             "Create Offer";
 
+        // CHange to window.location.href = "../dashboards/createPage.html"
+        window.setTimeout(() => {
+            window.location.href = "../dashboards/createPage.html";
+        }, 100); // Redirect after 1 seconds
     }
-
 }
 
 // Setup cancel button
 function setupCancelButton() {
-    
+
     cancelButton.addEventListener(
         "click",
         function () {
