@@ -168,6 +168,7 @@ nav a:hover {
 
     gap: 70px;
 
+    background: #073f0a;
 }
 
 .main-content {
@@ -180,7 +181,7 @@ nav a:hover {
 
     font-size: 60px;
 
-    color: #2E7D32;
+    color: white;
 
     line-height: 1.15;
 
@@ -192,7 +193,7 @@ nav a:hover {
 
     font-size: 20px;
 
-    color: #666;
+    color: white;
 
     max-width: 650px;
 
@@ -271,6 +272,8 @@ nav a:hover {
     display: flex;
 
     justify-content: center;
+
+    color: white;
 
 }
 
@@ -446,7 +449,7 @@ nav a:hover {
 
 .statistics {
 
-    background: #2E7D32;
+    background: #073f0a;
 
     color: white;
 
