@@ -34,7 +34,7 @@ export async function ensureRequestsReferenceOfferTable() {
         console.warn("Could not drop legacy requests index:", err.message);
     }
 
-    await db.query("ALTER TABLE requests ADD CONSTRAINT fk_requests_offer FOREIGN KEY (ad_id) REFERENCES offers(id)");
+    await db.query("ALTER TABLE requests ADD CONSTRAINT fk_requests_offer FOREIGN KEY (ad_id) REFERENCES advertisments(id)");
 }
 
 async function ensureClaimAndRatingSchema() {
