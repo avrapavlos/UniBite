@@ -20,7 +20,7 @@ function normalizeOffer(offer) {
 }
 
 export async function getAllOffers(req, res) {
-    const sql = `SELECT * FROM advertisments`;
+    const sql = `SELECT * FROM advertisments WHERE state_of_ad != 'DELETED' AND portions > 0 ORDER BY date_posted DESC`;
 
     try {
         const [results] = await db.query(sql);
@@ -37,17 +37,14 @@ export async function getAllOffers(req, res) {
 }
 
 export async function getOfferExcludingUser(req, res) {
+    console.log("getOfferExcludingUser called with params:", req.params);
+
     const { userId } = req.params;
 
-    const sql = `SELECT * FROM advertisments WHERE creator_id != ?`;
+    const sql = `SELECT * FROM advertisments WHERE creator_id != ? AND state_of_ad != 'DELETED' AND portions > 0 ORDER BY date_posted DESC`;
 
     try {
         const [results] = await db.query(sql, [userId]);
-
-        if (results.length === 0) {
-            return res.status(404).json({ message: "No offers found excluding the given user" });
-        }
-
         return res.json(results.map(normalizeOffer));
     } catch (err) {
         console.error(err);
@@ -58,15 +55,10 @@ export async function getOfferExcludingUser(req, res) {
 export async function getUserOffers(req, res) {
     const { userId } = req.params;
 
-    const sql = `SELECT * FROM advertisments WHERE creator_id = ?`;
+    const sql = `SELECT * FROM advertisments WHERE creator_id = ? AND state_of_ad != 'DELETED' AND portions > 0 ORDER BY date_posted DESC`;
 
     try {
         const [results] = await db.query(sql, [userId]);
-
-        if (results.length === 0) {
-            return res.status(404).json({ message: "No offers found for the given user" });
-        }
-
         return res.json(results.map(normalizeOffer));
     } catch (err) {
         console.error(err);
@@ -77,15 +69,10 @@ export async function getUserOffers(req, res) {
 export async function getOfferByTitle(req, res) {
     const { title } = req.query;
 
-    const sql = `SELECT * FROM advertisments WHERE title LIKE CONCAT('%', ?, '%')`;
+    const sql = `SELECT * FROM advertisments WHERE title LIKE CONCAT('%', ?, '%') AND state_of_ad != 'DELETED'`;
 
     try {
         const [results] = await db.query(sql, [title]);
-
-        if (results.length === 0) {
-            return res.status(404).json({ message: "No offer found with the given title" });
-        }
-
         return res.json(results.map(normalizeOffer));
     } catch (err) {
         console.error(err);
@@ -195,7 +182,7 @@ export async function claimOffer(req, res) {
     }
 
     try {
-        const [offerResults] = await db.query(`SELECT * FROM advertisments WHERE id = ?`, [offerId]);
+        const [offerResults] = await db.query(`SELECT * FROM advertisments WHERE id = ? AND state_of_ad != 'DELETED'`, [offerId]);
         if (offerResults.length === 0) {
             return res.status(404).json({ message: "Offer not found" });
         }
@@ -479,7 +466,7 @@ export async function updateOffer(req, res) {
         return res.status(400).json({ message: "userId is required" });
     }
 
-    const sqlCheckOwnership = `SELECT * FROM advertisments WHERE id = ? AND creator_id = ?`;
+    const sqlCheckOwnership = `SELECT * FROM advertisments WHERE id = ? AND creator_id = ? AND state_of_ad != 'DELETED'`;
 
     try {
         const [ownershipResults] = await db.query(sqlCheckOwnership, [offerId, userId]);
@@ -494,8 +481,8 @@ export async function updateOffer(req, res) {
         const nextLatitude = latitude !== undefined ? Number(latitude) : Number(currentOffer.location_lat);
         const nextLongitude = longitude !== undefined ? Number(longitude) : Number(currentOffer.location_lng);
         const nextQuantity = quantity !== undefined ? Number(quantity) : Number(currentOffer.portions);
-        const nextBuildingName = building_name ?? currentOffer.building;
-        const nextRoomNumber = room_number ?? currentOffer.room;
+        const nextBuildingName = building_name ?? currentOffer.building_name;
+        const nextRoomNumber = room_number ?? currentOffer.room_number;
 
         if (!nextTitle || !nextDescription || Number.isNaN(nextPrice) || Number.isNaN(nextLatitude) || Number.isNaN(nextLongitude) || Number.isNaN(nextQuantity) || !nextBuildingName || !nextRoomNumber) {
             return res.status(400).json({ message: "Submitted offer data is incomplete or invalid" });
@@ -516,7 +503,7 @@ export async function updateOffer(req, res) {
             nextQuantity,
             nextBuildingName.trim(),
             nextRoomNumber.trim(),
-            path_to_image ?? currentOffer.image,
+            path_to_image ?? currentOffer.path_to_picture,
             offerId
         ]);
 
@@ -539,21 +526,33 @@ export async function deleteOffer(req, res) {
         return res.status(400).json({ message: "userId is required" });
     }
 
-    const sqlCheckOwnership = `SELECT * FROM advertisments WHERE id = ? AND creator_id = ?`;
+    const sqlCheckOwnership = `SELECT * FROM advertisments WHERE id = ? AND creator_id = ? AND state_of_ad != 'DELETED'`;
 
     try {
         const [ownershipResults] = await db.query(sqlCheckOwnership, [offerId, userId]);
         if (ownershipResults.length === 0) {
             return res.status(403).json({ message: "You do not have permission to delete this offer" });
         }
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: "Database error", error: err.message });
-    }
 
-    const sql = `DELETE FROM advertisments WHERE id = ?`;
+        // Check if the offer has any active claims
+        const [activeClaims] = await db.query(
+            `SELECT COUNT(*) AS count FROM requests WHERE id = ? AND status IN ('PENDING', 'ACCEPTED')`,
+            [offerId]
+        );
 
-    try {
+        if (activeClaims[0].count > 0) {
+            return res.status(400).json({
+                message: "This offer has active claims and cannot be deleted. Reject or resolve the claims first."
+            });
+        }
+
+        // Soft delete: mark as deleted instead of removing the row
+        const sql = `
+            UPDATE advertisments
+            SET state_of_ad = 'DELETED', date_of_deletion = NOW()
+            WHERE id = ?
+        `;
+
         const [results] = await db.query(sql, [offerId]);
 
         if (results.affectedRows === 0) {

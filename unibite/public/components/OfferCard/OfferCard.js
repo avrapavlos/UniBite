@@ -28,6 +28,7 @@ export function createOfferCard(offer, onClick) {
 
     const card = document.createElement("article");
 
+    console.log("Creating offer card for offer:", offer);
     card.classList.add("offer-card");
 
 

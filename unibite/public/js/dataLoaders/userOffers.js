@@ -24,7 +24,7 @@ export async function loadUserOffers(userId) {
 
     try {
         const [offersResponse, claimsResponse] = await Promise.all([
-            fetch(`http://localhost:3000/api/users/${activeUserId}/offers`, {
+            fetch(`http://localhost:3000/api/users/${activeUserId}/offers`, { 
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json"
