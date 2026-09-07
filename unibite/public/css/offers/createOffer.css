@@ -112,7 +112,6 @@ select {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-top: 25px;
 }
 
 .form-group:first-child {
