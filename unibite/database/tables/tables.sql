@@ -145,7 +145,7 @@ CREATE EVENT deactivateAd
 ON SCHEDULE EVERY 1 HOUR
 DO
     UPDATE advertisments
-    SET state_of_ad = 'DELETED' WHERE date_of_deletion >= CURRENT_TIMESTAMP() AND state_of_ad <> 'DELETED'$$
+    SET state_of_ad = 'DELETED' WHERE date_of_deletion < CURRENT_TIMESTAMP() AND state_of_ad <> 'DELETED'$$
 
 CREATE TRIGGER inactivation BEFORE INSERT ON requests FOR EACH ROW
 BEGIN
