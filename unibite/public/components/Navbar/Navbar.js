@@ -101,6 +101,9 @@ export function createNavbar() {
                 <li>
                     <p id="logout-button">LOGOUT</p>
                 </li>
+                <li>
+                    <p id="settings-button">SETTINGS</p>
+                </li>
             </ul>
         </div>
     `;
