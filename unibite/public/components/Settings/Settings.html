@@ -1,0 +1,73 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Settings</title>
+        
+        <link rel="stylesheet" href="../../css/offers/createOffer.css">
+        <link rel="stylesheet" href="../../components/Navbar/Navbar.css">
+
+        <!-- Leaflet -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    </head>
+    <body>
+        <form id="location-edit" method="POST">
+            <div class="form-section">
+                <div class="form-group">
+
+                        <label for="address">
+                            Address
+                        </label>
+
+                        <div class="address-input">
+
+                            <input type="text" id="address" name="address"
+                                placeholder="e.g. University of Thessaly, Karditsa" required>
+
+                            <button type="button" id="search-address-button">
+                                Search
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="building_name">
+                            Building Name
+                        </label>
+
+                        <input type="text" id="building_name" name="building_name" placeholder="e.g. Main Library"
+                            required>
+
+                        <label for="room_number">
+                            Room Number
+                        </label>
+
+                        <input type="text" id="room_number" name="room_number" placeholder="e.g. 101" required>
+                    </div>
+
+                    <!-- Hidden inputs to store the selected latitude and longitude -->
+
+                    <input type="hidden" id="latitude" name="latitude">
+
+                    <input type="hidden" id="longitude" name="longitude">
+
+                    <!-- Map -->
+
+                    <div class="map-container">
+
+                        <div id="map"></div>
+
+                        <p class="map-hint">
+                            Click anywhere on the map to select the offer location.
+                        </p>
+
+                    </div>
+            </div>
+        </form> 
+    </body>
+</html>

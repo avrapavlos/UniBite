@@ -171,6 +171,12 @@ export function createNavbar() {
         window.location.replace("../../pages/auth/login.html");
     })
 
+    const settingsButton = navbar.querySelector("#settings-button");
+
+    settingsButton.addEventListener("click", () => {
+        
+    })
+
     //Load css for the navbar
     loadNavbarCSS();
 
