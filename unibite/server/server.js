@@ -47,7 +47,7 @@ export async function ensureRequestsReferenceOfferTable() {
         await db.query("ALTER TABLE requests ADD CONSTRAINT fk_requests_offer FOREIGN KEY (id) REFERENCES offers(id)");
     }
 }
-
+//git broke i am trying to fix it
 async function ensureClaimAndRatingSchema() {
     const requiredColumns = {
         requests: [
