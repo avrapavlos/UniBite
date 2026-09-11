@@ -52,7 +52,7 @@ async function ensureClaimAndRatingSchema() {
         requests: [
             { name: "status", definition: "ENUM('PENDING','ACCEPTED','REJECTED') NOT NULL DEFAULT 'PENDING'" },
             { name: "claimed_portions", definition: "INT NOT NULL DEFAULT 1" },
-            { name: "created_at", definition: "TIMESTAMP DEFAULT CURRENT_TIMESTAMP" },
+            { name: "date_posted", definition: "TIMESTAMP DEFAULT CURRENT_TIMESTAMP" },
             { name: "accepted_at", definition: "TIMESTAMP NULL" },
             { name: "rejected_at", definition: "TIMESTAMP NULL" },
             { name: "updated_at", definition: "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" }
@@ -62,7 +62,7 @@ async function ensureClaimAndRatingSchema() {
             { name: "comment", definition: "TEXT" },
             { name: "rater_id", definition: "INT NULL" },
             { name: "rated_user_id", definition: "INT NULL" },
-            { name: "created_at", definition: "TIMESTAMP DEFAULT CURRENT_TIMESTAMP" }
+            { name: "date_posted", definition: "TIMESTAMP DEFAULT CURRENT_TIMESTAMP" }
         ]
     };
 

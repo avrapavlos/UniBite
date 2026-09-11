@@ -30,7 +30,7 @@ function loginToApp() {
         });
 
         if (!response.ok) {
-            console.error("Login request failed", response.status, response.statusText);
+            console.error("Login request failed", response.status, response.statusText, response.body);
             return;
         }
 

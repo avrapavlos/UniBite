@@ -11,16 +11,15 @@ function normalizeOffer(offer) {
         price: offer.price ?? offer.point_cost ?? 0,
         latitude: offer.latitude ?? offer.location_lat ?? null,
         longitude: offer.longitude ?? offer.location_lng ?? null,
-        image: offer.image ?? offer.path_to_picture ?? null,
-        building_name: offer.building_name ?? offer.building ?? null,
-        room_number: offer.room_number ?? offer.room ?? null,
-        date_posted: offer.date_posted ?? offer.pickup_time ?? offer.created_at ?? null,
-        created_at: offer.created_at ?? offer.date_posted ?? null
+        path_to_picture: offer.path_to_picture ?? offer.path_to_picture ?? null,
+        building_name: offer.building_name ?? offer.building_name ?? null,
+        room_number: offer.room_number ?? offer.room_number ?? null,
+        date_posted: offer.date_posted ?? offer.pickup_time ?? offer.date_posted ?? null
     };
 }
 
 export async function getAllOffers(req, res) {
-    const sql = `SELECT * FROM offers WHERE portions > 0 ORDER BY created_at DESC`;
+    const sql = `SELECT * FROM advertisments WHERE portions > 0 ORDER BY date_posted DESC`;
 
     try {
         const [results] = await db.query(sql);
@@ -41,7 +40,7 @@ export async function getOfferExcludingUser(req, res) {
 
     const { userId } = req.params;
 
-    const sql = `SELECT * FROM offers WHERE creator_id != ? AND portions > 0 ORDER BY created_at DESC`;
+    const sql = `SELECT * FROM advertisments WHERE creator_id != ? AND portions > 0 ORDER BY date_posted DESC`;
 
     try {
         const [results] = await db.query(sql, [userId]);
@@ -55,7 +54,7 @@ export async function getOfferExcludingUser(req, res) {
 export async function getUserOffers(req, res) {
     const { userId } = req.params;
 
-    const sql = `SELECT * FROM offers WHERE creator_id = ? AND portions > 0 ORDER BY created_at DESC`;
+    const sql = `SELECT * FROM advertisments WHERE creator_id = ? AND portions > 0 ORDER BY date_posted DESC`;
 
     try {
         const [results] = await db.query(sql, [userId]);
@@ -69,7 +68,7 @@ export async function getUserOffers(req, res) {
 export async function getOfferByTitle(req, res) {
     const { title } = req.query;
 
-    const sql = `SELECT * FROM offers WHERE title LIKE CONCAT('%', ?, '%')`;
+    const sql = `SELECT * FROM advertisments WHERE title LIKE CONCAT('%', ?, '%')`;
 
     try {
         const [results] = await db.query(sql, [title]);
@@ -88,7 +87,7 @@ export async function getOfferClaims(req, res) {
         FROM requests r
         LEFT JOIN users u ON u.id = r.con_id
         WHERE r.id = ?
-        ORDER BY r.created_at DESC
+        ORDER BY r.date_posted DESC
     `;
 
     try {
@@ -106,10 +105,10 @@ export async function getUserClaims(req, res) {
     const sql = `
         SELECT r.*, o.id AS offer_id, o.title AS offer_title, u.name AS claimant_name, u.username AS claimant_username
         FROM requests r
-        JOIN offers o ON o.id = r.id
+        JOIN advertisments o ON o.id = r.id
         JOIN users u ON u.id = r.con_id
         WHERE o.creator_id = ?
-        ORDER BY r.created_at DESC
+        ORDER BY r.date_posted DESC
     `;
 
     try {
@@ -140,23 +139,23 @@ export async function getUserClaimedOffers(req, res) {
                 r.con_id,
                 r.status,
                 r.claimed_portions,
-                r.created_at AS claim_created_at,
+                r.date_posted AS claim_date_posted,
                 o.title,
                 o.description,
                 o.portions AS quantity,
                 o.point_cost AS price,
                 o.location_lat AS latitude,
                 o.location_lng AS longitude,
-                o.building,
-                o.room,
-                o.image,
+                o.building_name,
+                o.room_number,
+                o.path_to_picture,
                 u.name AS creator_name,
                 u.id AS creator_id
             FROM requests r
-            JOIN offers o ON o.id = r.id
+            JOIN advertisments o ON o.id = r.id
             JOIN users u ON u.id = o.creator_id
             WHERE r.con_id = ?
-            ORDER BY r.created_at DESC
+            ORDER BY r.date_posted DESC
         `;
 
     try {
@@ -182,7 +181,7 @@ export async function claimOffer(req, res) {
     }
 
     try {
-        const [offerResults] = await db.query(`SELECT * FROM offers WHERE id = ?`, [offerId]);
+        const [offerResults] = await db.query(`SELECT * FROM advertisments WHERE id = ?`, [offerId]);
         if (offerResults.length === 0) {
             return res.status(404).json({ message: "Offer not found" });
         }
@@ -225,7 +224,7 @@ export async function claimOffer(req, res) {
         }
 
         const [insertResult] = await db.query(
-            `INSERT INTO requests (id, con_id, claimed_portions, status, created_at) VALUES (?, ?, ?, 'PENDING', NOW())`,
+            `INSERT INTO requests (id, con_id, claimed_portions, status, date_posted) VALUES (?, ?, ?, 'PENDING', NOW())`,
             [offerId, userId, requestedPortions]
         );
 
@@ -250,7 +249,7 @@ export async function acceptOfferClaim(req, res) {
 
     try {
         const [claimResults] = await db.query(
-            `SELECT r.*, o.creator_id, o.portions FROM requests r JOIN offers o ON o.id = r.id WHERE r.request_id = ? AND r.id = ?`,
+            `SELECT r.*, o.creator_id, o.portions FROM requests r JOIN advertisments o ON o.id = r.id WHERE r.request_id = ? AND r.id = ?`,
             [requestId, offerId]
         );
 
@@ -285,7 +284,7 @@ export async function acceptOfferClaim(req, res) {
         );
 
         await db.query(
-            `UPDATE offers SET portions = GREATEST(portions - ?, 0) WHERE id = ?`,
+            `UPDATE advertisments SET portions = GREATEST(portions - ?, 0) WHERE id = ?`,
             [Number(claim.claimed_portions || 1), offerId]
         );
 
@@ -302,7 +301,7 @@ export async function rejectOfferClaim(req, res) {
 
     try {
         const [claimResults] = await db.query(
-            `SELECT r.*, o.creator_id FROM requests r JOIN offers o ON o.id = r.id WHERE r.request_id = ? AND r.id = ?`,
+            `SELECT r.*, o.creator_id FROM requests r JOIN advertisments o ON o.id = r.id WHERE r.request_id = ? AND r.id = ?`,
             [requestId, offerId]
         );
 
@@ -342,7 +341,7 @@ export async function rateClaim(req, res) {
 
     try {
         const [claimResults] = await db.query(
-            `SELECT r.*, o.creator_id FROM requests r JOIN offers o ON o.id = r.id WHERE r.request_id = ? AND r.status = 'ACCEPTED'`,
+            `SELECT r.*, o.creator_id FROM requests r JOIN advertisments o ON o.id = r.id WHERE r.request_id = ? AND r.status = 'ACCEPTED'`,
             [requestId]
         );
 
@@ -419,16 +418,16 @@ export async function createOffer(req, res) {
     }
 
     const sql = `
-        INSERT INTO offers (
+        INSERT INTO advertisments (
             creator_id,
             title,
             description,
             portions,
             location_lat,
             location_lng,
-            building,
-            room,
-            image,
+            building_name,
+            room_number,
+            path_to_picture,
             point_cost
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
@@ -464,7 +463,7 @@ export async function updateOffer(req, res) {
         return res.status(400).json({ message: "userId is required" });
     }
 
-    const sqlCheckOwnership = `SELECT * FROM offers WHERE id = ? AND creator_id = ?`;
+    const sqlCheckOwnership = `SELECT * FROM advertisments WHERE id = ? AND creator_id = ?`;
 
     try {
         const [ownershipResults] = await db.query(sqlCheckOwnership, [offerId, userId]);
@@ -488,7 +487,7 @@ export async function updateOffer(req, res) {
 
         const sql = `
             UPDATE offers
-            SET title = ?, description = ?, point_cost = ?, location_lat = ?, location_lng = ?, portions = ?, building = ?, room = ?, image = ?
+            SET title = ?, description = ?, point_cost = ?, location_lat = ?, location_lng = ?, portions = ?, building_name = ?, room_number = ?, path_to_picture = ?
             WHERE id = ?
         `;
 
@@ -501,7 +500,7 @@ export async function updateOffer(req, res) {
             nextQuantity,
             nextBuildingName.trim(),
             nextRoomNumber.trim(),
-            path_to_image ?? currentOffer.image,
+            path_to_path_to_picture ?? currentOffer.path_to_picture,
             offerId
         ]);
 
@@ -524,7 +523,7 @@ export async function deleteOffer(req, res) {
         return res.status(400).json({ message: "userId is required" });
     }
 
-    const sqlCheckOwnership = `SELECT * FROM offers WHERE id = ? AND creator_id = ?`;
+    const sqlCheckOwnership = `SELECT * FROM advertisments WHERE id = ? AND creator_id = ?`;
 
     try {
         const [ownershipResults] = await db.query(sqlCheckOwnership, [offerId, userId]);
@@ -544,7 +543,7 @@ export async function deleteOffer(req, res) {
             });
         }
 
-        const sql = `DELETE FROM offers WHERE id = ?`;
+        const sql = `DELETE FROM advertisments WHERE id = ?`;
 
         const [results] = await db.query(sql, [offerId]);
 

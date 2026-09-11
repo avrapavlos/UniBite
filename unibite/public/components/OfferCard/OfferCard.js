@@ -35,7 +35,7 @@ export function createOfferCard(offer, onClick) {
     card.innerHTML = `
         <div class="offer-image-container">
             <img class="offer-image" 
-                 src="${offer.image || '../../images/sandwich.jpeg'}" 
+                 src="${offer.image || '../../images/default-food.png'}" 
                  alt="${offer.title}">
         </div>
 

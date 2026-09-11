@@ -3,7 +3,7 @@ USE unibite;
 DROP TABLE IF EXISTS ratings;
 DROP TABLE IF EXISTS requests;
 DROP TABLE IF EXISTS allergens;
-DROP TABLE IF EXISTS advertisments;
+DROP TABLE IF EXISTS advertisments; 
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
