@@ -57,6 +57,11 @@ export function createUserOfferCard(offer, onClick) {
                                 <button type="button" class="reject-claim-button" data-request-id="${claim.request_id}">Reject</button>
                             </div>
                         ` : ""}
+                        ${claimStatus === "ACCEPTED" && claim.state_of_delivery !== "MISSED" ? `
+                            <button type="button" class="missed-claim-button" data-request-id="${claim.request_id}">
+                                Mark as not picked up
+                            </button>
+                        ` : ""}
                         ${starButtons}
                     </div>
                 `;
@@ -123,10 +128,18 @@ export function createUserOfferCard(offer, onClick) {
         });
     });
 
+    card.querySelectorAll(".missed-claim-button").forEach((button) => {
+        button.addEventListener("click", () => {
+            const requestId = Number(button.dataset.requestId);
+            const matchedClaim = claims.find((claim) => Number(claim.request_id) === requestId);
+            onClick("missed-claim", offer, matchedClaim);
+        });
+    });
+
     card.querySelectorAll(".rating-star").forEach((button) => {
         button.addEventListener("click", () => {
-            const requestId = Number(button.closest(".user-offer-claim")?.querySelector(".accept-claim-button")?.dataset.requestId || 0);
-            const matchedClaim = claims.find((claim) => Number(claim.request_id) === requestId) || claims[0];
+            const requestId = Number(button.closest(".user-offer-claim")?.querySelector("[data-request-id]")?.dataset.requestId || 0);
+            const matchedClaim = claims.find((claim) => Number(claim.request_id) === requestId);
             onClick("rate-claim", offer, matchedClaim, Number(button.dataset.score));
         });
     });

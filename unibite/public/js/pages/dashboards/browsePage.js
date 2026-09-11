@@ -2,8 +2,57 @@ import { createNavbar } from "../../../components/Navbar/Navbar.js";
 import { getMap, createMap, addOfferMarkers } from "../../../components/Map/Map.js";
 import { showOfferDetails } from "../../../components/OfferDetails/OfferDetailsManager.js";
 import { displayOffers } from "../../renderers/offersRenderer.js";
-import { loadOffers, loadOffersExcludingUser } from "../../dataLoaders/offers.js";
-import { loadUserOffers } from "../../dataLoaders/userOffers.js";
+import { loadOffersExcludingUser } from "../../dataLoaders/offers.js";
+import { calculateDistance } from "../../helperFunctions/mapDistance.js";
+
+let allOffers = [];
+let userLocation = null;
+let selectedRadius = null;
+
+function getStoredUser() {
+    const rawUser = localStorage.getItem("user") || sessionStorage.getItem("user");
+    try {
+        return rawUser ? JSON.parse(rawUser) : null;
+    } catch (error) {
+        return null;
+    }
+}
+
+function renderFilteredOffers() {
+    const searchTerm = document.getElementById("search-input").value.trim().toLowerCase();
+    const filteredOffers = allOffers.filter((offer) => {
+        const matchesSearch = !searchTerm
+            || offer.title.toLowerCase().includes(searchTerm)
+            || offer.description.toLowerCase().includes(searchTerm);
+        const distance = calculateDistance(
+            userLocation.latitude,
+            userLocation.longitude,
+            Number(offer.latitude),
+            Number(offer.longitude)
+        );
+        offer.distance = distance;
+        return matchesSearch && (selectedRadius === null || distance <= selectedRadius);
+    });
+
+    displayOffers(filteredOffers);
+    addOfferMarkers(filteredOffers, showOfferDetails);
+    document.getElementById("offer-results-status").textContent =
+        `${filteredOffers.length} offer${filteredOffers.length === 1 ? "" : "s"} within ${selectedRadius ?? "all"} km`;
+}
+
+function setDistanceListeners() {
+    document.querySelectorAll("input[name=distance]").forEach((input) => {
+        input.addEventListener("change", () => {
+            selectedRadius = input.value === "" ? null : Number(input.value);
+            renderFilteredOffers();
+        });
+    });
+
+    document.getElementById("search-button").addEventListener("click", renderFilteredOffers);
+    document.getElementById("search-input").addEventListener("keydown", (event) => {
+        if (event.key === "Enter") renderFilteredOffers();
+    });
+}
 
 // CLick event listener for the filter button
 function setFilterListener() {
@@ -56,30 +105,28 @@ async function init() {
     const navbarContainer = document.getElementById('navbar-container');
     navbarContainer.appendChild(createNavbar());
 
-    createMap();
     setFilterListener();
+    setDistanceListeners();
     setViewToggle();
 
     // Load the offers data
-    const storedUser = JSON.parse(sessionStorage.getItem("user") || "null");
+    const storedUser = getStoredUser();
     const userId = storedUser?.id;
+    userLocation = {
+        latitude: Number(storedUser?.latitude),
+        longitude: Number(storedUser?.longitude)
+    };
 
-    let offers = [];
-
-    if (!userId) {
-        console.warn("No user logged in; cannot load offers excluding user.");
-        offers = await loadOffers(); // fallback: load all offers if no user is logged in
-    } else {
-        offers = await loadOffersExcludingUser(userId);
+    if (!userId || !Number.isFinite(userLocation.latitude) || !Number.isFinite(userLocation.longitude)) {
+        displayOffers([]);
+        document.getElementById("offer-results-status").textContent =
+            "Add your location in Settings to browse nearby offers.";
+        return;
     }
 
-    // Render the data
-    if (!offers || offers.length === 0) {
-        console.warn("No offers available to display.");
-    } else {
-        displayOffers(offers);
-        addOfferMarkers(offers, showOfferDetails);
-    }
+    createMap([userLocation.latitude, userLocation.longitude]);
+    allOffers = await loadOffersExcludingUser(userId);
+    renderFilteredOffers();
 }
 
 init();

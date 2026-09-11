@@ -101,6 +101,13 @@
 
 }
 
+.offer-results-status {
+    width: calc(100% - 32px);
+    margin: 8px auto 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
 
 
 /* Filter dropdown */

@@ -158,6 +158,22 @@
     margin-top: 16px;
 }
 
+.missed-claim-button {
+    align-self: flex-start;
+    border: 1px solid #f0c5c1;
+    border-radius: 9px;
+    padding: 8px 11px;
+    background: #fff5f4;
+    color: #a53333;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.missed-claim-button:hover {
+    background: #fde8e8;
+}
+
 .user-offer-actions button {
     flex: 1;
     border: none;

@@ -39,6 +39,11 @@
                 <!-- Filter menu for sort-->
                 <div class="filter-menu" id="distance-filter-menu">
                     <label>
+                        <input type="radio" name="distance" value="" checked>
+                        All distances
+                    </label>
+
+                    <label>
                         <input type="radio" name="distance" value="1">
                         1 km
                     </label>
@@ -68,6 +73,8 @@
 
         </div>
     </div>
+
+    <p id="offer-results-status" class="offer-results-status" aria-live="polite"></p>
 
 
     <!-- Section for changing the view between list and map -->

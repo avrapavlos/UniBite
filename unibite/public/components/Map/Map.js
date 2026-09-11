@@ -1,10 +1,11 @@
 let map;
+let offerMarkers = [];
 
 
-export function createMap() {
+export function createMap(userLocation = [39.365, 21.921]) {
 
     map = L.map("offer-map").setView(
-        [39.365, 21.921],
+        userLocation,
         14
     );
 
@@ -22,6 +23,8 @@ export function createMap() {
 
 export function addOfferMarkers(offers, onClick) {
 
+    clearOfferMarkers();
+
     const storedUser = localStorage.getItem("user");
     const currentUserId = storedUser ? JSON.parse(storedUser).id : null;
 
@@ -38,6 +41,7 @@ export function addOfferMarkers(offers, onClick) {
 
 
         marker.addTo(map);
+        offerMarkers.push(marker);
 
 
         marker.bindPopup(`
@@ -79,6 +83,11 @@ export function addOfferMarkers(offers, onClick) {
 
 
 
+}
+
+export function clearOfferMarkers() {
+    offerMarkers.forEach((marker) => marker.remove());
+    offerMarkers = [];
 }
 
 export function getMap() {

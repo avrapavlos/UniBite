@@ -187,6 +187,11 @@ body {
     color: #a53333;
 }
 
+.claim-status.missed {
+    background: #fde8e8;
+    color: #a53333;
+}
+
 .claimed-offer-meta {
     display: flex;
     flex-wrap: wrap;
@@ -228,6 +233,28 @@ body {
 .rating-star:hover {
     background: #fff2bf;
     transform: translateY(-1px);
+}
+
+.saved-rating {
+    padding: 10px 12px;
+    border: 1px solid #f2df9a;
+    border-radius: 12px;
+    background: #fffaf0;
+}
+
+.rating-stars {
+    display: inline-flex;
+    gap: 2px;
+}
+
+.rating-star-display {
+    color: #d9ded9;
+    font-size: 1.45rem;
+    line-height: 1;
+}
+
+.rating-star-display.highlighted {
+    color: #e4b93a;
 }
 
 /* ===========================

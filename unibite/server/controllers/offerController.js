@@ -1,5 +1,5 @@
 import db from "../database/connection.js";
-import { calculateRemainingQuantity, canAcceptClaim, canClaimOffer } from "./offerClaimLogic.js";
+import { canAcceptClaim, canClaimOffer } from "./offerClaimLogic.js";
 
 function normalizeOffer(offer) {
     return {
@@ -138,6 +138,7 @@ export async function getUserClaimedOffers(req, res) {
                 r.id AS id,
                 r.con_id,
                 r.status,
+                r.state_of_delivery,
                 r.claimed_portions,
                 r.date_posted AS claim_date_posted,
                 o.title,
@@ -150,10 +151,14 @@ export async function getUserClaimedOffers(req, res) {
                 o.room_number,
                 o.path_to_picture,
                 u.name AS creator_name,
-                u.id AS creator_id
+                u.id AS creator_id,
+                rating.score AS rating_score,
+                rating.comment AS rating_comment
             FROM requests r
             JOIN advertisments o ON o.id = r.id
             JOIN users u ON u.id = o.creator_id
+            LEFT JOIN ratings rating ON rating.req_id = r.request_id
+                AND rating.rater_id = r.con_id
             WHERE r.con_id = ?
             ORDER BY r.date_posted DESC
         `;
@@ -248,35 +253,67 @@ export async function acceptOfferClaim(req, res) {
     }
 
     try {
+        await db.beginTransaction();
+
         const [claimResults] = await db.query(
-            `SELECT r.*, o.creator_id, o.portions FROM requests r JOIN advertisments o ON o.id = r.id WHERE r.request_id = ? AND r.id = ?`,
+            `SELECT r.*, o.creator_id, o.portions, o.point_cost
+             FROM requests r
+             JOIN advertisments o ON o.id = r.id
+             WHERE r.request_id = ? AND r.id = ?
+             FOR UPDATE`,
             [requestId, offerId]
         );
 
         if (claimResults.length === 0) {
+            await db.rollback();
             return res.status(404).json({ message: "Claim not found" });
         }
 
         const claim = claimResults[0];
         if (Number(claim.creator_id) !== Number(userId)) {
+            await db.rollback();
             return res.status(403).json({ message: "Only the offer creator can accept this claim." });
         }
 
         if (claim.status === "ACCEPTED") {
+            await db.commit();
             return res.json({ success: true, message: "Claim is already accepted." });
         }
 
-        const remaining = calculateRemainingQuantity({ portions: Number(claim.portions) }, [{ status: 'ACCEPTED', claimed_portions: Number(claim.claimed_portions) }]);
         const acceptedCount = Number(claim.claimed_portions || 1);
+        const remaining = Number(claim.portions || 0);
 
         if (remaining < acceptedCount) {
+            await db.rollback();
             return res.status(400).json({ message: "This claim exceeds the remaining offer quantity." });
         }
 
         const canAccept = canAcceptClaim({ creator_id: claim.creator_id }, claim, userId);
         if (!canAccept) {
+            await db.rollback();
             return res.status(403).json({ message: "This claim cannot be accepted." });
         }
+
+        const totalCost = Number(claim.point_cost || 0) * acceptedCount;
+        const [claimantResults] = await db.query(
+            `SELECT id, points FROM users WHERE id = ? FOR UPDATE`,
+            [claim.con_id]
+        );
+
+        if (claimantResults.length === 0) {
+            await db.rollback();
+            return res.status(404).json({ message: "Claimant not found." });
+        }
+
+        if (Number(claimantResults[0].points || 0) < totalCost) {
+            await db.rollback();
+            return res.status(400).json({ message: "The claimant does not have enough funds." });
+        }
+
+        await db.query(
+            `UPDATE users SET points = points - ? WHERE id = ?`,
+            [totalCost, claim.con_id]
+        );
 
         await db.query(
             `UPDATE requests SET status = 'ACCEPTED', accepted_at = NOW(), updated_at = NOW() WHERE request_id = ?`,
@@ -288,8 +325,72 @@ export async function acceptOfferClaim(req, res) {
             [Number(claim.claimed_portions || 1), offerId]
         );
 
-        return res.json({ success: true, message: "Claim accepted." });
+        await db.commit();
+
+        return res.json({ success: true, message: "Claim accepted.", charged: totalCost });
     } catch (err) {
+        await db.rollback();
+        console.error(err);
+        return res.status(500).json({ message: "Database error", error: err.message });
+    }
+}
+
+export async function markClaimMissed(req, res) {
+    const { offerId, requestId } = req.params;
+    const { userId } = req.body;
+
+    if (!userId) {
+        return res.status(400).json({ message: "userId is required" });
+    }
+
+    try {
+        await db.beginTransaction();
+        const [claimResults] = await db.query(
+            `SELECT r.*, o.creator_id
+             FROM requests r
+             JOIN advertisments o ON o.id = r.id
+             WHERE r.request_id = ? AND r.id = ?
+             FOR UPDATE`,
+            [requestId, offerId]
+        );
+
+        if (claimResults.length === 0) {
+            await db.rollback();
+            return res.status(404).json({ message: "Claim not found" });
+        }
+
+        const claim = claimResults[0];
+        if (Number(claim.creator_id) !== Number(userId)) {
+            await db.rollback();
+            return res.status(403).json({ message: "Only the offer creator can mark this claim missed." });
+        }
+
+        if (claim.status !== "ACCEPTED") {
+            await db.rollback();
+            return res.status(400).json({ message: "Only accepted claims can be marked missed." });
+        }
+
+        if (claim.state_of_delivery === "MISSED" || claim.missedDeliveryPenalty) {
+            await db.commit();
+            return res.json({ success: true, message: "Claim was already marked missed." });
+        }
+
+        await db.query(
+            `UPDATE users SET points = GREATEST(points - 1, 0) WHERE id = ?`,
+            [claim.con_id]
+        );
+        await db.query(
+            `UPDATE requests
+             SET state_of_delivery = 'MISSED', missedDeliveryPenalty = TRUE,
+                 penalty_applied = TRUE, updated_at = NOW()
+             WHERE request_id = ?`,
+            [requestId]
+        );
+
+        await db.commit();
+        return res.json({ success: true, message: "Claim marked as not picked up.", charged: 1 });
+    } catch (err) {
+        await db.rollback();
         console.error(err);
         return res.status(500).json({ message: "Database error", error: err.message });
     }
@@ -356,6 +457,7 @@ export async function rateClaim(req, res) {
         }
 
         const ratedUserId = Number(claim.creator_id);
+        const claimedPortions = Number(claim.claimed_portions || 1);
         const [existingMarks] = await db.query(
             `SELECT * FROM ratings WHERE req_id = ? AND rater_id = ?`,
             [requestId, raterId]
@@ -373,12 +475,24 @@ export async function rateClaim(req, res) {
             );
         }
 
+        const previousRating = Number(existingMarks[0]?.score || 0);
+        const previousReward = previousRating > 0
+            ? (previousRating > 3 ? 2 : 1) * claimedPortions
+            : 0;
+        const newReward = (rating > 3 ? 2 : 1) * claimedPortions;
         await db.query(
             `UPDATE users SET points = points + ? WHERE id = ?`,
-            [rating * 5, ratedUserId]
+            [newReward - previousReward, ratedUserId]
         );
 
-        return res.json({ success: true, message: "Rating submitted." });
+        return res.json({
+            success: true,
+            message: "Rating submitted.",
+            rating: {
+                score: rating,
+                reward: newReward - previousReward
+            }
+        });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Database error", error: err.message });

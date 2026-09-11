@@ -159,8 +159,8 @@ BEGIN
         WHERE state_of_delivery = 'MISSED'
           AND missedDeliveryPenalty = FALSE
         GROUP BY con_id
-    ) r ON u.con_id = r.con_id
-    SET u.points = u.points - r.missed_count;
+    ) r ON u.id = r.con_id
+    SET u.points = GREATEST(u.points - r.missed_count, 0);
 
     UPDATE requests
     SET missedDeliveryPenalty = TRUE
@@ -185,6 +185,7 @@ DO
     WHERE
     rat.req_id IS NULL
     AND req.penalty_applied = FALSE
+    AND req.state_of_delivery <> 'MISSED'
     AND CURRENT_TIMESTAMP >= ADDDATE(
         ad.date_of_delivery,
         INTERVAL 48 HOUR

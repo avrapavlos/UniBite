@@ -18,12 +18,27 @@ const searchAddressButton = document.getElementById("search-address-button");
 
 function initializeMap() {
 
-    const defaultLatitude = 39.365;
-    const defaultLongitude = 21.921;
+    const rawUser = localStorage.getItem("user") || sessionStorage.getItem("user");
+    let storedUser = null;
+    try {
+        storedUser = rawUser ? JSON.parse(rawUser) : null;
+    } catch (error) {
+        console.error("Could not read stored user location:", error);
+    }
+
+    const defaultLatitude = Number(storedUser?.latitude) || 39.365;
+    const defaultLongitude = Number(storedUser?.longitude) || 21.921;
+    const hasSavedLocation = Number.isFinite(Number(storedUser?.latitude))
+        && Number.isFinite(Number(storedUser?.longitude));
+
+    if (hasSavedLocation) {
+        latitudeInput.value = defaultLatitude.toFixed(6);
+        longitudeInput.value = defaultLongitude.toFixed(6);
+    }
 
     map = L.map("map").setView(
         [defaultLatitude, defaultLongitude],
-        15
+        hasSavedLocation ? 17 : 15
     );
 
     // OpenStreetMap Tiles
@@ -38,6 +53,12 @@ function initializeMap() {
     setTimeout(() => {
         map.invalidateSize();
     }, 0);
+
+    if (hasSavedLocation) {
+        selectedMarker = L.marker([defaultLatitude, defaultLongitude])
+            .addTo(map)
+            .bindPopup("Saved location");
+    }
 
     // =========================
     // Map Click
@@ -199,6 +220,19 @@ function setupSaveLocation() {
 
             const result = await response.json();
             console.log("Location saved:", result);
+
+            const updatedUser = {
+                ...user,
+                latitude: result.latitude,
+                longitude: result.longitude
+            };
+            const serializedUser = JSON.stringify(updatedUser);
+            if (localStorage.getItem("user")) {
+                localStorage.setItem("user", serializedUser);
+            }
+            if (sessionStorage.getItem("user")) {
+                sessionStorage.setItem("user", serializedUser);
+            }
 
             // Close the modal on success
             const modal = document.getElementById("settings-modal");

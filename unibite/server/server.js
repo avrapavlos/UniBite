@@ -78,6 +78,20 @@ async function ensureClaimAndRatingSchema() {
     }
 }
 
+async function ensureUserLocationSchema() {
+    const [columns] = await db.query("SHOW COLUMNS FROM users");
+    const existingColumns = new Set(columns.map((column) => column.Field));
+
+    for (const column of [
+        { name: "latitude", definition: "DECIMAL(9,6) NULL" },
+        { name: "longitude", definition: "DECIMAL(9,6) NULL" }
+    ]) {
+        if (!existingColumns.has(column.name)) {
+            await db.query(`ALTER TABLE users ADD COLUMN ${column.name} ${column.definition}`);
+        }
+    }
+}
+
 async function ensureClaimPortionTriggerRemoved() {
     try {
         await db.query("DROP TRIGGER IF EXISTS inactivation");
@@ -90,6 +104,7 @@ async function initServer() {
     console.log("Initializing server...");
     await ensureRequestsReferenceOfferTable();
     await ensureClaimAndRatingSchema();
+    await ensureUserLocationSchema();
     await ensureClaimPortionTriggerRemoved();
 
     app.use(express.json());

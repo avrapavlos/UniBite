@@ -180,12 +180,14 @@ function createClaimedOfferCard(offer, onRate) {
 
     const status = String(offer.status || "PENDING").toUpperCase();
     const isAccepted = status === "ACCEPTED";
-    const isRated = false;
+    const wasMissed = String(offer.state_of_delivery || "").toUpperCase() === "MISSED";
+    const ratingScore = Number(offer.rating_score || 0);
+    const isRated = ratingScore >= 1 && ratingScore <= 5;
 
     article.innerHTML = `
         <div class="claimed-offer-top">
             <h3>${offer.title || "Offer"}</h3>
-            <span class="claim-status ${status.toLowerCase()}">${status}</span>
+            <span class="claim-status ${wasMissed ? "missed" : status.toLowerCase()}">${wasMissed ? "NOT PICKED UP" : status}</span>
         </div>
 
         <div class="claimed-offer-meta">
@@ -200,7 +202,14 @@ function createClaimedOfferCard(offer, onRate) {
             <span>Room ${offer.room || "TBA"}</span>
         </div>
 
-        ${isAccepted ? `
+        ${isAccepted && !wasMissed && isRated ? `
+            <div class="claim-rating-row saved-rating" aria-label="Your rating: ${ratingScore} out of 5 stars">
+                <span>Your rating</span>
+                <span class="rating-stars" aria-hidden="true">
+                    ${[1, 2, 3, 4, 5].map((star) => `<span class="rating-star-display ${star <= ratingScore ? "highlighted" : ""}">★</span>`).join("")}
+                </span>
+            </div>
+        ` : isAccepted && !wasMissed ? `
             <div class="claim-rating-row">
                 <span>Rate creator</span>
                 ${[1, 2, 3, 4, 5].map((star) => `<button type="button" class="rating-star" data-score="${star}">★</button>`).join("")}
@@ -270,8 +279,35 @@ async function refreshOffers() {
         onDelete: deleteOffer,
         onAcceptClaim: acceptClaim,
         onRejectClaim: rejectClaim,
+        onMissedClaim: markClaimMissed,
         onRateClaim: rateClaim
     });
+}
+
+async function markClaimMissed(offer, claim) {
+    const userId = getCurrentUserId();
+    if (!userId || !claim?.request_id) {
+        showNotification("No claim selected.", "error");
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/offers/${offer.id}/claims/${claim.request_id}/missed`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId })
+        });
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || "Failed to mark claim as missed.");
+        }
+
+        showNotification("Claim marked as not picked up.", "info");
+        refreshOffers();
+    } catch (error) {
+        console.error(error);
+        showNotification(error.message || "Unable to mark claim as missed.", "error");
+    }
 }
 
 async function acceptClaim(offer, claim) {
@@ -357,19 +393,8 @@ async function rateClaim(offer, claim, score) {
             throw new Error(result.message || "Failed to rate claim.");
         }
 
-        const storedUser = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "null");
-        if (storedUser && Number(storedUser.id) === Number(userId)) {
-            const updatedUser = {
-                ...storedUser,
-                points: Number(storedUser.points || 0) + Number(score) * 5
-            };
-
-            localStorage.setItem("user", JSON.stringify(updatedUser));
-            sessionStorage.setItem("user", JSON.stringify(updatedUser));
-        }
-
         showNotification("Thanks for rating this exchange.", "info");
-        refreshOffers();
+        await Promise.all([refreshOffers(), refreshClaimedOffers()]);
     } catch (error) {
         console.error(error);
         showNotification(error.message || "Unable to rate claim.", "error");
