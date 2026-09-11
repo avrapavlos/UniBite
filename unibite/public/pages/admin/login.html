@@ -29,7 +29,7 @@
 
                 <h2>Admin Login</h2>
 
-                <p class="login-error" id="login-error" style="display:none;">Invalid credentials</p>
+                <p class="login-error" id="login-error" role="alert" aria-live="polite" hidden>Invalid credentials</p>
 
                 <div class="input-group">
                     <label for="email">Email</label>
@@ -38,9 +38,9 @@
 
                 <div class="input-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter admin password" required>
-                    <p class="password-error" id="password-error" style="display:none; margin-top:8px; color:#d32f2f; font-size:13px;">
-                        Password must be at least 8 characters and include uppercase, lowercase, and a number.
+                    <input type="password" id="password" name="password" placeholder="Enter admin password" minlength="8" required>
+                    <p class="password-error" id="password-error" role="alert" aria-live="polite" hidden>
+                        Password must be at least 8 characters.
                     </p>
                 </div>
 

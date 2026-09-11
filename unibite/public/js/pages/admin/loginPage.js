@@ -10,8 +10,8 @@ function adminLogin() {
     const passwordInput = document.getElementById("password");
     const rememberBox = document.getElementById("remember-box");
 
-    errorEl.style.display = "none";
-    passwordErrorEl.style.display = "none";
+    errorEl.hidden = true;
+    passwordErrorEl.hidden = true;
 
     loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -21,12 +21,12 @@ function adminLogin() {
         const remember = rememberBox.checked;
 
         if (!passwordInput.checkValidity()) {
-            passwordErrorEl.style.display = "block";
-            errorEl.style.display = "none";
+            passwordErrorEl.hidden = false;
+            errorEl.hidden = true;
             return;
         }
 
-        passwordErrorEl.style.display = "none";
+        passwordErrorEl.hidden = true;
 
         const apiBaseUrl = "http://localhost:3000";
 
@@ -36,33 +36,37 @@ function adminLogin() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
             });
+            const data = await res.json().catch(() => ({}));
 
             if (!res.ok) {
-                errorEl.textContent = `Login failed (${res.status})`;
-                errorEl.style.display = "block";
+                errorEl.textContent = res.status === 401
+                    ? "The email or password is incorrect."
+                    : (data.message || "Unable to log in right now.");
+                errorEl.hidden = false;
                 return;
             }
 
-            const data = await res.json();
-
             if (data.success) {
-                // Optionally check for admin flag on the returned user (if backend provides it)
+                const storage = remember ? localStorage : sessionStorage;
+                storage.setItem("admin", JSON.stringify({
+                    ...data.admin,
+                    token: data.token
+                }));
                 if (remember) {
-                    localStorage.setItem("user", JSON.stringify(data.user));
+                    sessionStorage.removeItem("admin");
                 } else {
-                    sessionStorage.setItem("user", JSON.stringify(data.user));
+                    localStorage.removeItem("admin");
                 }
 
-                // Redirect to admin dashboard (create this page separately)
                 window.location.replace("../../pages/admin/dashboard.html");
             } else {
-                errorEl.textContent = data.message || "Invalid credentials";
-                errorEl.style.display = "block";
+                errorEl.textContent = "The email or password is incorrect.";
+                errorEl.hidden = false;
             }
         } catch (err) {
             console.error("Admin login error:", err);
-            errorEl.textContent = "Network or server error";
-            errorEl.style.display = "block";
+            errorEl.textContent = "Unable to reach the server. Please try again.";
+            errorEl.hidden = false;
         }
     });
 }

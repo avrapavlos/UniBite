@@ -130,6 +130,17 @@ nav a:hover {
 
 }
 
+.admin-link {
+    color: #1f7a45;
+    border: 1px solid #b9d9c0;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.admin-link:hover {
+    background: #f1f9f2;
+}
+
 .signup-button {
 
     background: #4CAF50;
