@@ -150,6 +150,69 @@ async function searchAddress() {
     }
 }
 
+// =========================
+// Save Location
+// =========================
+
+function setupSaveLocation() {
+
+    const form = document.getElementById("location-edit");
+    const saveButton = document.getElementById("save-location-button");
+
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault(); // stop native page navigation/reload
+
+        const latitude = latitudeInput.value;
+        const longitude = longitudeInput.value;
+
+        if (!latitude || !longitude) {
+            alert("Please select a location on the map first.");
+            return;
+        }
+
+        // Get logged-in user's id (adjust to however your app stores it)
+        const rawUser = localStorage.getItem("user") || sessionStorage.getItem("user");
+        const user = rawUser ? JSON.parse(rawUser) : null;
+
+        if (!user || !user.id) {
+            alert("You must be logged in to save your location.");
+            return;
+        }
+
+        saveButton.disabled = true;
+        saveButton.textContent = "Saving...";
+
+        try {
+            const response = await fetch("/api/users/location", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: user.id,
+                    latitude: parseFloat(latitude),
+                    longitude: parseFloat(longitude)
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to save location");
+            }
+
+            const result = await response.json();
+            console.log("Location saved:", result);
+
+            // Close the modal on success
+            const modal = document.getElementById("settings-modal");
+            if (modal) modal.style.display = "none";
+
+        } catch (error) {
+            console.error("Error saving location:", error);
+            alert("Something went wrong saving your location. Please try again.");
+        } finally {
+            saveButton.disabled = false;
+            saveButton.textContent = "Save Location";
+        }
+    });
+}
 
 // =========================
 // Initialize Location
@@ -157,3 +220,4 @@ async function searchAddress() {
 
 initializeMap();
 setupAddressSearch();
+setupSaveLocation();

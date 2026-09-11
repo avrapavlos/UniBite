@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import authRoutes from "./routes/authRoutes.js";
 import offerRoutes from "./routes/offerRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import db from "./database/connection.js";
 
 const app = express();
@@ -99,6 +100,7 @@ function setUpRoutes() {
     app.use("/api", authRoutes);
     app.use("/api", offerRoutes);
     app.use("/api/admin", adminRoutes);
+    app.use("/api/users", userRoutes);
 }
 
 initServer();
