@@ -15,26 +15,37 @@ export async function ensureRequestsReferenceOfferTable() {
         return;
     }
 
-    const [createRows] = await db.query("SHOW CREATE TABLE requests");
-    const createSql = createRows[0]?.["Create Table"] || "";
-
-    if (!createSql.includes("REFERENCES `advertisments` (`ad_id`)")) {
+    const [offerTableRows] = await db.query("SHOW TABLES LIKE 'offers'");
+    if (offerTableRows.length === 0) {
         return;
     }
 
-    try {
-        await db.query("ALTER TABLE requests DROP FOREIGN KEY fk_advertisment");
-    } catch (err) {
-        console.warn("Could not drop legacy requests fk_advertisment:", err.message);
+    const [foreignKeys] = await db.query(`
+        SELECT CONSTRAINT_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME
+        FROM information_schema.KEY_COLUMN_USAGE
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'requests'
+          AND COLUMN_NAME = 'id'
+          AND REFERENCED_TABLE_NAME IS NOT NULL
+    `);
+
+    const hasOfferReference = foreignKeys.some((foreignKey) =>
+        foreignKey.REFERENCED_TABLE_NAME === "offers"
+        && foreignKey.REFERENCED_COLUMN_NAME === "id"
+    );
+
+    for (const foreignKey of foreignKeys) {
+        const referencesOffers = foreignKey.REFERENCED_TABLE_NAME === "offers"
+            && foreignKey.REFERENCED_COLUMN_NAME === "id";
+
+        if (!referencesOffers) {
+            await db.query(`ALTER TABLE requests DROP FOREIGN KEY \`${foreignKey.CONSTRAINT_NAME}\``);
+        }
     }
 
-    try {
-        await db.query("ALTER TABLE requests DROP INDEX fk_advertisment");
-    } catch (err) {
-        console.warn("Could not drop legacy requests index:", err.message);
+    if (!hasOfferReference) {
+        await db.query("ALTER TABLE requests ADD CONSTRAINT fk_requests_offer FOREIGN KEY (id) REFERENCES offers(id)");
     }
-
-    await db.query("ALTER TABLE requests ADD CONSTRAINT fk_requests_offer FOREIGN KEY (ad_id) REFERENCES advertisments(id)");
 }
 
 async function ensureClaimAndRatingSchema() {
@@ -68,10 +79,19 @@ async function ensureClaimAndRatingSchema() {
     }
 }
 
+async function ensureClaimPortionTriggerRemoved() {
+    try {
+        await db.query("DROP TRIGGER IF EXISTS inactivation");
+    } catch (err) {
+        console.warn("Could not remove legacy claim portion trigger:", err.message);
+    }
+}
+
 async function initServer() {
     console.log("Initializing server...");
     await ensureRequestsReferenceOfferTable();
     await ensureClaimAndRatingSchema();
+    await ensureClaimPortionTriggerRemoved();
 
     app.use(express.json());
 

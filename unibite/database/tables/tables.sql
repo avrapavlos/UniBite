@@ -147,15 +147,6 @@ DO
     UPDATE advertisments
     SET state_of_ad = 'DELETED' WHERE date_of_deletion < CURRENT_TIMESTAMP() AND state_of_ad <> 'DELETED'$$
 
-CREATE TRIGGER inactivation BEFORE INSERT ON requests FOR EACH ROW
-BEGIN
-    DECLARE portion INT;
-    SELECT portions INTO portion FROM advertisments WHERE advertisments.id = new.id;
-    IF portion - 1 = 0 THEN UPDATE advertisments SET state_of_ad = 'INACTIVE', portions = 0 WHERE advertisments.id = new.id;
-    ELSE UPDATE advertisments SET portions = portions - 1 WHERE advertisments.id = new.id;
-    END IF;
-END$$
-
 DROP EVENT IF EXISTS missedDelivery$$
 CREATE EVENT missedDelivery
 ON SCHEDULE EVERY 1 HOUR
