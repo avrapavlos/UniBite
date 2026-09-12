@@ -238,6 +238,10 @@ function setupSaveLocation() {
             const modal = document.getElementById("settings-modal");
             if (modal) modal.style.display = "none";
 
+            // Let other parts of the app (e.g. the browse page) know the
+            // location changed, so they can refresh without a page reload
+            document.dispatchEvent(new CustomEvent("settingsModalClosed"));
+
         } catch (error) {
             console.error("Error saving location:", error);
             alert("Something went wrong saving your location. Please try again.");

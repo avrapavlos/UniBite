@@ -80,7 +80,7 @@ export function createNavbar() {
 
             <li>
                 <a href="../../pages/dashboards/createPage.html">
-                    Create Offers
+                    Offer Dashboard
                 </a>
             </li>
 
@@ -216,9 +216,15 @@ export function createNavbar() {
         const closeBtn = document.createElement("button");
         closeBtn.textContent = "×";
         closeBtn.className = "settings-modal-close";
-        closeBtn.addEventListener("click", () => (modal.style.display = "none"));
+        closeBtn.addEventListener("click", () => {
+            modal.style.display = "none";
+            document.dispatchEvent(new CustomEvent("settingsModalClosed"));
+        });
         modal.addEventListener("click", (e) => {
-            if (e.target === modal) modal.style.display = "none"; // click outside to close
+            if (e.target === modal) {
+                modal.style.display = "none"; // click outside to close
+                document.dispatchEvent(new CustomEvent("settingsModalClosed"));
+            }
         });
 
         modalBox.appendChild(closeBtn);

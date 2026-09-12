@@ -132,6 +132,22 @@ export function clearOfferMarkers() {
     offerMarkers = [];
 }
 
+export function updateUserLocation(lat, lng) {
+    if (!map) return;
+
+    const latlng = [lat, lng];
+
+    if (userMarker) {
+        userMarker.setLatLng(latlng);
+    } else {
+        userMarker = L.marker(latlng, { icon: userIcon, zIndexOffset: 1000 })
+            .addTo(map)
+            .bindPopup("You are here");
+    }
+
+    map.setView(latlng, map.getZoom());
+}
+
 export function getMap() {
     return map;
 }

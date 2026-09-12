@@ -1,5 +1,5 @@
 import { createNavbar } from "../../../components/Navbar/Navbar.js";
-import { getMap, createMap, addOfferMarkers } from "../../../components/Map/Map.js";
+import { getMap, createMap, addOfferMarkers, updateUserLocation } from "../../../components/Map/Map.js";
 import { showOfferDetails } from "../../../components/OfferDetails/OfferDetailsManager.js";
 import { displayOffers } from "../../renderers/offersRenderer.js";
 import { loadOffersExcludingUser } from "../../dataLoaders/offers.js";
@@ -111,6 +111,41 @@ function setViewToggle() {
         }, 100)
     })
 }
+
+// Re-reads the stored user's location and refreshes the map + offer list
+// (respecting whatever search/filter is currently active) without reloading
+// the page. Triggered whenever the settings modal closes, in case the
+// person just saved a new location.
+async function refreshLocationAndOffers() {
+    const storedUser = getStoredUser();
+    const userId = storedUser?.id;
+    const latitude = Number(storedUser?.latitude);
+    const longitude = Number(storedUser?.longitude);
+
+    if (!userId || !Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        // Still no valid location saved, nothing to refresh yet
+        return;
+    }
+
+    userLocation = { latitude, longitude };
+
+    if (getMap()) {
+        // Map already exists, just recenter it and move the user marker
+        updateUserLocation(latitude, longitude);
+    } else {
+        // This is the first time we have a valid location, so the map
+        // was never created during init() — create it now
+        createMap([latitude, longitude]);
+    }
+
+    if (allOffers.length === 0) {
+        allOffers = await loadOffersExcludingUser(userId);
+    }
+
+    renderFilteredOffers();
+}
+
+document.addEventListener("settingsModalClosed", refreshLocationAndOffers);
 
 
 async function init() {
