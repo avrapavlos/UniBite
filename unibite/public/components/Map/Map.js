@@ -1,5 +1,26 @@
 let map;
 let offerMarkers = [];
+let offerClusterGroup = null;
+let userMarker = null;
+
+function createPinIcon(fillColor, strokeColor) {
+    return L.divIcon({
+        className: "custom-pin-icon",
+        html: `
+            <svg width="30" height="42" viewBox="0 0 30 42" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 0C6.7 0 0 6.7 0 15c0 11 15 27 15 27s15-16 15-27C30 6.7 23.3 0 15 0z"
+                    fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5" />
+                <circle cx="15" cy="15" r="6" fill="white" />
+            </svg>
+        `,
+        iconSize: [30, 42],
+        iconAnchor: [15, 42],
+        popupAnchor: [0, -36]
+    });
+}
+
+const offerIcon = createPinIcon("#4CAF50", "#2E7D32");
+const userIcon = createPinIcon("#e53935", "#b71c1c");
 
 
 export function createMap(userLocation = [39.365, 21.921]) {
@@ -18,6 +39,19 @@ export function createMap(userLocation = [39.365, 21.921]) {
         }
     ).addTo(map);
 
+    userMarker = L.marker(userLocation, { icon: userIcon, zIndexOffset: 1000 })
+        .addTo(map)
+        .bindPopup("You are here");
+
+    offerClusterGroup = L.markerClusterGroup({
+        maxClusterRadius: 40,
+        iconCreateFunction: (cluster) => L.divIcon({
+            html: `<div class="offer-cluster-badge">${cluster.getChildCount()}</div>`,
+            className: "custom-pin-icon",
+            iconSize: [34, 34]
+        })
+    });
+    map.addLayer(offerClusterGroup);
 
 }
 
@@ -34,13 +68,19 @@ export function addOfferMarkers(offers, onClick) {
             // If the offer belongs to the current user, do not create a marker
             return;
         }
-        const marker = L.marker([
-            offer.latitude,
-            offer.longitude
-        ]);
+
+        const lat = Number(offer.latitude);
+        const lng = Number(offer.longitude);
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+            console.warn("Skipping offer with invalid coordinates:", offer);
+            return;
+        }
+
+        const marker = L.marker([lat, lng], { icon: offerIcon });
 
 
-        marker.addTo(map);
+        offerClusterGroup.addLayer(marker);
         offerMarkers.push(marker);
 
 
@@ -86,7 +126,9 @@ export function addOfferMarkers(offers, onClick) {
 }
 
 export function clearOfferMarkers() {
-    offerMarkers.forEach((marker) => marker.remove());
+    if (offerClusterGroup) {
+        offerClusterGroup.clearLayers();
+    }
     offerMarkers = [];
 }
 

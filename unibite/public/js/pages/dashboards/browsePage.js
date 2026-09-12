@@ -66,6 +66,19 @@ function setFilterListener() {
 
     });
 }
+ 
+
+// Click event listener for the filter menu to close it when clicking outside
+document.addEventListener("click", (event) => {
+    const button = document.querySelector(".filter-button");
+    const menu = document.querySelector(".filter-menu");
+
+    if (!button.contains(event.target) && !menu.contains(event.target)) {
+        menu.classList.remove("active");
+    }
+
+});
+
 
 
 // Function that enables map switching in browse page
