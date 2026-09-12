@@ -9,8 +9,19 @@ async function initAdminDashboard() {
     const topDonorName = document.getElementById("top-donor-name");
     const topDonorPortions = document.getElementById("top-donor-portions");
     const highestRatedMealsBody = document.getElementById("highest-rated-meals-body");
+    const logoutBtn = document.getElementById("logout-btn");
     const apiBaseUrl = "http://localhost:3000";
     const storedAdmin = localStorage.getItem("admin") || sessionStorage.getItem("admin");
+
+    function logout() {
+        localStorage.removeItem("admin");
+        sessionStorage.removeItem("admin");
+        window.location.replace("../../pages/admin/login.html");
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", logout);
+    }
 
     if (!storedAdmin) {
         window.location.replace("../../pages/admin/login.html");
@@ -21,9 +32,7 @@ async function initAdminDashboard() {
     try {
         admin = JSON.parse(storedAdmin);
     } catch (err) {
-        localStorage.removeItem("admin");
-        sessionStorage.removeItem("admin");
-        window.location.replace("../../pages/admin/login.html");
+        logout();
         return;
     }
 
@@ -32,9 +41,7 @@ async function initAdminDashboard() {
             headers: { Authorization: `Bearer ${admin.token}` }
         });
         if (res.status === 401) {
-            localStorage.removeItem("admin");
-            sessionStorage.removeItem("admin");
-            window.location.replace("../../pages/admin/login.html");
+            logout();
             return;
         }
         if (!res.ok) {
