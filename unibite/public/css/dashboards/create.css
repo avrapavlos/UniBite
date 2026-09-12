@@ -111,7 +111,6 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
     gap: 24px;
-    auto-rows: 1fr;
 }
 
 .claimed-offers-section {
@@ -187,6 +186,11 @@ body {
     color: #a53333;
 }
 
+.claim-status.missed {
+    background: #fde8e8;
+    color: #a53333;
+}
+
 .claimed-offer-meta {
     display: flex;
     flex-wrap: wrap;
@@ -228,6 +232,28 @@ body {
 .rating-star:hover {
     background: #fff2bf;
     transform: translateY(-1px);
+}
+
+.saved-rating {
+    padding: 10px 12px;
+    border: 1px solid #f2df9a;
+    border-radius: 12px;
+    background: #fffaf0;
+}
+
+.rating-stars {
+    display: inline-flex;
+    gap: 2px;
+}
+
+.rating-star-display {
+    color: #d9ded9;
+    font-size: 1.45rem;
+    line-height: 1;
+}
+
+.rating-star-display.highlighted {
+    color: #e4b93a;
 }
 
 /* ===========================
@@ -548,6 +574,75 @@ body {
 .modal-field textarea {
     resize: vertical;
 }
+
+
+/* ===========================
+   ALLERGY CHIPS (Edit modal)
+=========================== */
+
+.allergy-options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.allergy-options label {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 72px;
+    height: 72px;
+    padding: 6px;
+    border: 1.5px solid #dfe9e0;
+    border-radius: 14px;
+    background: #f9fbf9;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.allergy-options label:hover {
+    border-color: #4CAF50;
+    background: #eef8ee;
+}
+
+.allergy-options label:has(input:checked) {
+    background: #eaf7eb;
+    border-color: #2e7d32;
+}
+
+.allergy-options input[type="checkbox"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.allergy-icon {
+    font-size: 1.25rem;
+}
+
+.allergy-text {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #59705d;
+    text-align: center;
+    line-height: 1.1;
+}
+
+.allergy-options label:has(input:checked) .allergy-text {
+    color: #2e7d32;
+}
+
 
 .modal-actions {
     display: flex;

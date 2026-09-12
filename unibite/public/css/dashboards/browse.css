@@ -1,496 +1,431 @@
-/* Search + Filter container */
+/* Phone (default styles, no media query) */
 
-/* Search + Filter container */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #F5FAF5;
+    color: #333;
+    line-height: 1.6;
+}
+
+.card-header {
+    text-align: center;
+    padding: 50px 8% 30px;
+}
+
+.card-header h1 {
+    color: #2E7D32;
+    font-size: 40px;
+    line-height: 1.15;
+    margin-bottom: 12px;
+}
+
+.card-header p {
+    color: #666;
+    font-size: 18px;
+    max-width: 500px;
+    margin: 0 auto;
+}
 
 .search-section {
-
     width: calc(100% - 32px);
-
     margin: 16px auto;
-
-    padding: 12px;
-
-    background-color: white;
-
-    border-radius: 16px;
-
-    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-
+    padding: 14px;
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
 }
-
-
-
-/* Search row */
 
 .search-bar {
-
     display: flex;
-
     flex-direction: row;
-
+    justify-content: center;
     gap: 12px;
-
 }
-
 
 .search-bar-wrapper {
-
     display: flex;
-    
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
-    
     gap: 8px;
-
     width: 100%;
-
+    max-width: 760px;
+    margin: 0 auto;
 }
-
-
-
-/* Input */
 
 #search-input {
-
     flex: 1;
-
+    min-width: 0;
     max-width: 600px;
-
     height: 42px;
-
-    padding: 0 14px;
-
-    border-radius: 12px;
-
-    border: 1px solid #ddd;
-
+    padding: 0 16px;
+    border-radius: 10px;
+    border: 1.5px solid #dcefe0;
+    background-color: #fafffa;
     font-size: 0.95rem;
-
+    color: #333;
     outline: none;
-
+    transition: .25s;
 }
 
+#search-input::placeholder {
+    color: #8fae90;
+}
+
+#search-input:hover {
+    border-color: #b9d9c0;
+}
 
 #search-input:focus {
-
-    border-color: #1f7a45;
-
+    border-color: #4CAF50;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.15);
 }
-
-
-
-/* Search button */
 
 #search-button {
-
     height: 42px;
-
-    padding: 0 16px;
-
+    padding: 0 22px;
     border: none;
-
-    border-radius: 12px;
-
-    background-color: #1f7a45;
-
+    border-radius: 10px;
+    background: #4CAF50;
     color: white;
-
     font-weight: bold;
-
     cursor: pointer;
-
+    transition: .25s;
 }
 
+#search-button:hover {
+    background: #388E3C;
+    transform: translateY(-2px);
+}
 
+#search-button:active {
+    transform: translateY(0);
+}
 
-/* Filter dropdown */
+#search-button:focus-visible,
+.filter-button:focus-visible,
+.view-toggle button:focus-visible,
+#search-input:focus-visible {
+    outline: 2px solid #2E7D32;
+    outline-offset: 2px;
+}
+
+.offer-results-status {
+    width: calc(100% - 32px);
+    margin: 8px auto 0;
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.allergen-filter-bar {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #eef2ee;
+}
+
+.allergen-filter-label {
+    display: block;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.allergen-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.allergen-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 64px;
+    height: 64px;
+    border: 1.5px solid #e2e6e3;
+    border-radius: 14px;
+    background: #fafffa;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.allergen-chip-icon {
+    font-size: 1.3rem;
+}
+
+.allergen-chip-label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: #555;
+    text-align: center;
+    line-height: 1.1;
+}
+
+.allergen-chip:hover {
+    border-color: #4CAF50;
+    background: #F5FAF5;
+}
+
+.allergen-chip.active {
+    background: #FFEBEE;
+    border-color: #C62828;
+}
+
+.allergen-chip.active .allergen-chip-label {
+    color: #C62828;
+}
 
 .filter-dropdown {
-
     position: relative;
-
 }
-
 
 .filter-button {
-
     width: 50px;
-
     height: 42px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
-    border: none;
-
-    border-radius: 12px;
-
-    background-color: #f2f8f4;
-
+    border: 1.5px solid transparent;
+    border-radius: 10px;
+    background-color: #f1f9f2;
     cursor: pointer;
-
-    transition: 0.2s;
-
+    transition: .25s;
 }
-
 
 .filter-button:hover {
-
-    background-color: #dcefe2;
-
+    background-color: #e2f2e4;
 }
 
+.filter-button.active {
+    background-color: #e2f2e4;
+    border-color: #4CAF50;
+}
 
 .filter-button img {
-
     width: 20px;
-
     height: 20px;
-
 }
-
-
-
-/* Dropdown menu */
 
 .filter-menu {
-
     display: none;
-
     position: absolute;
-
     top: 50px;
-
     right: 0;
-
     width: 220px;
-
     max-height: 280px;
-
     overflow-y: auto;
 
-
-    background-color: white;
-
+    background-color: #ffffff;
     border-radius: 12px;
+    padding: 10px;
 
-    padding: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .12);
+    z-index: 2000;
 
-
-    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-
-    z-index: 100;
-
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: .2s;
 }
 
+.filter-menu::before {
+    content: "Distance";
+    display: block;
+    font-size: 0.72rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #4CAF50;
+    padding: 6px 8px 10px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #eef5ef;
+}
 
 .filter-menu.active {
-
     display: flex;
-
     flex-direction: column;
-
-    gap: 8px;
-
+    gap: 4px;
+    opacity: 1;
+    transform: translateY(0);
 }
-
-
-
-/* Checkbox */
 
 .filter-menu label {
-
     display: flex;
-
     align-items: center;
-
     gap: 10px;
-
-    padding: 8px;
-
+    padding: 9px 8px;
     border-radius: 8px;
-
-    font-size: 0.9rem;
-
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: #444;
+    cursor: pointer;
+    transition: .2s;
 }
-
 
 .filter-menu label:hover {
-
-    background-color: #f2f8f4;
-
+    background-color: #f1f9f2;
 }
 
+.filter-menu label:has(input:checked) {
+    background-color: #e2f2e4;
+    color: #2E7D32;
+    font-weight: bold;
+}
 
 .filter-menu input {
-
     width: 18px;
-
     height: 18px;
-
-    accent-color: #1f7a45;
-
+    accent-color: #4CAF50;
 }
 
-/*View toggle */
 .view-toggle {
-
     display: flex;
-
     justify-content: center;
-
-    gap: 8px;
-
+    gap: 6px;
     margin: 16px auto;
-
+    padding: 4px;
+    width: fit-content;
+    background-color: #f1f9f2;
+    border-radius: 24px;
 }
-
 
 .view-toggle button {
-
-    padding: 10px 20px;
-
+    padding: 10px 22px;
     border: none;
-
     border-radius: 20px;
-
-    background-color: #f2f8f4;
-
-    color: #1f7a45;
-
+    background-color: transparent;
+    color: #2E7D32;
     font-weight: bold;
-
     cursor: pointer;
-
+    transition: .25s;
 }
 
+.view-toggle button:hover:not(.active) {
+    background-color: #e2f2e4;
+}
 
 .view-toggle button.active {
-
-    background-color: #1f7a45;
-
+    background: #4CAF50;
     color: white;
-
 }
 
-/* Map View */
 #offer-map {
     display: none;
     width: 100%;
     height: 500px;
-    border-radius:  16px;
-    background-color: green;
-
+    border-radius: 20px;
+    background-color: #073f0a;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+    overflow: hidden;
 }
 
-
-/*Card Details For Mobile*/
-#offer-details-container {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    background: white;
-    overflow-y: auto;
+.feed-container {
+    width: calc(100% - 32px);
+    margin: 16px auto;
 }
 
-/* Show when an offer is selected */
-#offer-details-container.active {
-    display: block;
+.offer-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
 }
 
-
-/* The actual details card */
-.offer-details-container-wrapper {
-    width: 100%;
-    min-height: 100vh;
-    background: white;
-    padding: 20px;
-    box-sizing: border-box;
-    position: relative;
+.no-offers {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 70px 20px;
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+    color: #666;
 }
 
-
-/* Close button */
-.offer-details-close {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-
-    width: 40px;
-    height: 40px;
-
-    border: none;
-    border-radius: 50%;
-
-    background: #eee;
-    font-size: 20px;
-    cursor: pointer;
+.no-offers-icon {
+    font-size: 44px;
+    margin-bottom: 16px;
 }
 
-
-/* Image */
-.offer-details-image-wrapper img {
-    width: 100%;
-    height: 300px;
-    object-fit: cover;
-    border-radius: 15px;
+.no-offers h3 {
+    color: #2E7D32;
+    font-size: 22px;
+    margin-bottom: 8px;
 }
 
-
-/* Title */
-.offer-details-title {
-    margin-top: 20px;
-    font-size: 28px;
+.no-offers p {
+    font-size: 15px;
+    max-width: 360px;
+    margin: 0 auto;
 }
 
-
-/* Description */
-.offer-details-description {
-    margin-top: 10px;
-    font-size: 16px;
-    line-height: 1.5;
-}
-
-
-/* Location */
-.offer-details-location {
-    margin-top: 20px;
-}
-
-
-/* Claim button */
-.offer-details-claim-button-wrapper {
-    margin-top: 30px;
-}
-
-
-.offer-details-claim-button {
-    width: 100%;
-    padding: 15px;
-
-    border: none;
-    border-radius: 12px;
-
-    background: #1F6F43;
-    color: white;
-
-    font-size: 18px;
-    font-weight: bold;
-
-    cursor: pointer;
-}
-
+/* Large tablet and PC */
 @media (min-width: 768px) {
-
-    .search-section {
-
-        max-width: 800px;
-
-        padding: 16px;
-
+    .offer-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
     }
 
-
-    .search-bar-wrapper {
-
-        gap: 12px;
-
+    .feed-container {
+        max-width: 1000px;
     }
-
-
-    #search-input,
-    #search-button {
-
-        height: 46px;
-
-    }
-
-
-    .filter-button {
-
-        height: 46px;
-
-        width: 55px;
-
-    }
-
 }
 
-
-
-/* Laptop/Desktop starting from 1024px x 1366px */
-
-/* Laptop/Desktop */
-@media (min-width: 1024px) {
-
-    .search-section {
-
-        max-width: 1000px;
-
-        margin: 24px auto;
-
+/* Tablet */
+@media (max-width: 992px) {
+    .card-header {
+        padding: 40px 6% 20px;
     }
 
-    .search-bar {
+    .card-header h1 {
+        font-size: 34px;
+    }
+}
 
-        display: flex;
+/* Mobile */
+@media (max-width: 768px) {
+    .card-header {
+        padding: 30px 6% 16px;
+    }
 
-        align-items: center;
+    .card-header h1 {
+        font-size: 28px;
+    }
 
-        gap: 16px;
-
-        width: 100%;
-
+    .card-header p {
+        font-size: 16px;
     }
 
     .search-bar-wrapper {
-
-        display: flex;
-
-        flex: 1;
-
-        align-items: center;
-
         gap: 12px;
+    }
+}
 
+/* Small phone */
+@media (max-width: 420px) {
+    .search-section {
+        padding: 10px;
+    }
+
+    .search-bar-wrapper {
+        gap: 8px;
     }
 
     #search-input {
-
-        flex: 1;
-
-        height: 50px;
-
-        font-size: 1rem;
-
+        padding: 0 12px;
+        font-size: 0.85rem;
     }
 
     #search-button {
-
-        width: 120px;
-
-        height: 50px;
-
-        flex-shrink: 0;
-
-    }
-
-    .filter-dropdown {
-
-        flex-shrink: 0;
-
+        padding: 0 14px;
+        font-size: 0.85rem;
     }
 
     .filter-button {
-
-        width: 50px;
-
-        height: 50px;
-
+        width: 42px;
+        flex-shrink: 0;
     }
-
 }

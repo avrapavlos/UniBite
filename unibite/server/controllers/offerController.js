@@ -1,9 +1,9 @@
 import db from "../database/connection.js";
-import { calculateRemainingQuantity, canAcceptClaim, canClaimOffer } from "./offerClaimLogic.js";
+import { canAcceptClaim, canClaimOffer } from "./offerClaimLogic.js";
 
 function normalizeOffer(offer) {
     return {
-        id: offer.id ?? offer.ad_id,
+        id: offer.id ?? offer.id,
         creator_id: offer.creator_id,
         title: offer.title,
         description: offer.description,
@@ -11,16 +11,46 @@ function normalizeOffer(offer) {
         price: offer.price ?? offer.point_cost ?? 0,
         latitude: offer.latitude ?? offer.location_lat ?? null,
         longitude: offer.longitude ?? offer.location_lng ?? null,
-        image: offer.image ?? offer.path_to_picture ?? null,
-        building_name: offer.building_name ?? offer.building ?? null,
-        room_number: offer.room_number ?? offer.room ?? null,
-        date_posted: offer.date_posted ?? offer.pickup_time ?? offer.created_at ?? null,
-        created_at: offer.created_at ?? offer.date_posted ?? null
+        path_to_picture: offer.path_to_picture ?? null,
+        image: offer.path_to_picture ?? null,
+        building_name: offer.building_name ?? offer.building_name ?? null,
+        room_number: offer.room_number ?? offer.room_number ?? null,
+        date_posted: offer.date_posted ?? offer.pickup_time ?? offer.date_posted ?? null,
+        allergens: offer.allergen_names
+            ? offer.allergen_names.split(",").map((name) => name.trim().toLowerCase())
+            : []
     };
 }
 
+// Normalizes the "allergies" field from a multipart/form submission into a
+// clean array of non-empty strings. When only one checkbox is checked,
+// multer/busboy delivers a single string instead of an array.
+function normalizeAllergiesInput(rawAllergies) {
+    if (!rawAllergies) return [];
+    const list = Array.isArray(rawAllergies) ? rawAllergies : [rawAllergies];
+    return list.map((value) => String(value).trim()).filter(Boolean);
+}
+
+async function saveOfferAllergens(offerId, allergies) {
+    if (!allergies || allergies.length === 0) return;
+
+    const values = allergies.map((allergenName) => [allergenName, offerId]);
+
+    await db.query(
+        `INSERT IGNORE INTO allergens (allergen_name, id) VALUES ?`,
+        [values]
+    );
+}
+
 export async function getAllOffers(req, res) {
-    const sql = `SELECT * FROM offers`;
+    const sql = `
+        SELECT a.*, GROUP_CONCAT(al.allergen_name) AS allergen_names
+        FROM advertisments a
+        LEFT JOIN allergens al ON al.id = a.id
+        WHERE a.portions > 0
+        GROUP BY a.id
+        ORDER BY a.date_posted DESC
+    `;
 
     try {
         const [results] = await db.query(sql);
@@ -37,17 +67,21 @@ export async function getAllOffers(req, res) {
 }
 
 export async function getOfferExcludingUser(req, res) {
+    console.log("getOfferExcludingUser called with params:", req.params);
+
     const { userId } = req.params;
 
-    const sql = `SELECT * FROM offers WHERE creator_id != ?`;
+    const sql = `
+        SELECT a.*, GROUP_CONCAT(al.allergen_name) AS allergen_names
+        FROM advertisments a
+        LEFT JOIN allergens al ON al.id = a.id
+        WHERE a.creator_id != ? AND a.portions > 0
+        GROUP BY a.id
+        ORDER BY a.date_posted DESC
+    `;
 
     try {
         const [results] = await db.query(sql, [userId]);
-
-        if (results.length === 0) {
-            return res.status(404).json({ message: "No offers found excluding the given user" });
-        }
-
         return res.json(results.map(normalizeOffer));
     } catch (err) {
         console.error(err);
@@ -58,15 +92,17 @@ export async function getOfferExcludingUser(req, res) {
 export async function getUserOffers(req, res) {
     const { userId } = req.params;
 
-    const sql = `SELECT * FROM offers WHERE creator_id = ?`;
+    const sql = `
+        SELECT a.*, GROUP_CONCAT(al.allergen_name) AS allergen_names
+        FROM advertisments a
+        LEFT JOIN allergens al ON al.id = a.id
+        WHERE a.creator_id = ? AND a.portions > 0
+        GROUP BY a.id
+        ORDER BY a.date_posted DESC
+    `;
 
     try {
         const [results] = await db.query(sql, [userId]);
-
-        if (results.length === 0) {
-            return res.status(404).json({ message: "No offers found for the given user" });
-        }
-
         return res.json(results.map(normalizeOffer));
     } catch (err) {
         console.error(err);
@@ -77,15 +113,10 @@ export async function getUserOffers(req, res) {
 export async function getOfferByTitle(req, res) {
     const { title } = req.query;
 
-    const sql = `SELECT * FROM offers WHERE title LIKE CONCAT('%', ?, '%')`;
+    const sql = `SELECT * FROM advertisments WHERE title LIKE CONCAT('%', ?, '%')`;
 
     try {
         const [results] = await db.query(sql, [title]);
-
-        if (results.length === 0) {
-            return res.status(404).json({ message: "No offer found with the given title" });
-        }
-
         return res.json(results.map(normalizeOffer));
     } catch (err) {
         console.error(err);
@@ -100,8 +131,8 @@ export async function getOfferClaims(req, res) {
         SELECT r.*, u.name AS claimant_name, u.username AS claimant_username
         FROM requests r
         LEFT JOIN users u ON u.id = r.con_id
-        WHERE r.ad_id = ?
-        ORDER BY r.created_at DESC
+        WHERE r.id = ?
+        ORDER BY r.date_posted DESC
     `;
 
     try {
@@ -119,10 +150,10 @@ export async function getUserClaims(req, res) {
     const sql = `
         SELECT r.*, o.id AS offer_id, o.title AS offer_title, u.name AS claimant_name, u.username AS claimant_username
         FROM requests r
-        JOIN offers o ON o.id = r.ad_id
+        JOIN advertisments o ON o.id = r.id
         JOIN users u ON u.id = r.con_id
         WHERE o.creator_id = ?
-        ORDER BY r.created_at DESC
+        ORDER BY r.date_posted DESC
     `;
 
     try {
@@ -130,10 +161,10 @@ export async function getUserClaims(req, res) {
         const claimsByOffer = {};
 
         for (const claim of results) {
-            if (!claimsByOffer[claim.ad_id]) {
-                claimsByOffer[claim.ad_id] = [];
+            if (!claimsByOffer[claim.id]) {
+                claimsByOffer[claim.id] = [];
             }
-            claimsByOffer[claim.ad_id].push(claim);
+            claimsByOffer[claim.id].push(claim);
         }
 
         return res.json(claimsByOffer);
@@ -147,31 +178,35 @@ export async function getUserClaimedOffers(req, res) {
     const { userId } = req.params;
 
     const sql = `
-        SELECT
-            r.request_id,
-            r.ad_id AS id,
-            r.con_id,
-            r.status,
-            r.claimed_portions,
-            r.created_at AS claim_created_at,
-            o.title,
-            o.description,
-            o.portions AS quantity,
-            o.point_cost AS price,
-            o.location_lat AS latitude,
-            o.location_lng AS longitude,
-            o.building,
-            o.room,
-            o.pickup_time,
-            o.image,
-            u.name AS creator_name,
-            u.id AS creator_id
-        FROM requests r
-        JOIN offers o ON o.id = r.ad_id
-        JOIN users u ON u.id = o.creator_id
-        WHERE r.con_id = ?
-        ORDER BY r.created_at DESC
-    `;
+            SELECT
+                r.request_id,
+                r.id AS id,
+                r.con_id,
+                r.status,
+                r.state_of_delivery,
+                r.claimed_portions,
+                r.date_posted AS claim_date_posted,
+                o.title,
+                o.description,
+                o.portions AS quantity,
+                o.point_cost AS price,
+                o.location_lat AS latitude,
+                o.location_lng AS longitude,
+                o.building_name,
+                o.room_number,
+                o.path_to_picture,
+                u.name AS creator_name,
+                u.id AS creator_id,
+                rating.score AS rating_score,
+                rating.comment AS rating_comment
+            FROM requests r
+            JOIN advertisments o ON o.id = r.id
+            JOIN users u ON u.id = o.creator_id
+            LEFT JOIN ratings rating ON rating.req_id = r.request_id
+                AND rating.rater_id = r.con_id
+            WHERE r.con_id = ?
+            ORDER BY r.date_posted DESC
+        `;
 
     try {
         const [results] = await db.query(sql, [userId]);
@@ -196,7 +231,7 @@ export async function claimOffer(req, res) {
     }
 
     try {
-        const [offerResults] = await db.query(`SELECT * FROM offers WHERE id = ?`, [offerId]);
+        const [offerResults] = await db.query(`SELECT * FROM advertisments WHERE id = ?`, [offerId]);
         if (offerResults.length === 0) {
             return res.status(404).json({ message: "Offer not found" });
         }
@@ -207,7 +242,7 @@ export async function claimOffer(req, res) {
         }
 
         const [existingClaims] = await db.query(
-            `SELECT * FROM requests WHERE ad_id = ? AND con_id = ? AND status IN ('PENDING', 'ACCEPTED')`,
+            `SELECT * FROM requests WHERE id = ? AND con_id = ? AND status IN ('PENDING', 'ACCEPTED')`,
             [offerId, userId]
         );
 
@@ -216,7 +251,7 @@ export async function claimOffer(req, res) {
         }
 
         const [acceptedResults] = await db.query(
-            `SELECT COALESCE(SUM(claimed_portions), 0) AS total_accepted FROM requests WHERE ad_id = ? AND status = 'ACCEPTED'`,
+            `SELECT COALESCE(SUM(claimed_portions), 0) AS total_accepted FROM requests WHERE id = ? AND status = 'ACCEPTED'`,
             [offerId]
         );
 
@@ -239,7 +274,7 @@ export async function claimOffer(req, res) {
         }
 
         const [insertResult] = await db.query(
-            `INSERT INTO requests (ad_id, con_id, claimed_portions, status, created_at) VALUES (?, ?, ?, 'PENDING', NOW())`,
+            `INSERT INTO requests (id, con_id, claimed_portions, status, date_posted) VALUES (?, ?, ?, 'PENDING', NOW())`,
             [offerId, userId, requestedPortions]
         );
 
@@ -263,35 +298,67 @@ export async function acceptOfferClaim(req, res) {
     }
 
     try {
+        await db.beginTransaction();
+
         const [claimResults] = await db.query(
-            `SELECT r.*, o.creator_id, o.portions FROM requests r JOIN offers o ON o.id = r.ad_id WHERE r.request_id = ? AND r.ad_id = ?`,
+            `SELECT r.*, o.creator_id, o.portions, o.point_cost
+             FROM requests r
+             JOIN advertisments o ON o.id = r.id
+             WHERE r.request_id = ? AND r.id = ?
+             FOR UPDATE`,
             [requestId, offerId]
         );
 
         if (claimResults.length === 0) {
+            await db.rollback();
             return res.status(404).json({ message: "Claim not found" });
         }
 
         const claim = claimResults[0];
         if (Number(claim.creator_id) !== Number(userId)) {
+            await db.rollback();
             return res.status(403).json({ message: "Only the offer creator can accept this claim." });
         }
 
         if (claim.status === "ACCEPTED") {
+            await db.commit();
             return res.json({ success: true, message: "Claim is already accepted." });
         }
 
-        const remaining = calculateRemainingQuantity({ portions: Number(claim.portions) }, [{ status: 'ACCEPTED', claimed_portions: Number(claim.claimed_portions) }]);
         const acceptedCount = Number(claim.claimed_portions || 1);
+        const remaining = Number(claim.portions || 0);
 
         if (remaining < acceptedCount) {
+            await db.rollback();
             return res.status(400).json({ message: "This claim exceeds the remaining offer quantity." });
         }
 
         const canAccept = canAcceptClaim({ creator_id: claim.creator_id }, claim, userId);
         if (!canAccept) {
+            await db.rollback();
             return res.status(403).json({ message: "This claim cannot be accepted." });
         }
+
+        const totalCost = Number(claim.point_cost || 0) * acceptedCount;
+        const [claimantResults] = await db.query(
+            `SELECT id, points FROM users WHERE id = ? FOR UPDATE`,
+            [claim.con_id]
+        );
+
+        if (claimantResults.length === 0) {
+            await db.rollback();
+            return res.status(404).json({ message: "Claimant not found." });
+        }
+
+        if (Number(claimantResults[0].points || 0) < totalCost) {
+            await db.rollback();
+            return res.status(400).json({ message: "The claimant does not have enough funds." });
+        }
+
+        await db.query(
+            `UPDATE users SET points = points - ? WHERE id = ?`,
+            [totalCost, claim.con_id]
+        );
 
         await db.query(
             `UPDATE requests SET status = 'ACCEPTED', accepted_at = NOW(), updated_at = NOW() WHERE request_id = ?`,
@@ -299,12 +366,76 @@ export async function acceptOfferClaim(req, res) {
         );
 
         await db.query(
-            `UPDATE offers SET portions = GREATEST(portions - ?, 0) WHERE id = ?`,
+            `UPDATE advertisments SET portions = GREATEST(portions - ?, 0) WHERE id = ?`,
             [Number(claim.claimed_portions || 1), offerId]
         );
 
-        return res.json({ success: true, message: "Claim accepted." });
+        await db.commit();
+
+        return res.json({ success: true, message: "Claim accepted.", charged: totalCost });
     } catch (err) {
+        await db.rollback();
+        console.error(err);
+        return res.status(500).json({ message: "Database error", error: err.message });
+    }
+}
+
+export async function markClaimMissed(req, res) {
+    const { offerId, requestId } = req.params;
+    const { userId } = req.body;
+
+    if (!userId) {
+        return res.status(400).json({ message: "userId is required" });
+    }
+
+    try {
+        await db.beginTransaction();
+        const [claimResults] = await db.query(
+            `SELECT r.*, o.creator_id
+             FROM requests r
+             JOIN advertisments o ON o.id = r.id
+             WHERE r.request_id = ? AND r.id = ?
+             FOR UPDATE`,
+            [requestId, offerId]
+        );
+
+        if (claimResults.length === 0) {
+            await db.rollback();
+            return res.status(404).json({ message: "Claim not found" });
+        }
+
+        const claim = claimResults[0];
+        if (Number(claim.creator_id) !== Number(userId)) {
+            await db.rollback();
+            return res.status(403).json({ message: "Only the offer creator can mark this claim missed." });
+        }
+
+        if (claim.status !== "ACCEPTED") {
+            await db.rollback();
+            return res.status(400).json({ message: "Only accepted claims can be marked missed." });
+        }
+
+        if (claim.state_of_delivery === "MISSED" || claim.missedDeliveryPenalty) {
+            await db.commit();
+            return res.json({ success: true, message: "Claim was already marked missed." });
+        }
+
+        await db.query(
+            `UPDATE users SET points = GREATEST(points - 1, 0) WHERE id = ?`,
+            [claim.con_id]
+        );
+        await db.query(
+            `UPDATE requests
+             SET state_of_delivery = 'MISSED', missedDeliveryPenalty = TRUE,
+                 penalty_applied = TRUE, updated_at = NOW()
+             WHERE request_id = ?`,
+            [requestId]
+        );
+
+        await db.commit();
+        return res.json({ success: true, message: "Claim marked as not picked up.", charged: 1 });
+    } catch (err) {
+        await db.rollback();
         console.error(err);
         return res.status(500).json({ message: "Database error", error: err.message });
     }
@@ -316,7 +447,7 @@ export async function rejectOfferClaim(req, res) {
 
     try {
         const [claimResults] = await db.query(
-            `SELECT r.*, o.creator_id FROM requests r JOIN offers o ON o.id = r.ad_id WHERE r.request_id = ? AND r.ad_id = ?`,
+            `SELECT r.*, o.creator_id FROM requests r JOIN advertisments o ON o.id = r.id WHERE r.request_id = ? AND r.id = ?`,
             [requestId, offerId]
         );
 
@@ -356,7 +487,7 @@ export async function rateClaim(req, res) {
 
     try {
         const [claimResults] = await db.query(
-            `SELECT r.*, o.creator_id FROM requests r JOIN offers o ON o.id = r.ad_id WHERE r.request_id = ? AND r.status = 'ACCEPTED'`,
+            `SELECT r.*, o.creator_id FROM requests r JOIN advertisments o ON o.id = r.id WHERE r.request_id = ? AND r.status = 'ACCEPTED'`,
             [requestId]
         );
 
@@ -371,6 +502,7 @@ export async function rateClaim(req, res) {
         }
 
         const ratedUserId = Number(claim.creator_id);
+        const claimedPortions = Number(claim.claimed_portions || 1);
         const [existingMarks] = await db.query(
             `SELECT * FROM ratings WHERE req_id = ? AND rater_id = ?`,
             [requestId, raterId]
@@ -388,12 +520,24 @@ export async function rateClaim(req, res) {
             );
         }
 
+        const previousRating = Number(existingMarks[0]?.score || 0);
+        const previousReward = previousRating > 0
+            ? (previousRating > 3 ? 2 : 1) * claimedPortions
+            : 0;
+        const newReward = (rating > 3 ? 2 : 1) * claimedPortions;
         await db.query(
             `UPDATE users SET points = points + ? WHERE id = ?`,
-            [rating * 5, ratedUserId]
+            [newReward - previousReward, ratedUserId]
         );
 
-        return res.json({ success: true, message: "Rating submitted." });
+        return res.json({
+            success: true,
+            message: "Rating submitted.",
+            rating: {
+                score: rating,
+                reward: newReward - previousReward
+            }
+        });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Database error", error: err.message });
@@ -401,9 +545,9 @@ export async function rateClaim(req, res) {
 }
 
 export async function createOffer(req, res) {
-    const { creator_id, title, description, price, latitude, longitude, quantity, building_name, room_number } = req.body;
+    const { creator_id, title, description, price, latitude, longitude, quantity, building_name, room_number, allergies } = req.body;
     const image = req.file;
-    const path_to_image = image ? image.path : null;
+    const path_to_image = image ? `/uploads/offers/${image.filename}` : null;
 
     if (!building_name || !room_number) {
         return res.status(400).json({ message: "Building name and room number are required" });
@@ -415,6 +559,7 @@ export async function createOffer(req, res) {
     const parsedQuantity = Number(quantity);
     const parsedBuildingName = String(building_name);
     const parsedRoomNumber = String(room_number);
+    const parsedAllergies = normalizeAllergiesInput(allergies);
 
     if (!parsedBuildingName || !parsedRoomNumber) {
         return res.status(400).json({ message: "Building name and room number are required" });
@@ -433,21 +578,18 @@ export async function createOffer(req, res) {
     }
 
     const sql = `
-        INSERT INTO offers (
+        INSERT INTO advertisments (
             creator_id,
             title,
             description,
             portions,
             location_lat,
             location_lng,
-            building,
-            room,
-            pickup_time,
-            address,
-            distance,
-            image,
+            building_name,
+            room_number,
+            path_to_picture,
             point_cost
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     try {
@@ -460,12 +602,11 @@ export async function createOffer(req, res) {
             parsedLongitude,
             parsedBuildingName.trim(),
             parsedRoomNumber.trim(),
-            new Date().toISOString().slice(0, 19).replace('T', ' '),
-            "",
-            0,
             path_to_image,
             parsedPrice
         ]);
+
+        await saveOfferAllergens(results.insertId, parsedAllergies);
 
         return res.status(201).json({ success: true, message: "Offer created successfully", offerId: results.insertId });
     } catch (err) {
@@ -476,15 +617,15 @@ export async function createOffer(req, res) {
 
 export async function updateOffer(req, res) {
     const { offerId } = req.params;
-    const { userId, title, description, price, latitude, longitude, quantity, building_name, room_number } = req.body;
+    const { userId, title, description, price, latitude, longitude, quantity, building_name, room_number, allergies } = req.body;
     const image = req.file;
-    const path_to_image = image ? image.path : null;
+    const path_to_image = image ? `/uploads/offers/${image.filename}` : null;
 
     if (!userId) {
         return res.status(400).json({ message: "userId is required" });
     }
 
-    const sqlCheckOwnership = `SELECT * FROM offers WHERE id = ? AND creator_id = ?`;
+    const sqlCheckOwnership = `SELECT * FROM advertisments WHERE id = ? AND creator_id = ?`;
 
     try {
         const [ownershipResults] = await db.query(sqlCheckOwnership, [offerId, userId]);
@@ -507,8 +648,8 @@ export async function updateOffer(req, res) {
         }
 
         const sql = `
-            UPDATE offers
-            SET title = ?, description = ?, point_cost = ?, location_lat = ?, location_lng = ?, portions = ?, building = ?, room = ?, image = ?
+            UPDATE advertisments
+            SET title = ?, description = ?, point_cost = ?, location_lat = ?, location_lng = ?, portions = ?, building_name = ?, room_number = ?, path_to_picture = ?
             WHERE id = ?
         `;
 
@@ -521,12 +662,18 @@ export async function updateOffer(req, res) {
             nextQuantity,
             nextBuildingName.trim(),
             nextRoomNumber.trim(),
-            path_to_image ?? currentOffer.image,
+            path_to_image ?? currentOffer.path_to_picture,
             offerId
         ]);
 
         if (results.affectedRows === 0) {
             return res.status(404).json({ message: "Offer not found" });
+        }
+
+        if (allergies !== undefined) {
+            const nextAllergies = normalizeAllergiesInput(allergies);
+            await db.query(`DELETE FROM allergens WHERE id = ?`, [offerId]);
+            await saveOfferAllergens(offerId, nextAllergies);
         }
 
         return res.json({ success: true, message: "Offer updated successfully" });
@@ -544,21 +691,28 @@ export async function deleteOffer(req, res) {
         return res.status(400).json({ message: "userId is required" });
     }
 
-    const sqlCheckOwnership = `SELECT * FROM offers WHERE id = ? AND creator_id = ?`;
+    const sqlCheckOwnership = `SELECT * FROM advertisments WHERE id = ? AND creator_id = ?`;
 
     try {
         const [ownershipResults] = await db.query(sqlCheckOwnership, [offerId, userId]);
         if (ownershipResults.length === 0) {
             return res.status(403).json({ message: "You do not have permission to delete this offer" });
         }
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: "Database error", error: err.message });
-    }
 
-    const sql = `DELETE FROM offers WHERE id = ?`;
+        // Check if the offer has any active claims
+        const [activeClaims] = await db.query(
+            `SELECT COUNT(*) AS count FROM requests WHERE id = ? AND status IN ('PENDING', 'ACCEPTED')`,
+            [offerId]
+        );
 
-    try {
+        if (activeClaims[0].count > 0) {
+            return res.status(400).json({
+                message: "This offer has active claims and cannot be deleted. Reject or resolve the claims first."
+            });
+        }
+
+        const sql = `DELETE FROM advertisments WHERE id = ?`;
+
         const [results] = await db.query(sql, [offerId]);
 
         if (results.affectedRows === 0) {
@@ -571,4 +725,3 @@ export async function deleteOffer(req, res) {
         return res.status(500).json({ message: "Database error", error: err.message });
     }
 }
-

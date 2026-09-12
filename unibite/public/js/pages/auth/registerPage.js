@@ -23,6 +23,66 @@ function registerToApp() {
     const password = document.getElementById("password");
 
     const confirmPassword = document.getElementById("confirm-password");
+    const latitude = document.getElementById("latitude");
+    const longitude = document.getElementById("longitude");
+    const address = document.getElementById("address");
+    const searchAddressButton = document.getElementById("search-address-button");
+    const locationError = document.getElementById("location-error");
+    let map;
+    let selectedMarker = null;
+
+    map = L.map("registration-map").setView([39.365, 21.921], 13);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+
+    function selectLocation(selectedLatitude, selectedLongitude, label = "Selected location") {
+        latitude.value = selectedLatitude.toFixed(6);
+        longitude.value = selectedLongitude.toFixed(6);
+        locationError.hidden = true;
+
+        if (selectedMarker) {
+            map.removeLayer(selectedMarker);
+        }
+
+        selectedMarker = L.marker([selectedLatitude, selectedLongitude])
+            .addTo(map)
+            .bindPopup(label)
+            .openPopup();
+    }
+
+    map.on("click", (event) => selectLocation(event.latlng.lat, event.latlng.lng));
+
+    searchAddressButton.addEventListener("click", async () => {
+        const query = address.value.trim();
+        if (!query) return;
+
+        searchAddressButton.disabled = true;
+        searchAddressButton.textContent = "Searching...";
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`);
+            const results = await response.json();
+            if (!results.length) {
+                locationError.textContent = "Location not found. Try a more specific address.";
+                locationError.hidden = false;
+                return;
+            }
+
+            const result = results[0];
+            const selectedLatitude = Number(result.lat);
+            const selectedLongitude = Number(result.lon);
+            map.setView([selectedLatitude, selectedLongitude], 16);
+            selectLocation(selectedLatitude, selectedLongitude, result.display_name);
+        } catch (error) {
+            locationError.textContent = "Unable to search for that location. You can select it on the map.";
+            locationError.hidden = false;
+        } finally {
+            searchAddressButton.disabled = false;
+            searchAddressButton.textContent = "Search";
+        }
+    });
+
+    setTimeout(() => map.invalidateSize(), 0);
 
 
 
@@ -91,6 +151,12 @@ function registerToApp() {
 
         passwordError.style.display = "none";
 
+        if (!latitude.value || !longitude.value) {
+            locationError.textContent = "Please select your location on the map before creating your account.";
+            locationError.hidden = false;
+            return;
+        }
+
 
 
 
@@ -117,6 +183,8 @@ function registerToApp() {
                     email:email.value,
 
                     password:password.value
+                    ,latitude:Number(latitude.value)
+                    ,longitude:Number(longitude.value)
 
                 })
 

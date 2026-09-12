@@ -1,5 +1,3 @@
-// Admin dashboard page script
-
 async function initAdminDashboard() {
     const summary = {
         totalPortions: document.getElementById("total-portions"),
@@ -8,10 +6,44 @@ async function initAdminDashboard() {
     };
 
     const leaderboardBody = document.getElementById("leaderboard-body");
+    const topDonorName = document.getElementById("top-donor-name");
+    const topDonorPortions = document.getElementById("top-donor-portions");
+    const highestRatedMealsBody = document.getElementById("highest-rated-meals-body");
+    const logoutBtn = document.getElementById("logout-btn");
     const apiBaseUrl = "http://localhost:3000";
+    const storedAdmin = localStorage.getItem("admin") || sessionStorage.getItem("admin");
+
+    function logout() {
+        localStorage.removeItem("admin");
+        sessionStorage.removeItem("admin");
+        window.location.replace("../../pages/admin/login.html");
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", logout);
+    }
+
+    if (!storedAdmin) {
+        window.location.replace("../../pages/admin/login.html");
+        return;
+    }
+
+    let admin;
+    try {
+        admin = JSON.parse(storedAdmin);
+    } catch (err) {
+        logout();
+        return;
+    }
 
     try {
-        const res = await fetch(`${apiBaseUrl}/api/admin/dashboard`);
+        const res = await fetch(`${apiBaseUrl}/api/admin/dashboard`, {
+            headers: { Authorization: `Bearer ${admin.token}` }
+        });
+        if (res.status === 401) {
+            logout();
+            return;
+        }
         if (!res.ok) {
             throw new Error(`Failed to load dashboard: ${res.status}`);
         }
@@ -25,6 +57,14 @@ async function initAdminDashboard() {
         summary.activeAds.textContent = data.stats.active_ads;
         summary.totalUsers.textContent = data.stats.total_users;
 
+        if (data.topDonor) {
+            topDonorName.textContent = data.topDonor.name;
+            topDonorPortions.textContent = `${data.topDonor.portions} portions shared`;
+        } else {
+            topDonorName.textContent = "No donor data";
+            topDonorPortions.textContent = "0 portions shared";
+        }
+
         leaderboardBody.innerHTML = "";
 
         if (data.leaderboard.length === 0) {
@@ -34,13 +74,28 @@ async function initAdminDashboard() {
 
         data.leaderboard.forEach((donor, index) => {
             const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${donor.name}</td>
-                <td>${donor.portions}</td>
-                <td>${donor.rating}</td>
-            `;
+            [index + 1, donor.name, donor.portions].forEach((value) => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+                row.appendChild(cell);
+            });
             leaderboardBody.appendChild(row);
+        });
+
+        highestRatedMealsBody.innerHTML = "";
+        if (data.highestRatedMeals.length === 0) {
+            highestRatedMealsBody.innerHTML = "<tr><td colspan=\"4\">No rated meals found</td></tr>";
+            return;
+        }
+
+        data.highestRatedMeals.forEach((meal) => {
+            const row = document.createElement("tr");
+            [meal.title, meal.donorName, `${meal.averageRating}/5`, meal.ratingCount].forEach((value) => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+                row.appendChild(cell);
+            });
+            highestRatedMealsBody.appendChild(row);
         });
     } catch (err) {
         console.error(err);
@@ -48,6 +103,9 @@ async function initAdminDashboard() {
         summary.totalPortions.textContent = "—";
         summary.activeAds.textContent = "—";
         summary.totalUsers.textContent = "—";
+        topDonorName.textContent = "—";
+        topDonorPortions.textContent = "Unable to load donor data";
+        highestRatedMealsBody.innerHTML = "<tr><td colspan=\"4\">Unable to load rated meals</td></tr>";
     }
 }
 

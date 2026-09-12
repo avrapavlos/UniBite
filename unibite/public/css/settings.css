@@ -1,0 +1,201 @@
+/* ===== Modal Overlay ===== */
+.settings-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+/* ===== Modal Card ===== */
+.settings-modal-box {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.settings-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    border: none;
+    background: transparent;
+    font-size: 1.8rem;
+    line-height: 1;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.settings-modal-close:hover {
+    color: #333;
+}
+
+/* ===== Section heading ===== */
+.form-section h2,
+.settings-modal-box h2 {
+    color: #2e7d32;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+}
+
+.form-section > p,
+.settings-modal-box > p {
+    color: #666;
+    font-size: 0.95rem;
+    margin: 0 0 20px 0;
+}
+
+/* ===== Form groups ===== */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+/* ===== Inputs ===== */
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: #333;
+    background: #fafafa;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input[type="text"]:focus {
+    outline: none;
+    border-color: #4caf50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+    background: #fff;
+}
+
+.form-group input::placeholder {
+    color: #aaa;
+}
+
+/* ===== Address input + search button row ===== */
+.address-input {
+    position: relative;
+    display: flex;
+    gap: 10px;
+}
+
+.address-input input {
+    flex: 1;
+}
+
+#search-address-button {
+    padding: 12px 20px;
+    background: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s ease;
+}
+
+#search-address-button:hover {
+    background: #43a047;
+}
+
+#search-address-button:active {
+    background: #388e3c;
+}
+
+/* ===== Map container ===== */
+.map-container {
+    margin-top: 8px;
+}
+
+#map {
+    width: 100%;
+    height: 300px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+.map-hint {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #888;
+    text-align: center;
+}
+
+/* ===== Optional: Save button, if Settings.js adds one ===== */
+.settings-save-button {
+    display: block;
+    width: 100%;
+    margin-top: 24px;
+    padding: 14px;
+    background: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.settings-save-button:hover {
+    background: #43a047;
+}
+
+.address-suggestions {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    margin: 4px 0 0;
+    padding: 6px;
+    list-style: none;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+    z-index: 1500;
+}
+
+.address-suggestions.active {
+    display: block;
+}
+
+.address-suggestions li {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.address-suggestions li:hover {
+    background-color: #f1f9f2;
+}

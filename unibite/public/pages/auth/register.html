@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <link rel="icon" href="../../icons/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="../../css/auth/register.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
     <title>Register</title>
 </head>
@@ -57,6 +58,10 @@
                     Name or Email already exist!
                 </p>
 
+                <p class="location-error" id="location-error" role="alert" aria-live="polite" hidden>
+                    Please select your location on the map before creating your account.
+                </p>
+
                 <!-- Name -->
 
                 <div class="input-group">
@@ -68,6 +73,21 @@
 
                     <input type="text" id="name" name="name" placeholder="John Smith" required>
 
+                </div>
+
+                <div class="location-section">
+                    <h3>Your Location</h3>
+                    <p class="location-description">Choose your location so nearby meals can be shown first.</p>
+
+                    <div class="address-input">
+                        <input type="text" id="address" placeholder="Search for your university or address">
+                        <button type="button" id="search-address-button">Search</button>
+                    </div>
+
+                    <input type="hidden" id="latitude" name="latitude">
+                    <input type="hidden" id="longitude" name="longitude">
+                    <div id="registration-map" class="registration-map"></div>
+                    <p class="map-hint">Search for your address or click the map to select it.</p>
                 </div>
 
 
@@ -179,6 +199,7 @@
 
 
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="module" src="../../js/pages/auth/registerPage.js"></script>
 
 

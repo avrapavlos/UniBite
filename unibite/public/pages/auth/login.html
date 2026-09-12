@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../../icons/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="../../css/auth/login.css">
     <title>Document</title>
 </head>
@@ -28,6 +29,10 @@
             <form class="login-form" id="login-form">
 
                 <h2>Welcome Back!</h2> 
+
+                <p class="login-error" id="login-error" role="alert" aria-live="polite" hidden>
+                    The email or password is incorrect.
+                </p>
 
                 <div class="input-group">
                     <label for="email">

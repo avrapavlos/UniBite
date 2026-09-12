@@ -1,4 +1,5 @@
-import { showOfferDetails} from "../../components/OfferDetails/OfferDetailsManager.js";
+import { showOfferDetails } from "../../components/OfferDetails/OfferDetailsManager.js";
+import { getAllergenMeta } from "../../js/helperFunctions/allergens.js";
 
 // OfferCard.js
 // Load component CSS once
@@ -27,14 +28,21 @@ export function createOfferCard(offer, onClick) {
     }
 
     const card = document.createElement("article");
-
     card.classList.add("offer-card");
 
+    const allergenTags = (offer.allergens || []).map((allergenValue) => {
+        const meta = getAllergenMeta(allergenValue);
+        return `<span class="offer-allergen-tag" title="Contains ${meta.label}">${meta.icon} ${meta.label}</span>`;
+    }).join("");
+
+    const distanceLabel = Number.isFinite(offer.distance)
+        ? `<p class="offer-distance">📍 ${offer.distance.toFixed(1)} km away</p>`
+        : "";
 
     card.innerHTML = `
         <div class="offer-image-container">
             <img class="offer-image" 
-                 src="${offer.image || '../../images/sandwich.jpeg'}" 
+                 src="${offer.path_to_picture || '../../images/default-food.png'}" 
                  alt="${offer.title}">
         </div>
 
@@ -54,6 +62,10 @@ export function createOfferCard(offer, onClick) {
             <p class="offer-price">
                 🟡${offer.price}
             </p>
+
+            ${distanceLabel}
+
+            ${allergenTags ? `<div class="offer-allergens">${allergenTags}</div>` : ""}
         </div>
     `;
 

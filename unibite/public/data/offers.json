@@ -55,7 +55,7 @@
     "pickupTime": "2024-06-15T13:00:00Z",
     "address": "Καρδίτσα",
     "distance": 1.2,
-    "image": "../../images/sandwich.jpeg",
+    "image": "../../images/default-food.png",
     "allergens": ["gluten", "dairy"],
     "claimedBy": [
       {

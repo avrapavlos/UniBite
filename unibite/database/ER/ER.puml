@@ -16,6 +16,7 @@ class Advertisment {
     *ad_id : INT
     --
     date_posted : TIMESTAMP
+    date_of_deactivation : TIMESTAMP
     latitude : DECIMAL(9,6)
     longtitude : DECIMAL(9,6)
     quantity : INT

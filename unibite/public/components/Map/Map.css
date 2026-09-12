@@ -112,3 +112,19 @@
 .food-popup-points span{
     font-weight:700;
 }
+
+.offer-cluster-badge {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #4CAF50;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    border-radius: 50%;
+    border: 2px solid #2E7D32;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
+}
+ 
