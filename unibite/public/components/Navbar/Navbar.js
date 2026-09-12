@@ -99,10 +99,10 @@ export function createNavbar() {
             <!-- User profile options-->
             <ul class="user-options" id="user-options">
                 <li>
-                    <p id="logout-button">LOGOUT</p>
+                    <p id="settings-button">SETTINGS</p>
                 </li>
                 <li>
-                    <p id="settings-button">SETTINGS</p>
+                    <p id="logout-button">LOGOUT</p>
                 </li>
             </ul>
         </div>
@@ -263,6 +263,3 @@ export function createNavbar() {
     return navbar;
 
 }
-
-
-
