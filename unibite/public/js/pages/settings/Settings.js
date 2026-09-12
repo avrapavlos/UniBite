@@ -10,6 +10,15 @@ const latitudeInput = document.getElementById("latitude");
 const longitudeInput = document.getElementById("longitude");
 const addressInput = document.getElementById("address");
 const searchAddressButton = document.getElementById("search-address-button");
+const addressSuggestionsList = document.getElementById("address-suggestions");
+
+function debounce(fn, delayMs) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delayMs);
+    };
+}
 
 
 // =========================
@@ -102,6 +111,85 @@ function setupAddressSearch() {
             searchAddress();
         }
     });
+
+    addressInput.addEventListener("input", debouncedFetchSuggestions);
+
+    document.addEventListener("click", function (event) {
+        if (!addressInput.contains(event.target) && !addressSuggestionsList.contains(event.target)) {
+            renderSuggestions([]);
+        }
+    });
+}
+
+
+// =========================
+// Address Suggestions (autocomplete)
+// =========================
+
+async function fetchAddressSuggestions() {
+    const query = addressInput.value.trim();
+
+    if (query === "") {
+        renderSuggestions([]);
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(query)}`
+        );
+
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+
+        const results = await response.json();
+        renderSuggestions(results);
+
+    } catch (error) {
+        console.error("Address suggestion error:", error);
+        renderSuggestions([]);
+    }
+}
+
+const debouncedFetchSuggestions = debounce(fetchAddressSuggestions, 400);
+
+function renderSuggestions(results) {
+    addressSuggestionsList.innerHTML = "";
+
+    if (results.length === 0) {
+        addressSuggestionsList.classList.remove("active");
+        return;
+    }
+
+    results.forEach((result) => {
+        const item = document.createElement("li");
+        item.textContent = result.display_name;
+        item.addEventListener("click", () => selectSuggestion(result));
+        addressSuggestionsList.appendChild(item);
+    });
+
+    addressSuggestionsList.classList.add("active");
+}
+
+function selectSuggestion(result) {
+    const latitude = parseFloat(result.lat);
+    const longitude = parseFloat(result.lon);
+
+    addressInput.value = result.display_name;
+    latitudeInput.value = latitude.toFixed(6);
+    longitudeInput.value = longitude.toFixed(6);
+
+    map.setView([latitude, longitude], 17);
+
+    if (selectedMarker !== null) {
+        map.removeLayer(selectedMarker);
+    }
+
+    selectedMarker = L.marker([latitude, longitude]).addTo(map);
+    selectedMarker.bindPopup(result.display_name).openPopup();
+
+    renderSuggestions([]);
 }
 
 

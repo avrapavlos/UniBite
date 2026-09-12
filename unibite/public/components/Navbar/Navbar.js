@@ -80,7 +80,7 @@ export function createNavbar() {
 
             <li>
                 <a href="../../pages/dashboards/createPage.html">
-                    Offer Dashboard
+                    Create Offers
                 </a>
             </li>
 

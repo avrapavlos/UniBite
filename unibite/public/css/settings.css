@@ -96,6 +96,7 @@
 
 /* ===== Address input + search button row ===== */
 .address-input {
+    position: relative;
     display: flex;
     gap: 10px;
 }
@@ -163,4 +164,38 @@
 
 .settings-save-button:hover {
     background: #43a047;
+}
+
+.address-suggestions {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    margin: 4px 0 0;
+    padding: 6px;
+    list-style: none;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+    z-index: 1500;
+}
+
+.address-suggestions.active {
+    display: block;
+}
+
+.address-suggestions li {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.address-suggestions li:hover {
+    background-color: #f1f9f2;
 }

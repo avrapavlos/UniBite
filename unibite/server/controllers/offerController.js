@@ -14,12 +14,42 @@ function normalizeOffer(offer) {
         path_to_picture: offer.path_to_picture ?? offer.path_to_picture ?? null,
         building_name: offer.building_name ?? offer.building_name ?? null,
         room_number: offer.room_number ?? offer.room_number ?? null,
-        date_posted: offer.date_posted ?? offer.pickup_time ?? offer.date_posted ?? null
+        date_posted: offer.date_posted ?? offer.pickup_time ?? offer.date_posted ?? null,
+        allergens: offer.allergen_names
+            ? offer.allergen_names.split(",")
+            : []
     };
 }
 
+// Normalizes the "allergies" field from a multipart/form submission into a
+// clean array of non-empty strings. When only one checkbox is checked,
+// multer/busboy delivers a single string instead of an array.
+function normalizeAllergiesInput(rawAllergies) {
+    if (!rawAllergies) return [];
+    const list = Array.isArray(rawAllergies) ? rawAllergies : [rawAllergies];
+    return list.map((value) => String(value).trim()).filter(Boolean);
+}
+
+async function saveOfferAllergens(offerId, allergies) {
+    if (!allergies || allergies.length === 0) return;
+
+    const values = allergies.map((allergenName) => [allergenName, offerId]);
+
+    await db.query(
+        `INSERT IGNORE INTO allergens (allergen_name, id) VALUES ?`,
+        [values]
+    );
+}
+
 export async function getAllOffers(req, res) {
-    const sql = `SELECT * FROM advertisments WHERE portions > 0 ORDER BY date_posted DESC`;
+    const sql = `
+        SELECT a.*, GROUP_CONCAT(al.allergen_name) AS allergen_names
+        FROM advertisments a
+        LEFT JOIN allergens al ON al.id = a.id
+        WHERE a.portions > 0
+        GROUP BY a.id
+        ORDER BY a.date_posted DESC
+    `;
 
     try {
         const [results] = await db.query(sql);
@@ -40,7 +70,14 @@ export async function getOfferExcludingUser(req, res) {
 
     const { userId } = req.params;
 
-    const sql = `SELECT * FROM advertisments WHERE creator_id != ? AND portions > 0 ORDER BY date_posted DESC`;
+    const sql = `
+        SELECT a.*, GROUP_CONCAT(al.allergen_name) AS allergen_names
+        FROM advertisments a
+        LEFT JOIN allergens al ON al.id = a.id
+        WHERE a.creator_id != ? AND a.portions > 0
+        GROUP BY a.id
+        ORDER BY a.date_posted DESC
+    `;
 
     try {
         const [results] = await db.query(sql, [userId]);
@@ -54,7 +91,14 @@ export async function getOfferExcludingUser(req, res) {
 export async function getUserOffers(req, res) {
     const { userId } = req.params;
 
-    const sql = `SELECT * FROM advertisments WHERE creator_id = ? AND portions > 0 ORDER BY date_posted DESC`;
+    const sql = `
+        SELECT a.*, GROUP_CONCAT(al.allergen_name) AS allergen_names
+        FROM advertisments a
+        LEFT JOIN allergens al ON al.id = a.id
+        WHERE a.creator_id = ? AND a.portions > 0
+        GROUP BY a.id
+        ORDER BY a.date_posted DESC
+    `;
 
     try {
         const [results] = await db.query(sql, [userId]);
@@ -500,7 +544,7 @@ export async function rateClaim(req, res) {
 }
 
 export async function createOffer(req, res) {
-    const { creator_id, title, description, price, latitude, longitude, quantity, building_name, room_number } = req.body;
+    const { creator_id, title, description, price, latitude, longitude, quantity, building_name, room_number, allergies } = req.body;
     const image = req.file;
     const path_to_image = image ? `/uploads/offers/${image.filename}` : null;
 
@@ -514,6 +558,7 @@ export async function createOffer(req, res) {
     const parsedQuantity = Number(quantity);
     const parsedBuildingName = String(building_name);
     const parsedRoomNumber = String(room_number);
+    const parsedAllergies = normalizeAllergiesInput(allergies);
 
     if (!parsedBuildingName || !parsedRoomNumber) {
         return res.status(400).json({ message: "Building name and room number are required" });
@@ -560,6 +605,8 @@ export async function createOffer(req, res) {
             parsedPrice
         ]);
 
+        await saveOfferAllergens(results.insertId, parsedAllergies);
+
         return res.status(201).json({ success: true, message: "Offer created successfully", offerId: results.insertId });
     } catch (err) {
         console.error(err);
@@ -569,7 +616,7 @@ export async function createOffer(req, res) {
 
 export async function updateOffer(req, res) {
     const { offerId } = req.params;
-    const { userId, title, description, price, latitude, longitude, quantity, building_name, room_number } = req.body;
+    const { userId, title, description, price, latitude, longitude, quantity, building_name, room_number, allergies } = req.body;
     const image = req.file;
     const path_to_image = image ? `/uploads/offers/${image.filename}` : null;
 
@@ -622,6 +669,12 @@ export async function updateOffer(req, res) {
             return res.status(404).json({ message: "Offer not found" });
         }
 
+        if (allergies !== undefined) {
+            const nextAllergies = normalizeAllergiesInput(allergies);
+            await db.query(`DELETE FROM allergens WHERE id = ?`, [offerId]);
+            await saveOfferAllergens(offerId, nextAllergies);
+        }
+
         return res.json({ success: true, message: "Offer updated successfully" });
     } catch (err) {
         console.error(err);
@@ -671,4 +724,3 @@ export async function deleteOffer(req, res) {
         return res.status(500).json({ message: "Database error", error: err.message });
     }
 }
-

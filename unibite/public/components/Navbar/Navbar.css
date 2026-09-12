@@ -125,7 +125,7 @@
 }
 
 .user-options li {
-    padding: 12px 18px;
+    padding: 0;
     cursor: pointer;
     transition: .2s;
 }
@@ -136,6 +136,8 @@
 
 .user-options p {
     margin: 0;
+    padding: 12px 18px;
+    text-align: center;
 }
 
 /* Large tablet and PC */

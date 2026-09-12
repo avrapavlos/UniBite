@@ -193,6 +193,84 @@ select {
 
 
 /* ========================= */
+/* Address Input Row */
+/* ========================= */
+
+.address-input {
+    position: relative;
+    display: flex;
+    gap: 12px;
+}
+
+.address-input input {
+    flex: 1;
+}
+
+#search-address-button {
+    height: 50px;
+    padding: 0 24px;
+    border: 2px solid #4CAF50;
+    border-radius: 10px;
+    background: #4CAF50;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: 0.25s;
+}
+
+#search-address-button:hover {
+    background: #388E3C;
+    border-color: #388E3C;
+}
+
+#search-address-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+
+/* ========================= */
+/* Address Suggestions */
+/* ========================= */
+
+.address-suggestions {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    margin: 4px 0 0;
+    padding: 6px;
+    list-style: none;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+    z-index: 1500;
+}
+
+.address-suggestions.active {
+    display: block;
+}
+
+.address-suggestions li {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.address-suggestions li:hover {
+    background-color: #F5FAF5;
+}
+
+
+/* ========================= */
 /* Map */
 /* ========================= */
 
@@ -462,6 +540,14 @@ select {
     .create-button {
         width: 100%;
         padding: 15px;
+    }
+
+    .address-input {
+        flex-direction: column;
+    }
+
+    #search-address-button {
+        width: 100%;
     }
 
 }

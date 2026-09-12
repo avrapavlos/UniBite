@@ -18,12 +18,28 @@ function getStoredUser() {
     }
 }
 
+function debounce(fn, delayMs) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delayMs);
+    };
+}
+
+function offerMatchesSearch(offer, searchWords) {
+    if (searchWords.length === 0) return true;
+
+    const haystack = `${offer.title} ${offer.description} ${offer.building_name ?? ""}`.toLowerCase();
+
+    return searchWords.every((word) => haystack.includes(word));
+}
+
 function renderFilteredOffers() {
-    const searchTerm = document.getElementById("search-input").value.trim().toLowerCase();
+    const rawSearch = document.getElementById("search-input").value.trim().toLowerCase();
+    const searchWords = rawSearch.split(/\s+/).filter(Boolean);
+
     const filteredOffers = allOffers.filter((offer) => {
-        const matchesSearch = !searchTerm
-            || offer.title.toLowerCase().includes(searchTerm)
-            || offer.description.toLowerCase().includes(searchTerm);
+        const matchesSearch = offerMatchesSearch(offer, searchWords);
         const distance = calculateDistance(
             userLocation.latitude,
             userLocation.longitude,
@@ -34,11 +50,24 @@ function renderFilteredOffers() {
         return matchesSearch && (selectedRadius === null || distance <= selectedRadius);
     });
 
+    // Rank offers whose title matches the search above description-only
+    // matches, then sort each group by nearest distance
+    filteredOffers.sort((a, b) => {
+        const aTitleMatch = rawSearch && a.title.toLowerCase().includes(rawSearch) ? 0 : 1;
+        const bTitleMatch = rawSearch && b.title.toLowerCase().includes(rawSearch) ? 0 : 1;
+
+        if (aTitleMatch !== bTitleMatch) return aTitleMatch - bTitleMatch;
+
+        return a.distance - b.distance;
+    });
+
     displayOffers(filteredOffers);
     addOfferMarkers(filteredOffers, showOfferDetails);
     document.getElementById("offer-results-status").textContent =
         `${filteredOffers.length} offer${filteredOffers.length === 1 ? "" : "s"} within ${selectedRadius ?? "all"} km`;
 }
+
+const debouncedRenderFilteredOffers = debounce(renderFilteredOffers, 250);
 
 function setDistanceListeners() {
     document.querySelectorAll("input[name=distance]").forEach((input) => {
@@ -49,6 +78,7 @@ function setDistanceListeners() {
     });
 
     document.getElementById("search-button").addEventListener("click", renderFilteredOffers);
+    document.getElementById("search-input").addEventListener("input", debouncedRenderFilteredOffers);
     document.getElementById("search-input").addEventListener("keydown", (event) => {
         if (event.key === "Enter") renderFilteredOffers();
     });

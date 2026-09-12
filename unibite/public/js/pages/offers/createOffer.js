@@ -1,4 +1,3 @@
-
 // Global Variables
 
 let map;
@@ -44,6 +43,18 @@ const addressInput = document.getElementById(
 const searchAddressButton = document.getElementById(
     "search-address-button"
 );
+
+const addressSuggestionsList = document.getElementById(
+    "address-suggestions"
+);
+
+function debounce(fn, delayMs) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delayMs);
+    };
+}
 
 // image
 const imageInput = document.getElementById(
@@ -104,6 +115,12 @@ function getLoggedInUser() {
     return null;
 }
 
+// Reads which allergy checkboxes are currently checked
+function getSelectedAllergies() {
+    const checkedBoxes = document.querySelectorAll('input[name="allergies"]:checked');
+    return Array.from(checkedBoxes).map((checkbox) => checkbox.value);
+}
+
 // Initialize Page
 document.addEventListener("DOMContentLoaded", () => {
     initializeMap();
@@ -122,22 +139,29 @@ document.addEventListener("DOMContentLoaded", () => {
 function initializeMap() {
 
     /*
-        Default location.
-
-        Later we can replace this with
-        the user's current location.
+        Center on the logged-in user's saved location if we have one,
+        otherwise fall back to a default location.
     */
 
-    const defaultLatitude = 39.365;
-    const defaultLongitude = 21.921;
+    const user = getLoggedInUser();
+
+    const defaultLatitude = Number(user?.latitude);
+    const defaultLongitude = Number(user?.longitude);
+
+    const hasSavedLocation =
+        Number.isFinite(defaultLatitude) &&
+        Number.isFinite(defaultLongitude);
+
+    const startLatitude = hasSavedLocation ? defaultLatitude : 39.365;
+    const startLongitude = hasSavedLocation ? defaultLongitude : 21.921;
 
 
     map = L.map("map").setView(
         [
-            defaultLatitude,
-            defaultLongitude
+            startLatitude,
+            startLongitude
         ],
-        15
+        hasSavedLocation ? 17 : 15
     );
 
 
@@ -235,6 +259,85 @@ function setupAddressSearch() {
         }
     );
 
+    addressInput.addEventListener("input", debouncedFetchSuggestions);
+
+    document.addEventListener("click", function (event) {
+        if (!addressInput.contains(event.target) && !addressSuggestionsList.contains(event.target)) {
+            renderSuggestions([]);
+        }
+    });
+
+}
+
+
+// =========================
+// Address Suggestions (autocomplete)
+// =========================
+
+async function fetchAddressSuggestions() {
+    const query = addressInput.value.trim();
+
+    if (query === "") {
+        renderSuggestions([]);
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(query)}`
+        );
+
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+
+        const results = await response.json();
+        renderSuggestions(results);
+
+    } catch (error) {
+        console.error("Address suggestion error:", error);
+        renderSuggestions([]);
+    }
+}
+
+const debouncedFetchSuggestions = debounce(fetchAddressSuggestions, 400);
+
+function renderSuggestions(results) {
+    addressSuggestionsList.innerHTML = "";
+
+    if (results.length === 0) {
+        addressSuggestionsList.classList.remove("active");
+        return;
+    }
+
+    results.forEach((result) => {
+        const item = document.createElement("li");
+        item.textContent = result.display_name;
+        item.addEventListener("click", () => selectSuggestion(result));
+        addressSuggestionsList.appendChild(item);
+    });
+
+    addressSuggestionsList.classList.add("active");
+}
+
+function selectSuggestion(result) {
+    const latitude = parseFloat(result.lat);
+    const longitude = parseFloat(result.lon);
+
+    addressInput.value = result.display_name;
+    latitudeInput.value = latitude.toFixed(6);
+    longitudeInput.value = longitude.toFixed(6);
+
+    map.setView([latitude, longitude], 17);
+
+    if (selectedMarker !== null) {
+        map.removeLayer(selectedMarker);
+    }
+
+    selectedMarker = L.marker([latitude, longitude]).addTo(map);
+    selectedMarker.bindPopup(result.display_name).openPopup();
+
+    renderSuggestions([]);
 }
 
 
@@ -479,6 +582,9 @@ async function handleFormSubmit(event) {
     const imageFile =
         imageInput.files[0];
 
+    const allergies =
+        getSelectedAllergies();
+
 
     // =========================
     // Validate
@@ -574,6 +680,13 @@ async function handleFormSubmit(event) {
         "room_number",
         roomNumber
     );
+
+    // Append each selected allergy as its own "allergies" field so the
+    // backend receives them as an array (or a single string if only one
+    // is checked)
+    allergies.forEach((allergen) => {
+        formData.append("allergies", allergen);
+    });
 
 
     // =========================
