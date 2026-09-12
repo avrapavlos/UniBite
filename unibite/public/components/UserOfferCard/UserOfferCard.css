@@ -110,10 +110,27 @@
     color: #5a695e;
     font-size: 14px;
     line-height: 1.6;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+.user-offer-allergens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+}
+
+.user-offer-allergen-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    background: #FFEBEE;
+    color: #C62828;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
 }
 
 .user-offer-info {
@@ -172,6 +189,49 @@
 
 .missed-claim-button:hover {
     background: #fde8e8;
+}
+
+.claim-action-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.accept-claim-button,
+.reject-claim-button {
+    flex: 1;
+    max-width: 140px;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.accept-claim-button {
+    background: #eaf7eb;
+    color: #2e7d32;
+    border: 1.5px solid #cfe8d0;
+}
+
+.accept-claim-button:hover {
+    background: #2e7d32;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.reject-claim-button {
+    background: #fde8e8;
+    color: #a53333;
+    border: 1.5px solid #f5c6c3;
+}
+
+.reject-claim-button:hover {
+    background: #c62828;
+    color: white;
+    transform: translateY(-1px);
 }
 
 .user-offer-actions button {
@@ -286,7 +346,6 @@
 
     .user-offer-description {
         font-size: 13px;
-        -webkit-line-clamp: 2;
     }
 
     .user-offer-info {
@@ -309,5 +368,4 @@
         padding: 12px 14px;
         font-size: 13px;
     }
-}
 }

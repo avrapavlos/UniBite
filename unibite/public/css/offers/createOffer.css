@@ -398,6 +398,75 @@ select {
 
 
 /* ========================= */
+/* Allergy Chips */
+/* ========================= */
+
+.allergy-options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    max-width: 604px;
+    margin: 10px auto 0;
+}
+
+.allergy-options label {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 76px;
+    height: 76px;
+    padding: 6px;
+    border: 1.5px solid #E0E0E0;
+    border-radius: 14px;
+    background: #FAFAFA;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.allergy-options label:hover {
+    border-color: #4CAF50;
+    background: #F5FAF5;
+}
+
+.allergy-options label:has(input:checked) {
+    background: #E8F5E9;
+    border-color: #4CAF50;
+}
+
+.allergy-options input[type="checkbox"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.allergy-icon {
+    font-size: 1.3rem;
+}
+
+.allergy-text {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #555;
+    text-align: center;
+    line-height: 1.1;
+}
+
+.allergy-options label:has(input:checked) .allergy-text {
+    color: #2E7D32;
+}
+
+
+/* ========================= */
 /* Error Message */
 /* ========================= */
 

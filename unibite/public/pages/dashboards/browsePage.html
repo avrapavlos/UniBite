@@ -25,57 +25,69 @@
     </div>
 
 
-    <!-- Search bar and filter options -->
-    <div class="search-bar">
+    <!-- Search bar, filter options, and allergen filter -->
+    <div class="search-section">
 
-        <div class="search-bar-wrapper">
+        <div class="search-bar">
 
-            <input type="text" id="search-input" placeholder="Search for offers...">
+            <div class="search-bar-wrapper">
 
-            <button id="search-button">Search</button>
+                <input type="text" id="search-input" placeholder="Search for offers...">
 
-            <div class="filter-dropdown">
+                <button id="search-button">Search</button>
 
-                <!--/* Filter button and menu for distance */-->
-                <button class="filter-button" id="distance-filter-button">
-                    <img src="../../icons/filter.png" alt="Filter">
-                </button>
-                <!-- Filter menu for sort-->
-                <div class="filter-menu" id="distance-filter-menu">
-                    <label>
-                        <input type="radio" name="distance" value="" checked>
-                        All distances
-                    </label>
+                <div class="filter-dropdown">
 
-                    <label>
-                        <input type="radio" name="distance" value="1">
-                        1 km
-                    </label>
+                    <!--/* Filter button and menu for distance */-->
+                    <button class="filter-button" id="distance-filter-button">
+                        <img src="../../icons/filter.png" alt="Filter">
+                    </button>
+                    <!-- Filter menu for sort-->
+                    <div class="filter-menu" id="distance-filter-menu">
+                        <label>
+                            <input type="radio" name="distance" value="" checked>
+                            All distances
+                        </label>
 
-                    <label>
-                        <input type="radio" name="distance" value="2">
-                        2 km
-                    </label>
+                        <label>
+                            <input type="radio" name="distance" value="1">
+                            1 km
+                        </label>
 
-                    <label>
-                        <input type="radio" name="distance" value="5">
-                        5 km
-                    </label>
+                        <label>
+                            <input type="radio" name="distance" value="2">
+                            2 km
+                        </label>
 
-                    <label>
-                        <input type="radio" name="distance" value="10">
-                        10 km
-                    </label>
+                        <label>
+                            <input type="radio" name="distance" value="5">
+                            5 km
+                        </label>
 
-                    <label>
-                        <input type="radio" name="distance" value="20">
-                        20 km
-                    </label>
+                        <label>
+                            <input type="radio" name="distance" value="10">
+                            10 km
+                        </label>
+
+                        <label>
+                            <input type="radio" name="distance" value="20">
+                            20 km
+                        </label>
+                    </div>
+
                 </div>
 
             </div>
-
         </div>
+
+        <!-- Allergen exclusion filter -->
+        <div class="allergen-filter-bar">
+            <span class="allergen-filter-label">Hide offers containing:</span>
+            <div class="allergen-chip-row" id="allergen-chip-row">
+                <!-- Chips are rendered here by browsePage.js -->
+            </div>
+        </div>
+
     </div>
 
     <p id="offer-results-status" class="offer-results-status" aria-live="polite"></p>

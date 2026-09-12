@@ -117,6 +117,69 @@ body {
     font-size: 0.9rem;
 }
 
+.allergen-filter-bar {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #eef2ee;
+}
+
+.allergen-filter-label {
+    display: block;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.allergen-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.allergen-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 64px;
+    height: 64px;
+    border: 1.5px solid #e2e6e3;
+    border-radius: 14px;
+    background: #fafffa;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.allergen-chip-icon {
+    font-size: 1.3rem;
+}
+
+.allergen-chip-label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: #555;
+    text-align: center;
+    line-height: 1.1;
+}
+
+.allergen-chip:hover {
+    border-color: #4CAF50;
+    background: #F5FAF5;
+}
+
+.allergen-chip.active {
+    background: #FFEBEE;
+    border-color: #C62828;
+}
+
+.allergen-chip.active .allergen-chip-label {
+    color: #C62828;
+}
+
 .filter-dropdown {
     position: relative;
 }

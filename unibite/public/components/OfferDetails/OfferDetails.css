@@ -115,6 +115,41 @@ body.offer-details-open {
 }
 
 /* ========================= */
+/* Allergens */
+/* ========================= */
+
+.offer-details-allergens {
+    margin: 0 24px 18px;
+}
+
+.offer-details-allergens-label {
+    color: #666;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.offer-details-allergen-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.offer-details-allergen-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    background: #FFEBEE;
+    color: #C62828;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+/* ========================= */
 /* Location */
 /* ========================= */
 
@@ -178,6 +213,7 @@ body.offer-details-open {
     }
 
     .offer-details-description,
+    .offer-details-allergens,
     .offer-details-location,
     .offer-details-claim-button-wrapper {
         margin-left: 20px;

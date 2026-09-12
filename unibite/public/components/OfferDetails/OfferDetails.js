@@ -1,3 +1,4 @@
+import { getAllergenMeta } from "../../js/helperFunctions/allergens.js";
 
 // Function to create offer details card purely the html and css
 export function createOfferDetails(offer) {
@@ -9,6 +10,11 @@ export function createOfferDetails(offer) {
 
     card.classList.add("offer-details-container-wrapper");
 
+    const allergenTags = (offer.allergens || []).map((allergenValue) => {
+        const meta = getAllergenMeta(allergenValue);
+        return `<span class="offer-details-allergen-tag">${meta.icon} ${meta.label}</span>`;
+    }).join("");
+
 
     // Generate html
     card.innerHTML = `
@@ -17,7 +23,7 @@ export function createOfferDetails(offer) {
         </button>
 
         <div class="offer-details-image-wrapper">
-            <img src="${offer.image || '../../images/default-food.png'}" alt="${offer.title}">
+            <img src="${offer.path_to_picture || '../../images/default-food.png'}" alt="${offer.title}">
         </div>
 
         <h3 class="offer-details-title">
@@ -27,6 +33,15 @@ export function createOfferDetails(offer) {
         <p class="offer-details-description">
             ${offer.description}
         </p>
+
+        ${allergenTags ? `
+        <div class="offer-details-allergens">
+            <p class="offer-details-allergens-label">Contains</p>
+            <div class="offer-details-allergen-list">
+                ${allergenTags}
+            </div>
+        </div>
+        ` : ""}
 
         <div class="offer-details-location">
             <p>${offer.building_name}</p>
@@ -56,4 +71,3 @@ function loadOfferDetailsCSS() {
         document.head.appendChild(link);
     }
 }
-

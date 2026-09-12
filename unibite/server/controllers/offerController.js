@@ -11,12 +11,13 @@ function normalizeOffer(offer) {
         price: offer.price ?? offer.point_cost ?? 0,
         latitude: offer.latitude ?? offer.location_lat ?? null,
         longitude: offer.longitude ?? offer.location_lng ?? null,
-        path_to_picture: offer.path_to_picture ?? offer.path_to_picture ?? null,
+        path_to_picture: offer.path_to_picture ?? null,
+        image: offer.path_to_picture ?? null,
         building_name: offer.building_name ?? offer.building_name ?? null,
         room_number: offer.room_number ?? offer.room_number ?? null,
         date_posted: offer.date_posted ?? offer.pickup_time ?? offer.date_posted ?? null,
         allergens: offer.allergen_names
-            ? offer.allergen_names.split(",")
+            ? offer.allergen_names.split(",").map((name) => name.trim().toLowerCase())
             : []
     };
 }
@@ -647,7 +648,7 @@ export async function updateOffer(req, res) {
         }
 
         const sql = `
-            UPDATE offers
+            UPDATE advertisments
             SET title = ?, description = ?, point_cost = ?, location_lat = ?, location_lng = ?, portions = ?, building_name = ?, room_number = ?, path_to_picture = ?
             WHERE id = ?
         `;
@@ -661,7 +662,7 @@ export async function updateOffer(req, res) {
             nextQuantity,
             nextBuildingName.trim(),
             nextRoomNumber.trim(),
-            path_to_path_to_picture ?? currentOffer.path_to_picture,
+            path_to_image ?? currentOffer.path_to_picture,
             offerId
         ]);
 

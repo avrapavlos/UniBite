@@ -90,6 +90,20 @@ CREATE TABLE requests(
     request_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     id INT NOT NULL,
     con_id INT,
+
+    status ENUM(
+        'PENDING',
+        'ACCEPTED',
+        'REJECTED'
+    ) NOT NULL DEFAULT 'PENDING',
+
+    claimed_portions INT NOT NULL DEFAULT 1,
+
+    date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    accepted_at TIMESTAMP NULL,
+    rejected_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+
     state_of_delivery ENUM (
         'DELIVERED',
         'MISSED'
@@ -107,10 +121,22 @@ CREATE TABLE requests(
 CREATE TABLE ratings(
     rating_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     req_id INT NOT NULL,
+
+    rater_id INT NULL,
+    rated_user_id INT NULL,
+    score INT NULL,
+    comment TEXT NULL,
+
     description TEXT,
     CONSTRAINT fk_requests
         FOREIGN KEY(req_id)
-        REFERENCES requests(request_id)
+        REFERENCES requests(request_id),
+    CONSTRAINT fk_rating_rater
+        FOREIGN KEY(rater_id)
+        REFERENCES users(id),
+    CONSTRAINT fk_rating_rated_user
+        FOREIGN KEY(rated_user_id)
+        REFERENCES users(id)
 );
 
 DROP TABLE IF EXISTS admins;

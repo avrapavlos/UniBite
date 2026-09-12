@@ -1,5 +1,7 @@
 // UserOfferCard
 
+import { getAllergenMeta } from "../../js/helperFunctions/allergens.js";
+
 function loadUserOfferCardCSS() {
     const cssId = "user-offer-card-css";
     if (!document.getElementById(cssId)) {
@@ -69,9 +71,14 @@ export function createUserOfferCard(offer, onClick) {
         </div>`
         : `<div class="user-offer-claims empty"><p>No claims yet.</p></div>`;
 
+    const allergenTags = (offer.allergens || []).map((allergenValue) => {
+        const meta = getAllergenMeta(allergenValue);
+        return `<span class="user-offer-allergen-tag" title="Contains ${meta.label}">${meta.icon} ${meta.label}</span>`;
+    }).join("");
+
     card.innerHTML = `
         <div class="user-offer-image-wrap">
-            <img src="${offer.image || '../../images/default-food.png'}" alt="${offer.title}" class="user-offer-image">
+            <img src="${offer.path_to_picture || '../../images/default-food.png'}" alt="${offer.title}" class="user-offer-image">
         </div>
 
         <div class="user-offer-content">
@@ -91,6 +98,8 @@ export function createUserOfferCard(offer, onClick) {
             </div>
 
             <p class="user-offer-description">${offer.description}</p>
+
+            ${allergenTags ? `<div class="user-offer-allergens">${allergenTags}</div>` : ""}
 
             <div class="user-offer-info">
                 <span class="user-location-tag"><strong>Location:</strong> ${offer.building_name}</span>

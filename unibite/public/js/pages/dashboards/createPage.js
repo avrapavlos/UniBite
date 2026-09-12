@@ -3,11 +3,23 @@ import { loadUserOffers } from "../../dataLoaders/userOffers.js";
 import { displayUserOffers } from "../../renderers/offersRenderer.js";
 import { showNotification } from "../../../components/Notification/Notification.js";
 import { showConfirmation } from "../../../components/Confirmation/Confirmation.js";
+import { ALLERGENS } from "../../helperFunctions/allergens.js";
 
 
 function getCurrentUserId() {
     const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "null");
     return user?.id ?? null;
+}
+
+// Builds the same allergy chip markup used on the Create Offer page
+function buildAllergyOptionsMarkup() {
+    return ALLERGENS.map((allergen) => `
+        <label>
+            <input type="checkbox" name="edit-allergies" value="${allergen.value}">
+            <span class="allergy-icon">${allergen.icon}</span>
+            <span class="allergy-text">${allergen.label}</span>
+        </label>
+    `).join("");
 }
 
 function createEditModal() {
@@ -58,6 +70,13 @@ function createEditModal() {
                     </div>
                 </div>
 
+                <div class="modal-field">
+                    <label>Allergies</label>
+                    <div class="allergy-options" id="edit-allergy-options">
+                        ${buildAllergyOptionsMarkup()}
+                    </div>
+                </div>
+
                 <div class="modal-actions">
                     <button type="button" class="secondary-button" id="cancel-edit-button">Cancel</button>
                     <button type="submit" class="primary-button">Save Changes</button>
@@ -85,6 +104,10 @@ function createEditModal() {
             return;
         }
 
+        const selectedAllergies = Array.from(
+            document.querySelectorAll('#edit-allergy-options input[name="edit-allergies"]:checked')
+        ).map((checkbox) => checkbox.value);
+
         const payload = {
             userId,
             title: document.getElementById("edit-title").value.trim(),
@@ -94,7 +117,8 @@ function createEditModal() {
             longitude: 21.921,
             quantity: Number(document.getElementById("edit-quantity").value),
             building_name: document.getElementById("edit-building-name").value.trim(),
-            room_number: document.getElementById("edit-room-number").value.trim()
+            room_number: document.getElementById("edit-room-number").value.trim(),
+            allergies: selectedAllergies
         };
 
         const response = await fetch(`http://localhost:3000/api/offers/${id}`, {
@@ -133,6 +157,12 @@ function openEditModal(offer) {
     document.getElementById("edit-quantity").value = offer.quantity ?? 0;
     document.getElementById("edit-building-name").value = offer.building_name || "";
     document.getElementById("edit-room-number").value = offer.room_number || "";
+
+    // Prefill the allergy chips based on this offer's current allergens
+    const currentAllergens = Array.isArray(offer.allergens) ? offer.allergens : [];
+    document.querySelectorAll('#edit-allergy-options input[name="edit-allergies"]').forEach((checkbox) => {
+        checkbox.checked = currentAllergens.includes(checkbox.value);
+    });
 
     modal.classList.remove("hidden");
 }

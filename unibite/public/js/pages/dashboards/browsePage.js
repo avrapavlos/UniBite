@@ -4,10 +4,12 @@ import { showOfferDetails } from "../../../components/OfferDetails/OfferDetailsM
 import { displayOffers } from "../../renderers/offersRenderer.js";
 import { loadOffersExcludingUser } from "../../dataLoaders/offers.js";
 import { calculateDistance } from "../../helperFunctions/mapDistance.js";
+import { ALLERGENS } from "../../helperFunctions/allergens.js";
 
 let allOffers = [];
 let userLocation = null;
 let selectedRadius = null;
+const excludedAllergens = new Set();
 
 function getStoredUser() {
     const rawUser = localStorage.getItem("user") || sessionStorage.getItem("user");
@@ -34,6 +36,13 @@ function offerMatchesSearch(offer, searchWords) {
     return searchWords.every((word) => haystack.includes(word));
 }
 
+function offerHasExcludedAllergen(offer) {
+    if (excludedAllergens.size === 0) return false;
+
+    const offerAllergens = Array.isArray(offer.allergens) ? offer.allergens : [];
+    return offerAllergens.some((allergen) => excludedAllergens.has(allergen));
+}
+
 function renderFilteredOffers() {
     const rawSearch = document.getElementById("search-input").value.trim().toLowerCase();
     const searchWords = rawSearch.split(/\s+/).filter(Boolean);
@@ -47,7 +56,9 @@ function renderFilteredOffers() {
             Number(offer.longitude)
         );
         offer.distance = distance;
-        return matchesSearch && (selectedRadius === null || distance <= selectedRadius);
+        return matchesSearch
+            && !offerHasExcludedAllergen(offer)
+            && (selectedRadius === null || distance <= selectedRadius);
     });
 
     // Rank offers whose title matches the search above description-only
@@ -111,7 +122,36 @@ document.addEventListener("click", (event) => {
 
 
 
-// Function that enables map switching in browse page
+// Renders the allergen filter chips and wires up toggling
+function setupAllergenFilter() {
+    const row = document.getElementById("allergen-chip-row");
+    if (!row) return;
+
+    ALLERGENS.forEach((allergen) => {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "allergen-chip";
+        chip.dataset.allergen = allergen.value;
+        chip.title = `Hide offers containing ${allergen.label}`;
+        chip.innerHTML = `
+            <span class="allergen-chip-icon">${allergen.icon}</span>
+            <span class="allergen-chip-label">${allergen.label}</span>
+        `;
+
+        chip.addEventListener("click", () => {
+            if (excludedAllergens.has(allergen.value)) {
+                excludedAllergens.delete(allergen.value);
+                chip.classList.remove("active");
+            } else {
+                excludedAllergens.add(allergen.value);
+                chip.classList.add("active");
+            }
+            renderFilteredOffers();
+        });
+
+        row.appendChild(chip);
+    });
+}
 function setViewToggle() {
     const listButton = document.getElementById("list-view-btn");
     const mapButton = document.getElementById("map-view-btn");
@@ -170,6 +210,7 @@ async function refreshLocationAndOffers() {
 
     if (allOffers.length === 0) {
         allOffers = await loadOffersExcludingUser(userId);
+        console.log("Allergens per offer:", allOffers.map((offer) => ({ id: offer.id, title: offer.title, allergens: offer.allergens })));
     }
 
     renderFilteredOffers();
@@ -186,6 +227,7 @@ async function init() {
     setFilterListener();
     setDistanceListeners();
     setViewToggle();
+    setupAllergenFilter();
 
     // Load the offers data
     const storedUser = getStoredUser();
@@ -204,6 +246,7 @@ async function init() {
 
     createMap([userLocation.latitude, userLocation.longitude]);
     allOffers = await loadOffersExcludingUser(userId);
+    console.log("Allergens per offer:", allOffers.map((offer) => ({ id: offer.id, title: offer.title, allergens: offer.allergens })));
     renderFilteredOffers();
 }
 
