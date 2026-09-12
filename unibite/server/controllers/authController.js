@@ -104,7 +104,7 @@ export async function register(req, res) {
                 username: name,
                 name,
                 email,
-                points: 50,
+                points: 5,
                 portions_given: 0,
                 portions_received: 0,
                 profile_pic: null,
