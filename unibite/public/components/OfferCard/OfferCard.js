@@ -35,6 +35,10 @@ export function createOfferCard(offer, onClick) {
         return `<span class="offer-allergen-tag" title="Contains ${meta.label}">${meta.icon} ${meta.label}</span>`;
     }).join("");
 
+    const distanceLabel = Number.isFinite(offer.distance)
+        ? `<p class="offer-distance">📍 ${offer.distance.toFixed(1)} km away</p>`
+        : "";
+
     card.innerHTML = `
         <div class="offer-image-container">
             <img class="offer-image" 
@@ -58,6 +62,8 @@ export function createOfferCard(offer, onClick) {
             <p class="offer-price">
                 🟡${offer.price}
             </p>
+
+            ${distanceLabel}
 
             ${allergenTags ? `<div class="offer-allergens">${allergenTags}</div>` : ""}
         </div>

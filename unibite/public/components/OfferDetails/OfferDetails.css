@@ -107,6 +107,13 @@ body.offer-details-open {
     margin: 20px 24px 8px;
 }
 
+.offer-details-distance {
+    color: #1f7a45;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 24px 12px;
+}
+
 .offer-details-description {
     color: #666;
     font-size: 15px;
@@ -212,6 +219,7 @@ body.offer-details-open {
         margin: 18px 20px 8px;
     }
 
+    .offer-details-distance,
     .offer-details-description,
     .offer-details-allergens,
     .offer-details-location,

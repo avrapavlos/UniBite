@@ -113,6 +113,15 @@
     margin-top: 2px;
 }
 
+/* Distance badge */
+
+.offer-distance {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #1f7a45;
+}
+
 .offer-allergen-tag {
     display: inline-flex;
     align-items: center;

@@ -15,6 +15,10 @@ export function createOfferDetails(offer) {
         return `<span class="offer-details-allergen-tag">${meta.icon} ${meta.label}</span>`;
     }).join("");
 
+    const distanceLabel = Number.isFinite(offer.distance)
+        ? `<p class="offer-details-distance">📍 ${offer.distance.toFixed(1)} km away</p>`
+        : "";
+
 
     // Generate html
     card.innerHTML = `
@@ -29,6 +33,8 @@ export function createOfferDetails(offer) {
         <h3 class="offer-details-title">
             ${offer.title}
         </h3>
+
+        ${distanceLabel}
 
         <p class="offer-details-description">
             ${offer.description}
