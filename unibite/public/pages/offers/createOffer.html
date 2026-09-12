@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Create Offer - UniBite</title>
-
+    <link rel="icon" href="../../icons/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="../../css/offers/createOffer.css">
     <link rel="stylesheet" href="../../components/Navbar/Navbar.css">
 
@@ -119,11 +119,9 @@
                                 placeholder="0" required>
                         </div>
 
-                            </select>
-
-                        </div>
-
                     </div>
+
+                </div>
 
                 </div>
 
@@ -152,6 +150,8 @@
                             <input type="text" id="address" name="address"
                                 placeholder="e.g. University of Thessaly, Karditsa" required>
 
+                            <ul id="address-suggestions" class="address-suggestions"></ul>
+
                             <button type="button" id="search-address-button">
                                 Search
                             </button>
@@ -166,15 +166,14 @@
                             Building Name
                         </label>
 
-                        <input type="text" id="building_name" name="building_name"
-                            placeholder="e.g. Main Library" required>
+                        <input type="text" id="building_name" name="building_name" placeholder="e.g. Main Library"
+                            required>
 
                         <label for="room_number">
                             Room Number
                         </label>
 
-                        <input type="text" id="room_number" name="room_number"
-                            placeholder="e.g. 101" required>
+                        <input type="text" id="room_number" name="room_number" placeholder="e.g. 101" required>
                     </div>
 
                     <!-- Hidden inputs to store the selected latitude and longitude -->
@@ -196,6 +195,20 @@
                     </div>
 
                 </div>
+
+                <!-- Input of date of delivery-->
+                 <div class="form-section">
+                    <div class="form-group">
+                    <label for="Date">
+                        Date
+                    </label>
+                    <input type="date" id="date">
+                    <label for="Time">
+                        Time
+                    </label>
+                    <input type="time" id="time">
+                    </div>
+                 </div>
 
 
                 <!-- ===================== -->
@@ -242,9 +255,8 @@
                     <!-- Image Preview -->
 
                     <div id="image-preview-container" class="image-preview-container">
-
+                        <button type="button" id="remove-image-button" class="remove-image-button">✕ Remove</button>
                         <img id="image-preview" src="" alt="Offer preview">
-
                     </div>
 
                 </div>
@@ -265,19 +277,87 @@
 
                         <label>
                             <input type="checkbox" name="allergies" value="gluten">
-                            Gluten
+                            <span class="allergy-icon">🌾</span>
+                            <span class="allergy-text">Gluten</span>
                         </label>
 
                         <label>
-                            <input type="checkbox" name="allergies" value="lactose">
-                            Lactose
+                            <input type="checkbox" name="allergies" value="crustaceans">
+                            <span class="allergy-icon">🦐</span>
+                            <span class="allergy-text">Crustaceans</span>
+                        </label>
+
+                        <label>
+                            <input type="checkbox" name="allergies" value="eggs">
+                            <span class="allergy-icon">🥚</span>
+                            <span class="allergy-text">Eggs</span>
+                        </label>
+
+                        <label>
+                            <input type="checkbox" name="allergies" value="fish">
+                            <span class="allergy-icon">🐟</span>
+                            <span class="allergy-text">Fish</span>
+                        </label>
+
+                        <label>
+                            <input type="checkbox" name="allergies" value="peanuts">
+                            <span class="allergy-icon">🥜</span>
+                            <span class="allergy-text">Peanuts</span>
+                        </label>
+
+                        <label>
+                            <input type="checkbox" name="allergies" value="soybeans">
+                            <span class="allergy-icon">🫘</span>
+                            <span class="allergy-text">Soybeans</span>
+                        </label>
+
+                        <label>
+                            <input type="checkbox" name="allergies" value="dairy">
+                            <span class="allergy-icon">🥛</span>
+                            <span class="allergy-text">Dairy</span>
                         </label>
 
                         <label>
                             <input type="checkbox" name="allergies" value="nuts">
-                            Nuts
+                            <span class="allergy-icon">🌰</span>
+                            <span class="allergy-text">Nuts</span>
                         </label>
 
+                        <label>
+                            <input type="checkbox" name="allergies" value="celery">
+                            <span class="allergy-icon">🥬</span>
+                            <span class="allergy-text">Celery</span>
+                        </label>
+
+                        <label>
+                            <input type="checkbox" name="allergies" value="mustard">
+                            <span class="allergy-icon">🌭</span>
+                            <span class="allergy-text">Mustard</span>
+                        </label>
+
+                        <label>
+                            <input type="checkbox" name="allergies" value="sesame">
+                            <span class="allergy-icon">✳️</span>
+                            <span class="allergy-text">Sesame</span>
+                        </label>
+
+                        <label>
+                            <input type="checkbox" name="allergies" value="sulphur dioxide">
+                            <span class="allergy-icon">🧪</span>
+                            <span class="allergy-text">Sulphites</span>
+                        </label>
+
+                        <label>
+                            <input type="checkbox" name="allergies" value="lupin">
+                            <span class="allergy-icon">🌸</span>
+                            <span class="allergy-text">Lupin</span>
+                        </label>
+
+                        <label>
+                            <input type="checkbox" name="allergies" value="molluscs">
+                            <span class="allergy-icon">🐚</span>
+                            <span class="allergy-text">Molluscs</span>
+                        </label>
                     </div>
 
                 </div>

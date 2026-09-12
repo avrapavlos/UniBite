@@ -5,7 +5,7 @@ export async function loadOffers() {
 
         // Fetch data from json later will fetch form database
         const response = await fetch("http://localhost:3000/api/offers", {
-            method: "GET",
+            method: "GET", 
             headers: {
                 "Content-Type": "application/json"
             }
@@ -33,3 +33,25 @@ export async function loadOffers() {
 
 }
 
+// Load offers excluding the current user's offers
+export async function loadOffersExcludingUser(userId) {
+    try {
+        const response = await fetch(`http://localhost:3000/api/users/${userId}/offers/exclude`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) {
+            return [];
+        }
+
+        const offers = await response.json();
+
+        return offers;
+
+    } catch (error) {
+        return [];
+    }
+}

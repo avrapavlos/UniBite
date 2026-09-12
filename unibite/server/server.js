@@ -1,10 +1,10 @@
-
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import authRoutes from "./routes/authRoutes.js";
 import offerRoutes from "./routes/offerRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import db from "./database/connection.js";
 
 const app = express();
@@ -15,34 +15,44 @@ export async function ensureRequestsReferenceOfferTable() {
         return;
     }
 
-    const [createRows] = await db.query("SHOW CREATE TABLE requests");
-    const createSql = createRows[0]?.["Create Table"] || "";
-
-    if (!createSql.includes("REFERENCES `advertisments` (`ad_id`)")) {
+    const [offerTableRows] = await db.query("SHOW TABLES LIKE 'offers'");
+    if (offerTableRows.length === 0) {
         return;
     }
 
-    try {
-        await db.query("ALTER TABLE requests DROP FOREIGN KEY fk_advertisment");
-    } catch (err) {
-        console.warn("Could not drop legacy requests fk_advertisment:", err.message);
+    const [foreignKeys] = await db.query(`
+        SELECT CONSTRAINT_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME
+        FROM information_schema.KEY_COLUMN_USAGE
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'requests'
+          AND COLUMN_NAME = 'id'
+          AND REFERENCED_TABLE_NAME IS NOT NULL
+    `);
+
+    const hasOfferReference = foreignKeys.some((foreignKey) =>
+        foreignKey.REFERENCED_TABLE_NAME === "offers"
+        && foreignKey.REFERENCED_COLUMN_NAME === "id"
+    );
+
+    for (const foreignKey of foreignKeys) {
+        const referencesOffers = foreignKey.REFERENCED_TABLE_NAME === "offers"
+            && foreignKey.REFERENCED_COLUMN_NAME === "id";
+
+        if (!referencesOffers) {
+            await db.query(`ALTER TABLE requests DROP FOREIGN KEY \`${foreignKey.CONSTRAINT_NAME}\``);
+        }
     }
 
-    try {
-        await db.query("ALTER TABLE requests DROP INDEX fk_advertisment");
-    } catch (err) {
-        console.warn("Could not drop legacy requests index:", err.message);
+    if (!hasOfferReference) {
+        await db.query("ALTER TABLE requests ADD CONSTRAINT fk_requests_offer FOREIGN KEY (id) REFERENCES offers(id)");
     }
-
-    await db.query("ALTER TABLE requests ADD CONSTRAINT fk_requests_offer FOREIGN KEY (ad_id) REFERENCES offers(id)");
 }
-
 async function ensureClaimAndRatingSchema() {
     const requiredColumns = {
         requests: [
             { name: "status", definition: "ENUM('PENDING','ACCEPTED','REJECTED') NOT NULL DEFAULT 'PENDING'" },
             { name: "claimed_portions", definition: "INT NOT NULL DEFAULT 1" },
-            { name: "created_at", definition: "TIMESTAMP DEFAULT CURRENT_TIMESTAMP" },
+            { name: "date_posted", definition: "TIMESTAMP DEFAULT CURRENT_TIMESTAMP" },
             { name: "accepted_at", definition: "TIMESTAMP NULL" },
             { name: "rejected_at", definition: "TIMESTAMP NULL" },
             { name: "updated_at", definition: "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" }
@@ -52,7 +62,7 @@ async function ensureClaimAndRatingSchema() {
             { name: "comment", definition: "TEXT" },
             { name: "rater_id", definition: "INT NULL" },
             { name: "rated_user_id", definition: "INT NULL" },
-            { name: "created_at", definition: "TIMESTAMP DEFAULT CURRENT_TIMESTAMP" }
+            { name: "date_posted", definition: "TIMESTAMP DEFAULT CURRENT_TIMESTAMP" }
         ]
     };
 
@@ -68,9 +78,34 @@ async function ensureClaimAndRatingSchema() {
     }
 }
 
+async function ensureUserLocationSchema() {
+    const [columns] = await db.query("SHOW COLUMNS FROM users");
+    const existingColumns = new Set(columns.map((column) => column.Field));
+
+    for (const column of [
+        { name: "latitude", definition: "DECIMAL(9,6) NULL" },
+        { name: "longitude", definition: "DECIMAL(9,6) NULL" }
+    ]) {
+        if (!existingColumns.has(column.name)) {
+            await db.query(`ALTER TABLE users ADD COLUMN ${column.name} ${column.definition}`);
+        }
+    }
+}
+
+async function ensureClaimPortionTriggerRemoved() {
+    try {
+        await db.query("DROP TRIGGER IF EXISTS inactivation");
+    } catch (err) {
+        console.warn("Could not remove legacy claim portion trigger:", err.message);
+    }
+}
+
 async function initServer() {
+    console.log("Initializing server...");
     await ensureRequestsReferenceOfferTable();
     await ensureClaimAndRatingSchema();
+    await ensureUserLocationSchema();
+    await ensureClaimPortionTriggerRemoved();
 
     app.use(express.json());
 
@@ -86,11 +121,13 @@ async function initServer() {
     const __dirname = path.dirname(__filename);
 
     app.use(express.static(path.join(__dirname, "../public")));
+    app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
     setUpRoutes();
 
-    app.listen(3000, () => {
-        console.log("Server running on port 3000");
+    const port = process.env.PORT || 3000;
+    app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
     });
 }
 
@@ -98,6 +135,7 @@ function setUpRoutes() {
     app.use("/api", authRoutes);
     app.use("/api", offerRoutes);
     app.use("/api/admin", adminRoutes);
+    app.use("/api/users", userRoutes);
 }
 
 initServer();

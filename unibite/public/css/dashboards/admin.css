@@ -3,9 +3,11 @@
     margin: 32px auto;
     font-family: Arial, sans-serif;
     color: #222;
+    text-align: center;
 }
 
 .admin-header {
+    position: relative;
     background: white;
     padding: 32px 28px;
     border-radius: 24px;
@@ -17,6 +19,7 @@
     margin: 0;
     font-size: 2.4rem;
     color: #1f7a45;
+    line-height: 1.2;
 }
 
 .admin-header p {
@@ -25,9 +28,36 @@
     font-size: 1rem;
 }
 
+.admin-logout-btn {
+    position: absolute;
+    top: 28px;
+    right: 28px;
+    background: #1f7a45;
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(31, 122, 69, 0.25);
+    transition: background 0.2s ease, transform 0.2s ease;
+    white-space: nowrap;
+}
+
+.admin-logout-btn:hover {
+    background: #176035;
+    transform: translateY(-1px);
+}
+
+.admin-logout-btn:active {
+    transform: translateY(0);
+}
+
 .admin-summary-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(220px, 1fr));
+    grid-template-columns: repeat(4, minmax(180px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
 }
@@ -37,6 +67,7 @@
     padding: 24px;
     border-radius: 20px;
     box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    text-align: center;
 }
 
 .admin-summary-card h2 {
@@ -57,11 +88,25 @@
     font-size: 0.95rem;
 }
 
+.admin-highlight-card {
+    border: 2px solid #d8eddc;
+}
+
+.admin-highlight-value {
+    margin: 0 0 10px;
+    color: #1f7a45;
+    font-size: 1.7rem;
+    font-weight: bold;
+    word-break: break-word;
+}
+
 .admin-section {
     background: white;
     padding: 24px;
     border-radius: 24px;
     box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+    text-align: center;
 }
 
 .section-header {
@@ -71,6 +116,7 @@
 .section-header h2 {
     margin: 0 0 8px;
     font-size: 1.4rem;
+    color: #1f7a45;
 }
 
 .section-header p {
@@ -80,18 +126,21 @@
 
 .leaderboard-card {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .leaderboard-table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 480px;
 }
 
 .leaderboard-table th,
 .leaderboard-table td {
     padding: 16px 18px;
-    text-align: left;
+    text-align: center;
     border-bottom: 1px solid #eee;
+    white-space: nowrap;
 }
 
 .leaderboard-table th {
@@ -107,8 +156,129 @@
     color: #555;
 }
 
-@media(max-width: 860px) {
+/* ===== Tablet ===== */
+@media (max-width: 1024px) {
+    .admin-dashboard-page {
+        width: min(900px, 95%);
+        margin: 24px auto;
+    }
+
+    .admin-summary-grid {
+        grid-template-columns: repeat(2, minmax(160px, 1fr));
+        gap: 16px;
+    }
+
+    .admin-header {
+        padding: 28px 24px;
+    }
+
+    .admin-header h1 {
+        font-size: 2.1rem;
+    }
+
+    .admin-stat {
+        font-size: 2.4rem;
+    }
+
+    .admin-section {
+        padding: 20px;
+    }
+
+    .leaderboard-table th,
+    .leaderboard-table td {
+        padding: 14px 12px;
+        font-size: 0.95rem;
+    }
+}
+
+/* ===== Phone ===== */
+@media (max-width: 600px) {
+    .admin-dashboard-page {
+        width: 94%;
+        margin: 16px auto;
+    }
+
+    .admin-header {
+        padding: 22px 18px 20px;
+        border-radius: 18px;
+    }
+
+    .admin-logout-btn {
+        position: static;
+        display: inline-block;
+        margin-bottom: 14px;
+        padding: 9px 20px;
+        font-size: 0.9rem;
+    }
+
+    .admin-header h1 {
+        font-size: 1.6rem;
+    }
+
+    .admin-header p {
+        font-size: 0.9rem;
+    }
+
     .admin-summary-grid {
         grid-template-columns: 1fr;
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+    .admin-summary-card {
+        padding: 18px;
+        border-radius: 16px;
+    }
+
+    .admin-summary-card h2 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+
+    .admin-stat {
+        font-size: 2.2rem;
+    }
+
+    .admin-summary-card span {
+        font-size: 0.85rem;
+    }
+
+    .admin-highlight-value {
+        font-size: 1.4rem;
+    }
+
+    .admin-section {
+        padding: 16px;
+        border-radius: 18px;
+        margin-bottom: 20px;
+    }
+
+    .section-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .section-header p {
+        font-size: 0.9rem;
+    }
+
+    .leaderboard-table th,
+    .leaderboard-table td {
+        padding: 12px 10px;
+        font-size: 0.85rem;
+    }
+}
+
+/* ===== Small phone ===== */
+@media (max-width: 380px) {
+    .admin-header h1 {
+        font-size: 1.4rem;
+    }
+
+    .admin-stat {
+        font-size: 1.9rem;
+    }
+
+    .admin-logout-btn {
+        width: 100%;
     }
 }

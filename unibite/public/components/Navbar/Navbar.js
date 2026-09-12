@@ -80,7 +80,7 @@ export function createNavbar() {
 
             <li>
                 <a href="../../pages/dashboards/createPage.html">
-                    Offer Dashboard
+                    Create Offers
                 </a>
             </li>
 
@@ -98,6 +98,9 @@ export function createNavbar() {
 
             <!-- User profile options-->
             <ul class="user-options" id="user-options">
+                <li>
+                    <p id="settings-button">SETTINGS</p>
+                </li>
                 <li>
                     <p id="logout-button">LOGOUT</p>
                 </li>
@@ -166,7 +169,99 @@ export function createNavbar() {
 
         //Redirect to login page
         window.location.replace("../../pages/auth/login.html");
-    })
+    });
+
+    const settingsButton = navbar.querySelector("#settings-button");
+
+    settingsButton.addEventListener("click", async () => {
+        // If the popup already exists, just show it again
+        let modal = document.getElementById("settings-modal");
+        if (modal) {
+            modal.style.display = "flex";
+            return;
+        }
+
+        // Load settings.css if not already present
+        if (!document.querySelector('link[href="/css/settings.css"]')) {
+            const cssLink = document.createElement("link");
+            cssLink.rel = "stylesheet";
+            cssLink.href = "/css/settings.css";
+            document.head.appendChild(cssLink);
+        }
+
+        // Fetch the Settings.html markup
+        const response = await fetch("/pages/settings/Settings.html");
+        if (!response.ok) {
+            console.error("Failed to load Settings.html:", response.status);
+            return;
+        }
+        const htmlText = await response.text();
+
+        // Parse it so we can grab just the form we need
+        const doc = new DOMParser().parseFromString(htmlText, "text/html");
+        const formContent = doc.getElementById("location-edit");
+        if (!formContent) {
+            console.error("Could not find #location-edit in fetched Settings.html");
+            return;
+        }
+
+        // Build the modal shell
+        modal = document.createElement("div");
+        modal.id = "settings-modal";
+        modal.className = "settings-modal-overlay";
+
+        const modalBox = document.createElement("div");
+        modalBox.className = "settings-modal-box";
+
+        const closeBtn = document.createElement("button");
+        closeBtn.textContent = "×";
+        closeBtn.className = "settings-modal-close";
+        closeBtn.addEventListener("click", () => {
+            modal.style.display = "none";
+            document.dispatchEvent(new CustomEvent("settingsModalClosed"));
+        });
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) {
+                modal.style.display = "none"; // click outside to close
+                document.dispatchEvent(new CustomEvent("settingsModalClosed"));
+            }
+        });
+
+        modalBox.appendChild(closeBtn);
+        modalBox.appendChild(formContent);
+        modal.appendChild(modalBox);
+        document.body.appendChild(modal);
+
+        // Make sure Leaflet is available, then run Settings.js against the injected markup
+        await loadLeaflet();
+        const script = document.createElement("script");
+        script.src = "/js/pages/settings/Settings.js";
+        document.body.appendChild(script);
+    });
+
+    function loadLeaflet() {
+        return new Promise((resolve) => {
+            if (window.L) return resolve();
+
+            let cssLoaded = false;
+            let jsLoaded = false;
+
+            const tryResolve = () => {
+                if (cssLoaded && jsLoaded) resolve();
+            };
+
+            const link = document.createElement("link");
+            link.rel = "stylesheet";
+            link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+            link.onload = () => { cssLoaded = true; tryResolve(); };
+            document.head.appendChild(link);
+
+            const script = document.createElement("script");
+            script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+            script.onload = () => { jsLoaded = true; tryResolve(); };
+            document.body.appendChild(script);
+        });
+    }
 
     //Load css for the navbar
     loadNavbarCSS();
@@ -174,6 +269,3 @@ export function createNavbar() {
     return navbar;
 
 }
-
-
-

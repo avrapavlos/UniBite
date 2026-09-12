@@ -102,6 +102,39 @@
     font-weight: bold;
 }
 
+
+/* Allergen tags */
+
+.offer-allergens {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+/* Distance badge */
+
+.offer-distance {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #1f7a45;
+}
+
+.offer-allergen-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    background: #FFEBEE;
+    color: #C62828;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
 @media (min-width: 768px) {
 
     .offer-card {

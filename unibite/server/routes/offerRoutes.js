@@ -12,6 +12,7 @@ import {
     getOfferClaims,
     acceptOfferClaim,
     rejectOfferClaim,
+    markClaimMissed,
     getUserClaims,
     getUserClaimedOffers,
     rateClaim
@@ -33,6 +34,7 @@ router.get("/offers/:offerId/claims", getOfferClaims);
 router.post("/offers/:offerId/claims", claimOffer);
 router.post("/offers/:offerId/claims/:requestId/accept", acceptOfferClaim);
 router.post("/offers/:offerId/claims/:requestId/reject", rejectOfferClaim);
+router.post("/offers/:offerId/claims/:requestId/missed", markClaimMissed);
 router.post("/requests/:requestId/rate", rateClaim);
 router.post("/offers/:offerId", updateOffer);
 router.delete("/offers/:offerId", deleteOffer);

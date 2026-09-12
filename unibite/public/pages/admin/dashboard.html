@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link rel="icon" href="../../icons/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="../../css/dashboards/browse.css" />
     <link rel="stylesheet" href="../../css/dashboards/admin.css" />
 </head>
@@ -12,6 +13,7 @@
 <body>
     <div class="admin-dashboard-page">
         <div class="card-header admin-header">
+            <button id="logout-btn" class="admin-logout-btn" type="button">Logout</button>
             <h1>Admin Dashboard</h1>
             <p>Overview of live statistics and top donors for the community.</p>
         </div>
@@ -32,6 +34,11 @@
                 <p id="total-users" class="admin-stat">0</p>
                 <span>Registered members in the system</span>
             </article>
+            <article class="admin-summary-card admin-highlight-card">
+                <h2>Top Donor</h2>
+                <p id="top-donor-name" class="admin-highlight-value">Loading...</p>
+                <span id="top-donor-portions">Loading donor data</span>
+            </article>
         </section>
 
         <section class="admin-section">
@@ -47,10 +54,34 @@
                             <th>#</th>
                             <th>Name</th>
                             <th>Portions Given</th>
-                            <th>Rating</th>
                         </tr>
                     </thead>
                     <tbody id="leaderboard-body">
+                        <tr>
+                            <td colspan="3">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="admin-section">
+            <div class="section-header">
+                <h2>Highest-Rated Meals</h2>
+                <p>Meals with the strongest ratings from participating students.</p>
+            </div>
+
+            <div class="leaderboard-card">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Meal</th>
+                            <th>Donor</th>
+                            <th>Average Rating</th>
+                            <th>Ratings</th>
+                        </tr>
+                    </thead>
+                    <tbody id="highest-rated-meals-body">
                         <tr>
                             <td colspan="4">Loading...</td>
                         </tr>

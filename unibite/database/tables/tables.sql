@@ -3,7 +3,7 @@ USE unibite;
 DROP TABLE IF EXISTS ratings;
 DROP TABLE IF EXISTS requests;
 DROP TABLE IF EXISTS allergens;
-DROP TABLE IF EXISTS advertisments;
+DROP TABLE IF EXISTS advertisments; 
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
@@ -30,7 +30,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE advertisments (
-    ad_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 
     creator_id INT NOT NULL,
 
@@ -38,19 +38,23 @@ CREATE TABLE advertisments (
 
     description TEXT NOT NULL,
 
-    price INT NOT NULL DEFAULT 0,
+    point_cost INT NOT NULL DEFAULT 0,
 
     date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    latitude DECIMAL(9,6) NOT NULL,
+    date_of_deletion TIMESTAMP,
 
-    longitude DECIMAL(9,6) NOT NULL,
+    date_of_delivery TIMESTAMP,
+
+    location_lat DECIMAL(9,6) NOT NULL,
+
+    location_lng DECIMAL(9,6) NOT NULL,
 
     building_name VARCHAR(255) NOT NULL,
 
     room_number VARCHAR(255) NOT NULL,
 
-    quantity INT NOT NULL,
+    portions INT NOT NULL,
 
     path_to_picture VARCHAR(255),
 
@@ -71,24 +75,44 @@ CREATE TABLE allergens (
 
     allergen_name VARCHAR(255) NOT NULL,
 
-    ad_id INT NOT NULL,
+    id INT NOT NULL,
 
     CONSTRAINT unique_ad_allergen
-        UNIQUE (ad_id, allergen_name),
+        UNIQUE (id, allergen_name),
 
     CONSTRAINT fk_allergen_ad
-        FOREIGN KEY (ad_id)
-        REFERENCES advertisments(ad_id)
+        FOREIGN KEY (id)
+        REFERENCES advertisments(id)
         ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE requests(
     request_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    ad_id INT NOT NULL,
+    id INT NOT NULL,
     con_id INT,
-    CONSTRAINT fk_offer
-        FOREIGN KEY(ad_id)
-        REFERENCES offers(id),
+
+    status ENUM(
+        'PENDING',
+        'ACCEPTED',
+        'REJECTED'
+    ) NOT NULL DEFAULT 'PENDING',
+
+    claimed_portions INT NOT NULL DEFAULT 1,
+
+    date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    accepted_at TIMESTAMP NULL,
+    rejected_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+
+    state_of_delivery ENUM (
+        'DELIVERED',
+        'MISSED'
+    ) DEFAULT 'DELIVERED',
+    missedDeliveryPenalty BOOLEAN DEFAULT FALSE,
+    penalty_applied BOOLEAN DEFAULT FALSE,
+    CONSTRAINT fk_advertisment
+        FOREIGN KEY(id)
+        REFERENCES advertisments(id),
     CONSTRAINT fk_consumer
         FOREIGN KEY(con_id)
         REFERENCES users(id)
@@ -97,10 +121,22 @@ CREATE TABLE requests(
 CREATE TABLE ratings(
     rating_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     req_id INT NOT NULL,
+
+    rater_id INT NULL,
+    rated_user_id INT NULL,
+    score INT NULL,
+    comment TEXT NULL,
+
     description TEXT,
     CONSTRAINT fk_requests
         FOREIGN KEY(req_id)
-        REFERENCES requests(request_id)
+        REFERENCES requests(request_id),
+    CONSTRAINT fk_rating_rater
+        FOREIGN KEY(rater_id)
+        REFERENCES users(id),
+    CONSTRAINT fk_rating_rated_user
+        FOREIGN KEY(rated_user_id)
+        REFERENCES users(id)
 );
 
 DROP TABLE IF EXISTS admins;
@@ -113,9 +149,72 @@ CREATE TABLE admins(
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-DROP USER 'user'@'localhost';
+DROP USER IF EXISTS'user'@'localhost';
 CREATE USER 'user'@'localhost'
 IDENTIFIED BY 'password';
 GRANT ALL PRIVILEGES ON unibite.* TO 'user'@'localhost';
 
 FLUSH PRIVILEGES;
+
+DELIMITER $$
+
+DROP TRIGGER IF EXISTS calcDeletion$$
+
+CREATE TRIGGER calcDeletion BEFORE INSERT ON advertisments FOR EACH ROW
+BEGIN
+    SET NEW.date_of_deletion = ADDDATE(CURRENT_TIMESTAMP(), INTERVAL 48 HOUR);
+END$$
+
+Drop event if exists deactivateAd$$
+
+CREATE EVENT deactivateAd
+ON SCHEDULE EVERY 1 HOUR
+DO
+    UPDATE advertisments
+    SET state_of_ad = 'DELETED' WHERE date_of_deletion < CURRENT_TIMESTAMP() AND state_of_ad <> 'DELETED'$$
+
+DROP EVENT IF EXISTS missedDelivery$$
+CREATE EVENT missedDelivery
+ON SCHEDULE EVERY 1 HOUR
+DO
+BEGIN
+    UPDATE users u
+    JOIN (
+        SELECT con_id, COUNT(*) AS missed_count
+        FROM requests
+        WHERE state_of_delivery = 'MISSED'
+          AND missedDeliveryPenalty = FALSE
+        GROUP BY con_id
+    ) r ON u.id = r.con_id
+    SET u.points = GREATEST(u.points - r.missed_count, 0);
+
+    UPDATE requests
+    SET missedDeliveryPenalty = TRUE
+    WHERE state_of_delivery = 'MISSED'
+      AND missedDeliveryPenalty = FALSE;
+END$$
+
+Drop event if exists noRating$$
+CREATE EVENT noRating
+ON SCHEDULE EVERY 1 HOUR
+DO
+    UPDATE users u
+    INNER JOIN requests req
+    ON u.id = req.con_id
+    INNER JOIN advertisments ad
+    ON req.id = ad.id
+    LEFT JOIN ratings rat
+    ON req.request_id = rat.req_id
+    SET
+    u.points = u.points - 1,
+    req.penalty_applied = TRUE
+    WHERE
+    rat.req_id IS NULL
+    AND req.penalty_applied = FALSE
+    AND req.state_of_delivery <> 'MISSED'
+    AND CURRENT_TIMESTAMP >= ADDDATE(
+        ad.date_of_delivery,
+        INTERVAL 48 HOUR
+    )$$
+
+DELIMITER ;

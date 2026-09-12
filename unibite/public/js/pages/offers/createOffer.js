@@ -1,4 +1,3 @@
-
 // Global Variables
 
 let map;
@@ -45,6 +44,18 @@ const searchAddressButton = document.getElementById(
     "search-address-button"
 );
 
+const addressSuggestionsList = document.getElementById(
+    "address-suggestions"
+);
+
+function debounce(fn, delayMs) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delayMs);
+    };
+}
+
 // image
 const imageInput = document.getElementById(
     "image"
@@ -53,6 +64,9 @@ const imageInput = document.getElementById(
 const imagePreviewContainer = document.getElementById(
     "image-preview-container"
 );
+
+// Get the image preview container and image elements
+const imageUploadBox = document.querySelector(".image-upload");
 
 const imagePreview = document.getElementById(
     "image-preview"
@@ -101,18 +115,19 @@ function getLoggedInUser() {
     return null;
 }
 
+// Reads which allergy checkboxes are currently checked
+function getSelectedAllergies() {
+    const checkedBoxes = document.querySelectorAll('input[name="allergies"]:checked');
+    return Array.from(checkedBoxes).map((checkbox) => checkbox.value);
+}
+
 // Initialize Page
 document.addEventListener("DOMContentLoaded", () => {
-
     initializeMap();
-
     setupAddressSearch();
     setupForm();
+    setupImagePreview();
     setupCancelButton();
-    // Add these when you implement them
-    
-    // setupImagePreview();
-    // setupCancelButton();
 
 });
 
@@ -124,22 +139,29 @@ document.addEventListener("DOMContentLoaded", () => {
 function initializeMap() {
 
     /*
-        Default location.
-
-        Later we can replace this with
-        the user's current location.
+        Center on the logged-in user's saved location if we have one,
+        otherwise fall back to a default location.
     */
 
-    const defaultLatitude = 39.365;
-    const defaultLongitude = 21.921;
+    const user = getLoggedInUser();
+
+    const defaultLatitude = Number(user?.latitude);
+    const defaultLongitude = Number(user?.longitude);
+
+    const hasSavedLocation =
+        Number.isFinite(defaultLatitude) &&
+        Number.isFinite(defaultLongitude);
+
+    const startLatitude = hasSavedLocation ? defaultLatitude : 39.365;
+    const startLongitude = hasSavedLocation ? defaultLongitude : 21.921;
 
 
     map = L.map("map").setView(
         [
-            defaultLatitude,
-            defaultLongitude
+            startLatitude,
+            startLongitude
         ],
-        15
+        hasSavedLocation ? 17 : 15
     );
 
 
@@ -237,6 +259,85 @@ function setupAddressSearch() {
         }
     );
 
+    addressInput.addEventListener("input", debouncedFetchSuggestions);
+
+    document.addEventListener("click", function (event) {
+        if (!addressInput.contains(event.target) && !addressSuggestionsList.contains(event.target)) {
+            renderSuggestions([]);
+        }
+    });
+
+}
+
+
+// =========================
+// Address Suggestions (autocomplete)
+// =========================
+
+async function fetchAddressSuggestions() {
+    const query = addressInput.value.trim();
+
+    if (query === "") {
+        renderSuggestions([]);
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(query)}`
+        );
+
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+
+        const results = await response.json();
+        renderSuggestions(results);
+
+    } catch (error) {
+        console.error("Address suggestion error:", error);
+        renderSuggestions([]);
+    }
+}
+
+const debouncedFetchSuggestions = debounce(fetchAddressSuggestions, 400);
+
+function renderSuggestions(results) {
+    addressSuggestionsList.innerHTML = "";
+
+    if (results.length === 0) {
+        addressSuggestionsList.classList.remove("active");
+        return;
+    }
+
+    results.forEach((result) => {
+        const item = document.createElement("li");
+        item.textContent = result.display_name;
+        item.addEventListener("click", () => selectSuggestion(result));
+        addressSuggestionsList.appendChild(item);
+    });
+
+    addressSuggestionsList.classList.add("active");
+}
+
+function selectSuggestion(result) {
+    const latitude = parseFloat(result.lat);
+    const longitude = parseFloat(result.lon);
+
+    addressInput.value = result.display_name;
+    latitudeInput.value = latitude.toFixed(6);
+    longitudeInput.value = longitude.toFixed(6);
+
+    map.setView([latitude, longitude], 17);
+
+    if (selectedMarker !== null) {
+        map.removeLayer(selectedMarker);
+    }
+
+    selectedMarker = L.marker([latitude, longitude]).addTo(map);
+    selectedMarker.bindPopup(result.display_name).openPopup();
+
+    renderSuggestions([]);
 }
 
 
@@ -481,6 +582,9 @@ async function handleFormSubmit(event) {
     const imageFile =
         imageInput.files[0];
 
+    const allergies =
+        getSelectedAllergies();
+
 
     // =========================
     // Validate
@@ -577,6 +681,13 @@ async function handleFormSubmit(event) {
         roomNumber
     );
 
+    // Append each selected allergy as its own "allergies" field so the
+    // backend receives them as an array (or a single string if only one
+    // is checked)
+    allergies.forEach((allergen) => {
+        formData.append("allergies", allergen);
+    });
+
 
     // =========================
     // Add Image
@@ -656,8 +767,15 @@ async function handleFormSubmit(event) {
 
         }
 
-        
+        createButton.disabled = false;
 
+        createButton.textContent =
+            "Create Offer";
+            
+        // CHange to window.location.href = "../dashboards/createPage.html"
+        window.setTimeout(() => {
+            window.location.href = "../dashboards/createPage.html";
+        }, 100); // Redirect after 1 seconds
 
     } catch (error) {
 
@@ -671,20 +789,12 @@ async function handleFormSubmit(event) {
             "An error occurred while creating the offer."
         );
 
-    } finally {
-
-        createButton.disabled = false;
-
-        createButton.textContent =
-            "Create Offer";
-
-    }
-
+    } 
 }
 
 // Setup cancel button
 function setupCancelButton() {
-    
+
     cancelButton.addEventListener(
         "click",
         function () {
@@ -693,4 +803,47 @@ function setupCancelButton() {
         }
     );
 
+}
+
+// =========================
+// Image Preview Setup
+// =========================
+
+function setupImagePreview() {
+    imageInput.addEventListener("change", function () {
+        const file = imageInput.files[0];
+
+        if (!file) {
+            imagePreviewContainer.classList.remove("active");
+            imagePreview.src = "";
+            imageUploadBox.classList.remove("hidden");
+            return;
+        }
+
+        const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+        if (!validTypes.includes(file.type)) {
+            showError("Please upload a PNG or JPG image.");
+            imageInput.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+            imagePreview.src = event.target.result;
+            imagePreviewContainer.classList.add("active");
+            imageUploadBox.classList.add("hidden"); // hide upload box
+        };
+
+        reader.readAsDataURL(file);
+    });
+
+    const removeImageButton = document.getElementById("remove-image-button");
+
+    removeImageButton.addEventListener("click", function () {
+        imageInput.value = "";
+        imagePreview.src = "";
+        imagePreviewContainer.classList.remove("active");
+        imageUploadBox.classList.remove("hidden");
+    });
 }

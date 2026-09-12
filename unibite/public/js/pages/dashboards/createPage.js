@@ -1,10 +1,25 @@
 import { createNavbar } from "../../../components/Navbar/Navbar.js";
 import { loadUserOffers } from "../../dataLoaders/userOffers.js";
 import { displayUserOffers } from "../../renderers/offersRenderer.js";
+import { showNotification } from "../../../components/Notification/Notification.js";
+import { showConfirmation } from "../../../components/Confirmation/Confirmation.js";
+import { ALLERGENS } from "../../helperFunctions/allergens.js";
+
 
 function getCurrentUserId() {
     const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "null");
     return user?.id ?? null;
+}
+
+// Builds the same allergy chip markup used on the Create Offer page
+function buildAllergyOptionsMarkup() {
+    return ALLERGENS.map((allergen) => `
+        <label>
+            <input type="checkbox" name="edit-allergies" value="${allergen.value}">
+            <span class="allergy-icon">${allergen.icon}</span>
+            <span class="allergy-text">${allergen.label}</span>
+        </label>
+    `).join("");
 }
 
 function createEditModal() {
@@ -55,6 +70,13 @@ function createEditModal() {
                     </div>
                 </div>
 
+                <div class="modal-field">
+                    <label>Allergies</label>
+                    <div class="allergy-options" id="edit-allergy-options">
+                        ${buildAllergyOptionsMarkup()}
+                    </div>
+                </div>
+
                 <div class="modal-actions">
                     <button type="button" class="secondary-button" id="cancel-edit-button">Cancel</button>
                     <button type="submit" class="primary-button">Save Changes</button>
@@ -82,6 +104,10 @@ function createEditModal() {
             return;
         }
 
+        const selectedAllergies = Array.from(
+            document.querySelectorAll('#edit-allergy-options input[name="edit-allergies"]:checked')
+        ).map((checkbox) => checkbox.value);
+
         const payload = {
             userId,
             title: document.getElementById("edit-title").value.trim(),
@@ -91,7 +117,8 @@ function createEditModal() {
             longitude: 21.921,
             quantity: Number(document.getElementById("edit-quantity").value),
             building_name: document.getElementById("edit-building-name").value.trim(),
-            room_number: document.getElementById("edit-room-number").value.trim()
+            room_number: document.getElementById("edit-room-number").value.trim(),
+            allergies: selectedAllergies
         };
 
         const response = await fetch(`http://localhost:3000/api/offers/${id}`, {
@@ -106,11 +133,11 @@ function createEditModal() {
         modal.classList.add("hidden");
 
         if (!response.ok) {
-            alert(result.message || "Failed to update offer.");
+            showNotification(result.message || "Failed to update offer.", "error");
             return;
         }
 
-        alert("Offer updated successfully.");
+        showNotification("Offer updated successfully.", "info");
         refreshOffers();
     });
 
@@ -131,20 +158,28 @@ function openEditModal(offer) {
     document.getElementById("edit-building-name").value = offer.building_name || "";
     document.getElementById("edit-room-number").value = offer.room_number || "";
 
+    // Prefill the allergy chips based on this offer's current allergens
+    const currentAllergens = Array.isArray(offer.allergens) ? offer.allergens : [];
+    document.querySelectorAll('#edit-allergy-options input[name="edit-allergies"]').forEach((checkbox) => {
+        checkbox.checked = currentAllergens.includes(checkbox.value);
+    });
+
     modal.classList.remove("hidden");
 }
 
 async function deleteOffer(offer) {
     const userId = getCurrentUserId();
     if (!userId) {
-        alert("You need to be logged in to delete an offer.");
+        showNotification("You need to be logged in to delete an offer.", "error");
         return;
     }
 
-    const confirmed = window.confirm(`Delete \"${offer.title}\"? This action cannot be undone.`);
-    if (!confirmed) {
-        return;
-    }
+    const confirmed = await showConfirmation(
+        `Delete "${offer.title}"? This action cannot be undone.`,
+        { title: "Delete Offer", confirmText: "Delete", danger: true }
+    );
+
+    if (!confirmed) return;
 
     try {
         const response = await fetch(`http://localhost:3000/api/offers/${offer.id}`, {
@@ -161,11 +196,11 @@ async function deleteOffer(offer) {
             throw new Error(result.message || "Failed to delete offer.");
         }
 
-        alert("Offer deleted successfully.");
+        showNotification("Offer deleted successfully.", "info");
         refreshOffers();
     } catch (error) {
         console.error(error);
-        alert(error.message || "Failed to delete offer.");
+        showNotification(error.message || "Failed to delete offer.", "error");
     }
 }
 
@@ -175,12 +210,14 @@ function createClaimedOfferCard(offer, onRate) {
 
     const status = String(offer.status || "PENDING").toUpperCase();
     const isAccepted = status === "ACCEPTED";
-    const isRated = false;
+    const wasMissed = String(offer.state_of_delivery || "").toUpperCase() === "MISSED";
+    const ratingScore = Number(offer.rating_score || 0);
+    const isRated = ratingScore >= 1 && ratingScore <= 5;
 
     article.innerHTML = `
         <div class="claimed-offer-top">
             <h3>${offer.title || "Offer"}</h3>
-            <span class="claim-status ${status.toLowerCase()}">${status}</span>
+            <span class="claim-status ${wasMissed ? "missed" : status.toLowerCase()}">${wasMissed ? "NOT PICKED UP" : status}</span>
         </div>
 
         <div class="claimed-offer-meta">
@@ -195,10 +232,17 @@ function createClaimedOfferCard(offer, onRate) {
             <span>Room ${offer.room || "TBA"}</span>
         </div>
 
-        ${isAccepted ? `
+        ${isAccepted && !wasMissed && isRated ? `
+            <div class="claim-rating-row saved-rating" aria-label="Your rating: ${ratingScore} out of 5 stars">
+                <span>Your rating</span>
+                <span class="rating-stars" aria-hidden="true">
+                    ${[1, 2, 3, 4, 5].map((star) => `<span class="rating-star-display ${star <= ratingScore ? "highlighted" : ""}">★</span>`).join("")}
+                </span>
+            </div>
+        ` : isAccepted && !wasMissed ? `
             <div class="claim-rating-row">
                 <span>Rate creator</span>
-                ${[1,2,3,4,5].map((star) => `<button type="button" class="rating-star" data-score="${star}">★</button>`).join("")}
+                ${[1, 2, 3, 4, 5].map((star) => `<button type="button" class="rating-star" data-score="${star}">★</button>`).join("")}
             </div>
         ` : ""}
     `;
@@ -265,19 +309,46 @@ async function refreshOffers() {
         onDelete: deleteOffer,
         onAcceptClaim: acceptClaim,
         onRejectClaim: rejectClaim,
+        onMissedClaim: markClaimMissed,
         onRateClaim: rateClaim
     });
+}
+
+async function markClaimMissed(offer, claim) {
+    const userId = getCurrentUserId();
+    if (!userId || !claim?.request_id) {
+        showNotification("No claim selected.", "error");
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/offers/${offer.id}/claims/${claim.request_id}/missed`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId })
+        });
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || "Failed to mark claim as missed.");
+        }
+
+        showNotification("Claim marked as not picked up.", "info");
+        refreshOffers();
+    } catch (error) {
+        console.error(error);
+        showNotification(error.message || "Unable to mark claim as missed.", "error");
+    }
 }
 
 async function acceptClaim(offer, claim) {
     const userId = getCurrentUserId();
     if (!userId) {
-        alert("You need to be logged in to accept a claim.");
+        showNotification("You need to be logged in to accept a claim.", "error");
         return;
     }
 
     if (!claim?.request_id) {
-        alert("No claim selected.");
+        showNotification("No claim selected.", "error");
         return;
     }
 
@@ -293,23 +364,23 @@ async function acceptClaim(offer, claim) {
             throw new Error(result.message || "Failed to accept claim.");
         }
 
-        alert("Claim accepted.");
+        showNotification("Claim accepted.", "info");
         refreshOffers();
     } catch (error) {
         console.error(error);
-        alert(error.message || "Unable to accept claim.");
+        showNotification(error.message || "Unable to accept claim.", "error");
     }
 }
 
 async function rejectClaim(offer, claim) {
     const userId = getCurrentUserId();
     if (!userId) {
-        alert("You need to be logged in to reject a claim.");
+        showNotification("You need to be logged in to reject a claim.", "error");
         return;
     }
 
     if (!claim?.request_id) {
-        alert("No claim selected.");
+        showNotification("No claim selected.", "error");
         return;
     }
 
@@ -325,18 +396,18 @@ async function rejectClaim(offer, claim) {
             throw new Error(result.message || "Failed to reject claim.");
         }
 
-        alert("Claim rejected.");
+        showNotification("Claim rejected.", "info");
         refreshOffers();
     } catch (error) {
         console.error(error);
-        alert(error.message || "Unable to reject claim.");
+        showNotification(error.message || "Unable to reject claim.", "error");
     }
 }
 
 async function rateClaim(offer, claim, score) {
     const userId = getCurrentUserId();
     if (!userId) {
-        alert("You need to be logged in to rate a claim.");
+        showNotification("You need to be logged in to rate a claim.", "error");
         return;
     }
 
@@ -352,22 +423,11 @@ async function rateClaim(offer, claim, score) {
             throw new Error(result.message || "Failed to rate claim.");
         }
 
-        const storedUser = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "null");
-        if (storedUser && Number(storedUser.id) === Number(userId)) {
-            const updatedUser = {
-                ...storedUser,
-                points: Number(storedUser.points || 0) + Number(score) * 5
-            };
-
-            localStorage.setItem("user", JSON.stringify(updatedUser));
-            sessionStorage.setItem("user", JSON.stringify(updatedUser));
-        }
-
-        alert("Thanks for rating this exchange.");
-        refreshOffers();
+        showNotification("Thanks for rating this exchange.", "info");
+        await Promise.all([refreshOffers(), refreshClaimedOffers()]);
     } catch (error) {
         console.error(error);
-        alert(error.message || "Unable to rate claim.");
+        showNotification(error.message || "Unable to rate claim.", "error");
     }
 }
 
@@ -385,7 +445,7 @@ function addCreateOfferButtonListener() {
     });
 }
 
-async function init(){
+async function init() {
     const navbarContainer = document.getElementById("navbar-container");
     navbarContainer.appendChild(createNavbar());
 

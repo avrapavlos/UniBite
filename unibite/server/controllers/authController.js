@@ -52,7 +52,7 @@ export async function login(req, res) {
 
 // Register function
 export async function register(req, res) {
-    const { name, email, password } = req.body;
+    const { name, email, password, latitude, longitude } = req.body;
 
     if (!name) {
         return res.status(400).json({
@@ -69,6 +69,15 @@ export async function register(req, res) {
     if (!password) {
         return res.status(400).json({
             message: "Password is required!"
+        });
+    }
+
+    const parsedLatitude = Number(latitude);
+    const parsedLongitude = Number(longitude);
+    if (!Number.isFinite(parsedLatitude) || parsedLatitude < -90 || parsedLatitude > 90
+        || !Number.isFinite(parsedLongitude) || parsedLongitude < -180 || parsedLongitude > 180) {
+        return res.status(400).json({
+            message: "A valid location is required to create an account."
         });
     }
 
@@ -90,11 +99,13 @@ export async function register(req, res) {
         }
 
         const insertUserQuery = `
-            INSERT INTO users (username, email, password, name, points)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO users (username, email, password, name, points, latitude, longitude)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
 
-        const [insertResult] = await db.query(insertUserQuery, [name, email, password, name, 50]);
+        const [insertResult] = await db.query(insertUserQuery, [
+            name, email, password, name, 50, parsedLatitude, parsedLongitude
+        ]);
 
         return res.status(201).json({
             success: true,
@@ -108,8 +119,8 @@ export async function register(req, res) {
                 portions_given: 0,
                 portions_received: 0,
                 profile_pic: null,
-                latitude: null,
-                longitude: null
+                latitude: parsedLatitude,
+                longitude: parsedLongitude
             }
         });
     } catch (err) {

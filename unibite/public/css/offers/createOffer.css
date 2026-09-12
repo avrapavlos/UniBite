@@ -112,7 +112,6 @@ select {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-top: 25px;
 }
 
 .form-group:first-child {
@@ -194,6 +193,84 @@ select {
 
 
 /* ========================= */
+/* Address Input Row */
+/* ========================= */
+
+.address-input {
+    position: relative;
+    display: flex;
+    gap: 12px;
+}
+
+.address-input input {
+    flex: 1;
+}
+
+#search-address-button {
+    height: 50px;
+    padding: 0 24px;
+    border: 2px solid #4CAF50;
+    border-radius: 10px;
+    background: #4CAF50;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: 0.25s;
+}
+
+#search-address-button:hover {
+    background: #388E3C;
+    border-color: #388E3C;
+}
+
+#search-address-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+
+/* ========================= */
+/* Address Suggestions */
+/* ========================= */
+
+.address-suggestions {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    margin: 4px 0 0;
+    padding: 6px;
+    list-style: none;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+    z-index: 1500;
+}
+
+.address-suggestions.active {
+    display: block;
+}
+
+.address-suggestions li {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.address-suggestions li:hover {
+    background-color: #F5FAF5;
+}
+
+
+/* ========================= */
 /* Map */
 /* ========================= */
 
@@ -224,6 +301,10 @@ select {
     margin-top: 25px;
 }
 
+.image-upload.hidden {
+    display: none;
+}
+
 .image-upload label {
     display: block;
     border: 2px dashed #BDBDBD;
@@ -237,6 +318,10 @@ select {
 .image-upload label:hover {
     border-color: #4CAF50;
     background: #F5FAF5;
+}
+
+.image-upload input[type="file"] {
+    display: none;
 }
 
 .upload-content {
@@ -276,6 +361,7 @@ select {
 .image-preview-container {
     display: none;
     margin-top: 20px;
+    position: relative;
 }
 
 .image-preview-container.active {
@@ -288,6 +374,95 @@ select {
     object-fit: cover;
     border-radius: 15px;
     border: 2px solid #E0E0E0;
+}
+
+.remove-image-button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    z-index: 2;
+}
+
+.remove-image-button:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+
+/* ========================= */
+/* Allergy Chips */
+/* ========================= */
+
+.allergy-options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    max-width: 604px;
+    margin: 10px auto 0;
+}
+
+.allergy-options label {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 76px;
+    height: 76px;
+    padding: 6px;
+    border: 1.5px solid #E0E0E0;
+    border-radius: 14px;
+    background: #FAFAFA;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.allergy-options label:hover {
+    border-color: #4CAF50;
+    background: #F5FAF5;
+}
+
+.allergy-options label:has(input:checked) {
+    background: #E8F5E9;
+    border-color: #4CAF50;
+}
+
+.allergy-options input[type="checkbox"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.allergy-icon {
+    font-size: 1.3rem;
+}
+
+.allergy-text {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #555;
+    text-align: center;
+    line-height: 1.1;
+}
+
+.allergy-options label:has(input:checked) .allergy-text {
+    color: #2E7D32;
 }
 
 
@@ -434,6 +609,14 @@ select {
     .create-button {
         width: 100%;
         padding: 15px;
+    }
+
+    .address-input {
+        flex-direction: column;
+    }
+
+    #search-address-button {
+        width: 100%;
     }
 
 }

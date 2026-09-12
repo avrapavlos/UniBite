@@ -52,6 +52,8 @@ export function createUserOfferCard(offer, onClick) {
 }
 // UserOfferCard
 
+import { getAllergenMeta } from "../../js/helperFunctions/allergens.js";
+
 function loadUserOfferCardCSS() {
     const cssId = "user-offer-card-css";
     if (!document.getElementById(cssId)) {
@@ -109,6 +111,11 @@ export function createUserOfferCard(offer, onClick) {
                                 <button type="button" class="reject-claim-button" data-request-id="${claim.request_id}">Reject</button>
                             </div>
                         ` : ""}
+                        ${claimStatus === "ACCEPTED" && claim.state_of_delivery !== "MISSED" ? `
+                            <button type="button" class="missed-claim-button" data-request-id="${claim.request_id}">
+                                Mark as not picked up
+                            </button>
+                        ` : ""}
                         ${starButtons}
                     </div>
                 `;
@@ -116,9 +123,14 @@ export function createUserOfferCard(offer, onClick) {
         </div>`
         : `<div class="user-offer-claims empty"><p>No claims yet.</p></div>`;
 
+    const allergenTags = (offer.allergens || []).map((allergenValue) => {
+        const meta = getAllergenMeta(allergenValue);
+        return `<span class="user-offer-allergen-tag" title="Contains ${meta.label}">${meta.icon} ${meta.label}</span>`;
+    }).join("");
+
     card.innerHTML = `
         <div class="user-offer-image-wrap">
-            <img src="${offer.image || '../../images/default-food.png'}" alt="${offer.title}" class="user-offer-image">
+            <img src="${offer.path_to_picture || '../../images/default-food.png'}" alt="${offer.title}" class="user-offer-image">
         </div>
 
         <div class="user-offer-content">
@@ -138,6 +150,8 @@ export function createUserOfferCard(offer, onClick) {
             </div>
 
             <p class="user-offer-description">${offer.description}</p>
+
+            ${allergenTags ? `<div class="user-offer-allergens">${allergenTags}</div>` : ""}
 
             <div class="user-offer-info">
                 <span class="user-location-tag"><strong>Location:</strong> ${offer.building_name}</span>
@@ -175,10 +189,18 @@ export function createUserOfferCard(offer, onClick) {
         });
     });
 
+    card.querySelectorAll(".missed-claim-button").forEach((button) => {
+        button.addEventListener("click", () => {
+            const requestId = Number(button.dataset.requestId);
+            const matchedClaim = claims.find((claim) => Number(claim.request_id) === requestId);
+            onClick("missed-claim", offer, matchedClaim);
+        });
+    });
+
     card.querySelectorAll(".rating-star").forEach((button) => {
         button.addEventListener("click", () => {
-            const requestId = Number(button.closest(".user-offer-claim")?.querySelector(".accept-claim-button")?.dataset.requestId || 0);
-            const matchedClaim = claims.find((claim) => Number(claim.request_id) === requestId) || claims[0];
+            const requestId = Number(button.closest(".user-offer-claim")?.querySelector("[data-request-id]")?.dataset.requestId || 0);
+            const matchedClaim = claims.find((claim) => Number(claim.request_id) === requestId);
             onClick("rate-claim", offer, matchedClaim, Number(button.dataset.score));
         });
     });

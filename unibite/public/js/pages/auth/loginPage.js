@@ -2,6 +2,7 @@
 function loginToApp() {
     // Get login form  
     const loginForm = document.getElementById("login-form");
+    const errorEl = document.getElementById("login-error");
     
     loginForm.addEventListener("submit", async (event) => {
 
@@ -18,30 +19,29 @@ function loginToApp() {
 
         // This is where the connection to the backend happens
         const apiBaseUrl = "http://localhost:3000";
-        const response = await fetch(`${apiBaseUrl}/api/login`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                email,
-                password
-            })
-        });
+        errorEl.hidden = true;
 
-        if (!response.ok) {
-            console.error("Login request failed", response.status, response.statusText);
-            return;
-        }
+        try {
+            const response = await fetch(`${apiBaseUrl}/api/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email,
+                    password
+                })
+            });
+            const data = await response.json().catch(() => ({}));
 
-        // And after it checks, if matching it gives the user data
-        const data = await response.json();
+            if (!response.ok || !data.success) {
+                errorEl.textContent = response.status === 401
+                    ? "The email or password is incorrect."
+                    : (data.message || "Unable to log in right now.");
+                errorEl.hidden = false;
+                return;
+            }
 
-        // Check for userr data
-        console.log(data);
-
-        //If success store to localStorage and login
-        if (data.success) {
             if(remember) {
                 localStorage.setItem(
                     "remember",
@@ -76,8 +76,10 @@ function loginToApp() {
             
 
             window.location.replace("../../pages/dashboards/browsePage.html");
-        } else {
-            console.log("Error with login");
+        } catch (error) {
+            console.error("Login request failed", error);
+            errorEl.textContent = "Unable to reach the server. Please try again.";
+            errorEl.hidden = false;
         }
     })
 }
