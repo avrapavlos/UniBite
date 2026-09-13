@@ -1,62 +1,88 @@
 @startuml ER 
 
-class User {
-    *st_id : INT
-    --
-    username : VARCHAR(50)
-    password : VARCHAR(255)
-    email : VARCHAR(100)
-    points : INT
-    portions_given : INT
-    portions_received : INT
-    profilePicture : VARCHAR(255)
-    created_at : TIMESTAMP
-}
-class Advertisment {
-    *ad_id : INT
-    --
-    date_posted : TIMESTAMP
-    date_of_deactivation : TIMESTAMP
-    latitude : DECIMAL(9,6)
-    longtitude : DECIMAL(9,6)
-    quantity : INT
-    path_to_picture : VARCHAR(255)
-    state : ENUM {"ACTIVE", "INACTIVE", "DELETED"}
-}
-class Admin {
-    *admin_id : INT
-    --
-    username : VARCHAR(50)
-    password : VARCHAR(255)
-    email : VARCHAR(100)
-    created_at : TIMESTAMP
-}
-class Request {
-    *ad_id : INT
-    *con_id : INT
-}
-class Rating {
-    *req_id : INT
-    --
-    description : TEXT 
-}
-class Allergens{
-    *allegen_id INT
-    --
-    allergen_name VARCHAR(255)
-    ad_id INT
+entity "Users" as user {
+  *id : INT
+  --
+  *username : VARCHAR
+  *email : VARCHAR
+  *password : VARCHAR
+  *name : VARCHAR
+  points : INT
+  portions_given : INT
+  portions_received : INT
+  profile_picture : VARCHAR
+  latitude : DECIMAL
+  longitude : DECIMAL
+  created_at : TIMESTAMP
 }
 
-User --> Advertisment : posts
-User --> Advertisment : edits
-User --> Advertisment : deletes
-Advertisment --> Advertisment : deletes
-User --> Request : files
-Request --> Advertisment : allocates
-User --> Request : approves/rejects
-Request --> Rating : creates
-User --> Rating : writes
-Rating --> User : penalty
-Rating --> User : rewards
-Advertisment "1" --> "N" Allergens : contains
-@enduml 
+entity "Advertisements" as advertisement {
+  *id : INT
+  *creator_id : INT
+  --
+  *title : VARCHAR
+  *description : TEXT
+  *point_cost : INT
+  date_posted : TIMESTAMP
+  date_of_deletion : TIMESTAMP
+  date_of_delivery : TIMESTAMP
+  *location_lat : DECIMAL
+  *location_lng : DECIMAL
+  *building_name : VARCHAR
+  *room_number : VARCHAR
+  *portions : INT
+  path_to_picture : VARCHAR
+  *state_of_ad : ENUM('ACTIVE', 'INACTIVE', 'DELETED')
+}
+
+entity "Allergens" as allergen {
+  *allergen_id : INT
+  --
+  *allergen_name : VARCHAR
+  *id : INT
+}
+
+entity "Requests" as request {
+  *request_id : INT
+  *id : INT
+  *con_id : INT
+  --
+  *status : ENUM('PENDING', 'ACCEPTED', 'REJECTED')
+  *claimed_portions : INT
+  date_posted : TIMESTAMP
+  accepted_at : TIMESTAMP
+  rejected_at : TIMESTAMP
+  updated_at : TIMESTAMP
+  state_of_delivery : ENUM('DELIVERED', 'MISSED')
+  missedDeliveryPenalty : BOOLEAN
+  penaltyApplied : BOOLEAN
+}
+
+entity "Ratings" as rating {
+  *rating_id : INT
+  *req_id : INT
+  *rater_id : INT
+  *rated_user_id : INT
+  --
+  score : INT
+  comment : TEXT
+}
+
+entity "Admins" as admin {
+  *admin_id : INT
+  --
+  *username : VARCHAR
+  *email : VARCHAR
+  *password : VARCHAR
+  created_at : TIMESTAMP
+}
+
+user "1" --> "0...N" advertisement : "creates"
+user "1" --> "0...N" request : "makes"
+user "1" --> "0...N" rating : "gives"
+user "1" --> "0...N" request : "approves"
+advertisement "1" --> "0...N" allergen : "has"
+advertisement "1" --> "0...N" request : "receives"
+request "1" --> "1" rating : "has"
+admin "1...N" --> "0...N" user : "views"
+@enduml
