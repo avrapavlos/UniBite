@@ -117,7 +117,16 @@ export function addOfferMarkers(offers, onClick) {
 
             });
 
+
+            // Fall back to the default image if the given path doesn't actually load
+            const popupImage = popup.querySelector(".food-popup-image");
+            popupImage.addEventListener("error", () => {
+                popupImage.onerror = null;
+                popupImage.src = "/images/default-food.png";
+            }, { once: true });
         });
+
+
     });
 
 

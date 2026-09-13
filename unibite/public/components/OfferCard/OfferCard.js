@@ -69,6 +69,12 @@ export function createOfferCard(offer, onClick) {
         </div>
     `;
 
+    // Fall back to the default image if the given path doesn't actually load
+    const offerImage = card.querySelector(".offer-image");
+    offerImage.addEventListener("error", () => {
+        offerImage.onerror = null;
+        offerImage.src = "../../images/default-food.png";
+    }, { once: true });
     // Check to see if it has 0 portions
     if (offer.quantity == 0 || offer.quantity < 0) {
 
@@ -76,14 +82,14 @@ export function createOfferCard(offer, onClick) {
         card.classList.add("empty");
 
         // Get portions menu
-        
+
         const portionSegment = card.querySelector(".offer-portions");
 
         // Set portions to sold out
-        
+
         portionSegment.textContent = "Sold out!";
 
-    } 
+    }
     // Otherwise if portions exist 
     else {
         // Add open details event button

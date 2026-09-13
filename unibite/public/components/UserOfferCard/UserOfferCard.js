@@ -34,17 +34,17 @@ export function createUserOfferCard(offer, onClick) {
         ? `<div class="user-offer-claims">
             <h3>Claims</h3>
             ${claims.map((claim) => {
-                const claimStatus = claim.status || "PENDING";
-                const isPending = claimStatus === "PENDING";
-                const shouldShowRating = shouldShowRatingForClaim(claim, currentUserId);
-                const starButtons = shouldShowRating
-                    ? `<div class="claim-rating-row">
+            const claimStatus = claim.status || "PENDING";
+            const isPending = claimStatus === "PENDING";
+            const shouldShowRating = shouldShowRatingForClaim(claim, currentUserId);
+            const starButtons = shouldShowRating
+                ? `<div class="claim-rating-row">
                         <span>Rate creator</span>
-                        ${[1,2,3,4,5].map((star) => `<button type="button" class="rating-star" data-score="${star}">★</button>`).join("")}
+                        ${[1, 2, 3, 4, 5].map((star) => `<button type="button" class="rating-star" data-score="${star}">★</button>`).join("")}
                     </div>`
-                    : "";
+                : "";
 
-                return `
+            return `
                     <div class="user-offer-claim">
                         <div class="user-offer-claim-top">
                             <span><strong>${claim.claimant_name || "Student"}</strong></span>
@@ -67,7 +67,7 @@ export function createUserOfferCard(offer, onClick) {
                         ${starButtons}
                     </div>
                 `;
-            }).join("")}
+        }).join("")}
         </div>`
         : `<div class="user-offer-claims empty"><p>No claims yet.</p></div>`;
 
@@ -92,9 +92,9 @@ export function createUserOfferCard(offer, onClick) {
             <div class="user-offer-meta-row">
                 <span class="user-offer-portions">${offer.quantity} portions</span>
                 <span class="user-offer-date">${new Date(offer.date_posted).toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "2-digit"
-                })}</span>
+        day: "2-digit",
+        month: "2-digit"
+    })}</span>
             </div>
 
             <p class="user-offer-description">${offer.description}</p>
@@ -114,6 +114,13 @@ export function createUserOfferCard(offer, onClick) {
             </div>
         </div>
     `;
+
+    // Fall back to the default image if the given path doesn't actually load
+    const offerImage = card.querySelector(".user-offer-image");
+    offerImage.addEventListener("error", () => {
+        offerImage.onerror = null;
+        offerImage.src = "../../images/default-food.png";
+    }, { once: true });
 
     const editButton = card.querySelector(".edit-button");
     const deleteButton = card.querySelector(".delete-button");
