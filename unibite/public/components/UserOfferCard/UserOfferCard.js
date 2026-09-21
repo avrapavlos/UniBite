@@ -27,6 +27,10 @@ export function createUserOfferCard(offer, onClick) {
     const card = document.createElement("article");
     card.classList.add("user-offer-card");
 
+    if (Number(offer.quantity) <= 0) {
+        card.classList.add("empty");
+    }
+
     const currentUser = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "null");
     const currentUserId = currentUser?.id ?? null;
     const claims = Array.isArray(offer.claims) ? offer.claims : [];

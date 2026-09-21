@@ -113,8 +113,8 @@ function createEditModal() {
             title: document.getElementById("edit-title").value.trim(),
             description: document.getElementById("edit-description").value.trim(),
             price: Number(document.getElementById("edit-price").value),
-            latitude: 39.365,
-            longitude: 21.921,
+
+            
             quantity: Number(document.getElementById("edit-quantity").value),
             building_name: document.getElementById("edit-building-name").value.trim(),
             room_number: document.getElementById("edit-room-number").value.trim(),

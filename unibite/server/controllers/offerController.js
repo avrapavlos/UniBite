@@ -47,7 +47,6 @@ export async function getAllOffers(req, res) {
         SELECT a.*, GROUP_CONCAT(al.allergen_name) AS allergen_names
         FROM advertisments a
         LEFT JOIN allergens al ON al.id = a.id
-        WHERE a.portions > 0
         GROUP BY a.id
         ORDER BY a.date_posted DESC
     `;
@@ -75,7 +74,7 @@ export async function getOfferExcludingUser(req, res) {
         SELECT a.*, GROUP_CONCAT(al.allergen_name) AS allergen_names
         FROM advertisments a
         LEFT JOIN allergens al ON al.id = a.id
-        WHERE a.creator_id != ? AND a.portions > 0
+        WHERE a.creator_id != ?
         GROUP BY a.id
         ORDER BY a.date_posted DESC
     `;
@@ -96,7 +95,7 @@ export async function getUserOffers(req, res) {
         SELECT a.*, GROUP_CONCAT(al.allergen_name) AS allergen_names
         FROM advertisments a
         LEFT JOIN allergens al ON al.id = a.id
-        WHERE a.creator_id = ? AND a.portions > 0
+        WHERE a.creator_id = ?
         GROUP BY a.id
         ORDER BY a.date_posted DESC
     `;
@@ -617,7 +616,7 @@ export async function createOffer(req, res) {
 
 export async function updateOffer(req, res) {
     const { offerId } = req.params;
-    const { userId, title, description, price, latitude, longitude, quantity, building_name, room_number, allergies } = req.body;
+    const { userId, title, description, price, quantity, building_name, room_number, allergies } = req.body;
     const image = req.file;
     const path_to_image = image ? `/uploads/offers/${image.filename}` : null;
 
@@ -637,19 +636,17 @@ export async function updateOffer(req, res) {
         const nextTitle = title ?? currentOffer.title;
         const nextDescription = description ?? currentOffer.description;
         const nextPrice = price !== undefined ? Number(price) : Number(currentOffer.point_cost);
-        const nextLatitude = latitude !== undefined ? Number(latitude) : Number(currentOffer.location_lat);
-        const nextLongitude = longitude !== undefined ? Number(longitude) : Number(currentOffer.location_lng);
         const nextQuantity = quantity !== undefined ? Number(quantity) : Number(currentOffer.portions);
         const nextBuildingName = building_name ?? currentOffer.building;
         const nextRoomNumber = room_number ?? currentOffer.room;
 
-        if (!nextTitle || !nextDescription || Number.isNaN(nextPrice) || Number.isNaN(nextLatitude) || Number.isNaN(nextLongitude) || Number.isNaN(nextQuantity) || !nextBuildingName || !nextRoomNumber) {
+        if (!nextTitle || !nextDescription || Number.isNaN(nextPrice) || Number.isNaN(nextQuantity) || !nextBuildingName || !nextRoomNumber) {
             return res.status(400).json({ message: "Submitted offer data is incomplete or invalid" });
         }
 
         const sql = `
             UPDATE advertisments
-            SET title = ?, description = ?, point_cost = ?, location_lat = ?, location_lng = ?, portions = ?, building_name = ?, room_number = ?, path_to_picture = ?
+            SET title = ?, description = ?, point_cost = ?, portions = ?, building_name = ?, room_number = ?, path_to_picture = ?
             WHERE id = ?
         `;
 
@@ -657,8 +654,6 @@ export async function updateOffer(req, res) {
             nextTitle.trim(),
             nextDescription.trim(),
             nextPrice,
-            nextLatitude,
-            nextLongitude,
             nextQuantity,
             nextBuildingName.trim(),
             nextRoomNumber.trim(),

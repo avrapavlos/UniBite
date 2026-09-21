@@ -103,6 +103,16 @@
 }
 
 
+.offer-card.empty {
+    opacity: 0.5;
+    filter: grayscale(60%);
+    cursor: not-allowed;
+}
+
+.offer-card.empty .offer-portions {
+    color: #b00020;
+}
+
 /* Allergen tags */
 
 .offer-allergens {

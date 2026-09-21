@@ -1,5 +1,5 @@
 // Global Variables
-
+import { showNotification } from "../../../components/Notification/Notification.js";
 let map;
 let selectedMarker = null;
 
@@ -25,6 +25,15 @@ const priceInput = document.getElementById(
 const quantityInput = document.getElementById(
     "quantity"
 );
+
+const dateInput = document.getElementById(
+    "date"
+);
+
+const timeInput = document.getElementById(
+    "time"
+);
+
 
 
 // Location
@@ -608,6 +617,25 @@ async function handleFormSubmit(event) {
 
     }
 
+    if (dateInput.value) {
+
+        const selectedDateTime = new Date(
+            `${dateInput.value}T${timeInput.value || "00:00"}`
+        );
+
+        if (selectedDateTime < new Date()) {
+
+            showNotification(
+                "The date you selected is in the past. Please select a valid date or use a time machine.",
+                "error"
+            );
+            console.log("Error in date validation!");
+            return;
+
+        }
+
+    }
+
 
     // =========================
     // Get User
@@ -771,7 +799,7 @@ async function handleFormSubmit(event) {
 
         createButton.textContent =
             "Create Offer";
-            
+
         // CHange to window.location.href = "../dashboards/createPage.html"
         window.setTimeout(() => {
             window.location.href = "../dashboards/createPage.html";
@@ -789,7 +817,7 @@ async function handleFormSubmit(event) {
             "An error occurred while creating the offer."
         );
 
-    } 
+    }
 }
 
 // Setup cancel button
