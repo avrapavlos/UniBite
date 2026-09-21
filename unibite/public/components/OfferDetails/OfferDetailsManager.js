@@ -22,6 +22,7 @@ async function handleClaimOffer(offer) {
         const response = await fetch(`http://localhost:3000/api/offers/${offer.id}/claims`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            //TODO REMOVE HARDCODING AND MAKE IT SO I CAN CLAIM MORE THAN 1 PORTION
             body: JSON.stringify({ userId: currentUser.id, claimedPortions: 1 })
         });
 
