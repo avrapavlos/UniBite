@@ -104,7 +104,7 @@ export async function register(req, res) {
         `;
 
         const [insertResult] = await db.query(insertUserQuery, [
-            name, email, password, name, 50, parsedLatitude, parsedLongitude
+            name, email, password, name, 5, parsedLatitude, parsedLongitude
         ]);
 
         return res.status(201).json({
