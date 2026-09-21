@@ -87,7 +87,7 @@ export function addOfferMarkers(offers, onClick) {
         marker.bindPopup(`
             <div class="food-popup">
                 <img class="food-popup-image"
-                    src="${offer.image ? `/uploads/${offer.image}` : '/images/default-food.png'}"
+                    src="${offer.image ? `${offer.image}` : '/images/default-food.png'}"
                     alt="${offer.title}">
 
                 <div class="food-popup-content">
